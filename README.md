@@ -3,11 +3,11 @@
 *A Flutter application designed to help Muslims stay connected with their daily religious practices.*  
 
 
-### ** Download the App**  
+### *** Download the App*** 
 
 🔗 **[Download Tazkira Islamic App Now ](https://tazkira.netlify.app/)**  
 
-### **Overview**  
+## **Overview**  
 
 Tazkira is a comprehensive Islamic app that empowers Muslims to maintain their spiritual routine effortlessly. It provides seamless access to Quran reading, daily Azkar, prayer tracking, and more. With a clean and user-friendly interface, the app ensures an enriched religious experience for users of all ages.
 
