@@ -18,9 +18,9 @@ Tazkira is an Islamic app designed to help Muslims stay connected with their dai
 ## **Preview**  
 
 Here is an overview of the app showcasing its main features:  
-![App Preview](https://raw.githubusercontent.com/moaz-abdeltawab92/Doctor-Hunt-App/master/879shots_so.png)
-![App Preview](https://raw.githubusercontent.com/moaz-abdeltawab92/Doctor-Hunt-App/master/879shots_so.png)
-![App Preview](https://raw.githubusercontent.com/moaz-abdeltawab92/Doctor-Hunt-App/master/879shots_so.png)
+![App Preview](https://github.com/moaz-abdeltawab92/moaz-abdeltawab92/blob/main/t1.png?)
+![App Preview](https://github.com/moaz-abdeltawab92/moaz-abdeltawab92/blob/main/t2.png?)
+![App Preview](https://github.com/moaz-abdeltawab92/moaz-abdeltawab92/blob/main/t3.png?)
 
 ## **Technologies Used**  
 
