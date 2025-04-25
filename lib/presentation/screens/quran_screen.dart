@@ -15,8 +15,8 @@ class _QuranScreenState extends State<QuranScreen> {
 
   @override
   void initState() {
-    super.initState();
     QuranLibrary().init();
+    super.initState();
   }
 
   @override

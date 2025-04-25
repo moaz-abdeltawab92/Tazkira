@@ -15,7 +15,7 @@ dependencies:
   flutter_native_splash: ^2.4.5
   flutter_screenutil: ^5.9.3
   google_fonts: ^6.2.1
-  quran_library: ^0.1.3
+  quran_library: ^0.1.7
   shared_preferences: ^2.5.2
 
 dev_dependencies:
