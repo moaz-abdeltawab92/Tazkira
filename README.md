@@ -1,16 +1,39 @@
-# tazkira_app
+# **Tazkira Islamic App**  
 
-A new Flutter project.
+*A Flutter application designed to help Muslims stay connected with their daily religious practices.*  
 
-## Getting Started
 
-This project is a starting point for a Flutter application.
+<h1> Download the App</h1>
 
-A few resources to get you started if this is your first Flutter project:
+🔗 **[Download Tazkira Islamic App Now ](https://tazkira.netlify.app/)**  
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+## **Overview**  
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+Tazkira is a comprehensive Islamic app that empowers Muslims to maintain their spiritual routine effortlessly. It provides seamless access to Quran reading, daily Azkar, prayer tracking, and more. With a clean and user-friendly interface, the app ensures an enriched religious experience for users of all ages.
+
+## **Features**  
+
+- **📚 Quran Reader:** Read and navigate through the Holy Quran with ease.  
+- **🌅 Morning & Evening Azkar:** Stay reminded with essential daily supplications.  
+- **🏨 Prayer Tracking:** Track and maintain your prayer schedule.  
+- **📿 Digital Tasbih Counter:** Easily count and track your dhikr.  
+- **🤲 Islamic Duas:** A collection of supplications from the Quran and Sunnah.  
+- **📝 Authentic Hadith Collection:** Read and reflect on verified prophetic sayings.  
+
+## **Preview**  
+
+Here is an overview of the app showcasing its main features:  
+
+
+![App Preview](https://github.com/moaz-abdeltawab92/moaz-abdeltawab92/blob/main/t1.png?)
+![App Preview](https://github.com/moaz-abdeltawab92/moaz-abdeltawab92/blob/main/t2.png?)
+![App Preview](https://github.com/moaz-abdeltawab92/moaz-abdeltawab92/blob/main/t3.png?)
+
+## **Technologies Used**  
+
+- **Flutter:** For building the cross-platform mobile application.  
+- **Dart:** As the programming language.  
+ 
+![Flutter](https://img.shields.io/badge/Flutter-3.10.5-blue)  
+![Dart](https://img.shields.io/badge/Dart-2.20-green)  
+
