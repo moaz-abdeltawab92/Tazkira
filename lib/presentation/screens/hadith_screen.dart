@@ -37,7 +37,7 @@ class _HadithScreenState extends State<HadithScreen> {
 
     setState(() => isLoading = true);
 
-    Future.delayed(Duration(seconds: 1), () {
+    Future.delayed(const Duration(seconds: 1), () {
       if (mounted) {
         setState(() {
           int nextLength = currentLength + 3;
@@ -80,7 +80,7 @@ class _HadithScreenState extends State<HadithScreen> {
         itemCount: displayedHadithSections.length + (isLoading ? 1 : 0),
         itemBuilder: (context, index) {
           if (index == displayedHadithSections.length) {
-            return Center(child: CircularProgressIndicator());
+            return const Center(child: CircularProgressIndicator());
           }
 
           String sectionTitle = displayedHadithSections[index].key;
@@ -95,7 +95,7 @@ class _HadithScreenState extends State<HadithScreen> {
               ),
               ListView.builder(
                 shrinkWrap: true,
-                physics: NeverScrollableScrollPhysics(),
+                physics: const NeverScrollableScrollPhysics(),
                 itemCount: hadiths.length,
                 itemBuilder: (context, i) => HadithCard(hadith: hadiths[i]),
               ),

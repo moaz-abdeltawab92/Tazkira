@@ -61,7 +61,7 @@ class _Ad3yaScreenState extends State<Ad3yaScreen> {
       appBar: AppBar(
         centerTitle: true,
         title: Text(
-          'أدعية',
+          "أدعية من القرآن والسنة",
           style: GoogleFonts.tajawal(
             color: Colors.black,
             fontWeight: FontWeight.bold,

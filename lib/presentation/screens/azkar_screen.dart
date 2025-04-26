@@ -5,8 +5,10 @@ import 'package:tazkira_app/data/azkar_Istighfar_list.dart';
 import 'package:tazkira_app/data/azkar_Istiqaz.dart';
 import 'package:tazkira_app/data/azkar_Wudu.dart';
 import 'package:tazkira_app/data/azkar_after_prayer.dart';
+import 'package:tazkira_app/data/azkar_azan.dart';
 import 'package:tazkira_app/data/azkar_home.dart';
 import 'package:tazkira_app/data/azkar_masaa_list.dart';
+import 'package:tazkira_app/data/azkar_masgd.dart';
 import 'package:tazkira_app/data/azkar_sabah_list.dart';
 import 'package:tazkira_app/data/azkar_shukr_list.dart';
 import 'package:tazkira_app/data/azkar_sleep.dart';
@@ -26,7 +28,7 @@ class _AzkarScreenState extends State<AzkarScreen>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 7, vsync: this);
+    _tabController = TabController(length: 11, vsync: this);
   }
 
   @override
@@ -44,7 +46,7 @@ class _AzkarScreenState extends State<AzkarScreen>
             SliverAppBar(
               backgroundColor: const Color(0xffD0DDD0),
               title: Text(
-                'جوامع الاذكار',
+                'جوامع الأذكار',
                 style: GoogleFonts.tajawal(
                   fontWeight: FontWeight.bold,
                   fontSize: 24.sp,
@@ -62,7 +64,7 @@ class _AzkarScreenState extends State<AzkarScreen>
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        "أذكارك اليومية لتظل على تواصل مع الله",
+                        "  أنر قلبك بالأذكار اليومية",
                         style: GoogleFonts.tajawal(
                           fontWeight: FontWeight.bold,
                           fontSize: 18.sp,
@@ -76,11 +78,22 @@ class _AzkarScreenState extends State<AzkarScreen>
               ),
               bottom: TabBar(
                 labelColor: Colors.black,
+                labelStyle: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16.sp,
+                ),
+                unselectedLabelStyle: GoogleFonts.tajawal(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16.sp,
+                ),
+                unselectedLabelColor: Colors.grey[600],
                 controller: _tabController,
                 isScrollable: true,
                 tabs: const [
                   Tab(text: 'أذكار الصباح'),
                   Tab(text: 'أذكار المساء'),
+                  Tab(text: 'أذكار وقت الاذان'),
+                  Tab(text: 'اذكار الذهاب إلى المسجد'),
                   Tab(text: 'الاذكار المفروضة بعد الصلاة'),
                   Tab(text: 'أذكار النوم'),
                   Tab(text: 'أذكار الاستغفار'),
@@ -98,12 +111,29 @@ class _AzkarScreenState extends State<AzkarScreen>
                   SingleChildScrollView(
                     // Add scrolling for the content
                     child: AzkarSection(
-                        title: "أذكار الصباح", azkarList: azkarAlsabah),
+                      title: "أذكار الصباح",
+                      azkarList: azkarAlsabah,
+                    ),
                   ),
                   SingleChildScrollView(
                     // Add scrolling for the content
                     child: AzkarSection(
-                        title: "أذكار المساء", azkarList: azkarAlMasa),
+                      title: "أذكار المساء",
+                      azkarList: azkarAlMasa,
+                    ),
+                  ),
+                  SingleChildScrollView(
+                    // Add scrolling for the content
+                    child: AzkarSection(
+                      title: "أذكار وقت الاذان",
+                      azkarList: azkarAzan,
+                    ),
+                  ),
+                  SingleChildScrollView(
+                    // Add scrolling for the content
+                    child: AzkarSection(
+                        title: "أذكار الذهاب إلى المسجد",
+                        azkarList: azkarMasgd),
                   ),
                   SingleChildScrollView(
                     // Add scrolling for the content
@@ -114,22 +144,30 @@ class _AzkarScreenState extends State<AzkarScreen>
                   SingleChildScrollView(
                     // Add scrolling for the content
                     child: AzkarSection(
-                        title: "أذكار النوم", azkarList: azkarSleep),
+                      title: "أذكار النوم",
+                      azkarList: azkarSleep,
+                    ),
                   ),
                   SingleChildScrollView(
                     // Add scrolling for the content
                     child: AzkarSection(
-                        title: "أذكار الاستغفار", azkarList: azkarIstighfar),
+                      title: "أذكار الاستغفار",
+                      azkarList: azkarIstighfar,
+                    ),
                   ),
                   SingleChildScrollView(
                     // Add scrolling for the content
                     child: AzkarSection(
-                        title: "أذكار دخول وخروج المنزل", azkarList: azkarHome),
+                      title: "أذكار دخول وخروج المنزل",
+                      azkarList: azkarHome,
+                    ),
                   ),
                   SingleChildScrollView(
                     // Add scrolling for the content
                     child: AzkarSection(
-                        title: "أذكار الاستيقاظ", azkarList: azkarIstiqaz),
+                      title: "أذكار الاستيقاظ",
+                      azkarList: azkarIstiqaz,
+                    ),
                   ),
                   SingleChildScrollView(
                     // Add scrolling for the content

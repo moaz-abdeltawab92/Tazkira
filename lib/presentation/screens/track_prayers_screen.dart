@@ -47,7 +47,7 @@ class _TrackPrayersState extends State<TrackPrayers> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       bool allPreviousChecked = true;
       for (String p in prayers) {
-        if (p == prayer) break; //
+        if (p == prayer) break;
         if (!(prayerStatus[p] ?? false)) {
           allPreviousChecked = false;
           break;
@@ -144,7 +144,7 @@ class _TrackPrayersState extends State<TrackPrayers> {
             Expanded(
               child: ListView.builder(
                 shrinkWrap: true,
-                physics: BouncingScrollPhysics(),
+                physics: const BouncingScrollPhysics(),
                 itemCount: prayers.length,
                 itemBuilder: (context, index) {
                   String prayer = prayers[index];

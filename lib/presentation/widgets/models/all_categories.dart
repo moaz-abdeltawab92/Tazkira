@@ -16,32 +16,26 @@ class AllCategories extends StatelessWidget {
     List<Map<String, dynamic>> categories = [
       {
         "text": "سبحة الكترونية",
-        "image": "assets/images/ا.png",
         "screen": const ZakrScreen(),
       },
       {
         "text": "قرآن كريم",
-        "image": "assets/images/quran-home_page.png",
         "screen": const QuranScreen(),
       },
       {
         "text": "الادعية",
-        "image": "assets/images/do3aa.png",
         "screen": const Ad3yaScreen(),
       },
       {
-        "text": "الاذكار",
-        "image": "assets/images/saba7_massa_home_page.jpg",
+        "text": "الأذكار",
         "screen": const AzkarScreen(),
       },
       {
         "text": "تتبع الصلوات",
-        "image": "assets/images/d1bf485045fc2ba77a3c2cfb50e0ce59.jpg",
         "screen": const TrackPrayers(),
       },
       {
         "text": "احاديث نبوية",
-        "image": "assets/images/hadiths_home_page.jpeg",
         "screen": const HadithScreen(),
       },
     ];
