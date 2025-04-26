@@ -30,7 +30,7 @@ class AllCategories extends StatelessWidget {
         "screen": const Ad3yaScreen(),
       },
       {
-        "text": "اذكار الصباح والمساء",
+        "text": "الاذكار",
         "image": "assets/images/saba7_massa_home_page.jpg",
         "screen": const AzkarScreen(),
       },

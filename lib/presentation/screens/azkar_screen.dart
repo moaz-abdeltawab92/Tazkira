@@ -1,66 +1,153 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:tazkira_app/data/azkar_Istighfar_list.dart';
+import 'package:tazkira_app/data/azkar_Istiqaz.dart';
+import 'package:tazkira_app/data/azkar_Wudu.dart';
+import 'package:tazkira_app/data/azkar_after_prayer.dart';
+import 'package:tazkira_app/data/azkar_home.dart';
 import 'package:tazkira_app/data/azkar_masaa_list.dart';
 import 'package:tazkira_app/data/azkar_sabah_list.dart';
+import 'package:tazkira_app/data/azkar_shukr_list.dart';
+import 'package:tazkira_app/data/azkar_sleep.dart';
 import 'package:tazkira_app/presentation/widgets/azkar/azkar_section.dart';
 
-class AzkarScreen extends StatelessWidget {
+class AzkarScreen extends StatefulWidget {
   const AzkarScreen({super.key});
+
+  @override
+  _AzkarScreenState createState() => _AzkarScreenState();
+}
+
+class _AzkarScreenState extends State<AzkarScreen>
+    with SingleTickerProviderStateMixin {
+  late TabController _tabController;
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 7, vsync: this);
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: CustomScrollView(
-        slivers: [
-          SliverAppBar(
-            backgroundColor: const Color(0xffD0DDD0),
-            title: Text(
-              'أذكار الصباح والمساء',
-              style: GoogleFonts.tajawal(
-                fontWeight: FontWeight.bold,
-                fontSize: 24.sp,
-                color: Colors.black,
+      body: SafeArea(
+        child: CustomScrollView(
+          slivers: [
+            SliverAppBar(
+              backgroundColor: const Color(0xffD0DDD0),
+              title: Text(
+                'جوامع الاذكار',
+                style: GoogleFonts.tajawal(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 24.sp,
+                  color: Colors.black,
+                ),
+              ),
+              centerTitle: true,
+              floating: true,
+              pinned: true,
+              expandedHeight: 150.h, // Adjusted height
+              flexibleSpace: FlexibleSpaceBar(
+                background: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16.w),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        "أذكارك اليومية لتظل على تواصل مع الله",
+                        style: GoogleFonts.tajawal(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18.sp,
+                          color: Colors.black,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              bottom: TabBar(
+                labelColor: Colors.black,
+                controller: _tabController,
+                isScrollable: true,
+                tabs: const [
+                  Tab(text: 'أذكار الصباح'),
+                  Tab(text: 'أذكار المساء'),
+                  Tab(text: 'الاذكار المفروضة بعد الصلاة'),
+                  Tab(text: 'أذكار النوم'),
+                  Tab(text: 'أذكار الاستغفار'),
+                  Tab(text: 'أذكار دخول وخروج المنزل'),
+                  Tab(text: 'أذكار الاستيقاظ'),
+                  Tab(text: 'أذكار عن فضل الذكر والشكر'),
+                  Tab(text: 'أذكار بعد الفراغ من الوضوء'),
+                ],
               ),
             ),
-            centerTitle: true,
-            floating: true,
-            pinned: true,
-          ),
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
-              child: Column(
+            SliverFillRemaining(
+              child: TabBarView(
+                controller: _tabController,
                 children: [
-                  Text(
-                    "أذكار الصباح والمساء درعٌ يحصّن الإنسان من الشرور، وسببٌ لجلب الطمأنينة والحفظ بذكر الله",
-                    style: TextStyle(
-                      fontSize: 18.sp,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.grey.shade700,
-                    ),
-                    textAlign: TextAlign.center,
+                  SingleChildScrollView(
+                    // Add scrolling for the content
+                    child: AzkarSection(
+                        title: "أذكار الصباح", azkarList: azkarAlsabah),
                   ),
-                  Divider(
-                    thickness: 2,
-                    color: Colors.grey.shade400,
-                    indent: 50.w,
-                    endIndent: 50.w,
+                  SingleChildScrollView(
+                    // Add scrolling for the content
+                    child: AzkarSection(
+                        title: "أذكار المساء", azkarList: azkarAlMasa),
+                  ),
+                  SingleChildScrollView(
+                    // Add scrolling for the content
+                    child: AzkarSection(
+                        title: "الاذكار المفروضة بعد الصلاة",
+                        azkarList: azkarAfterPrayer),
+                  ),
+                  SingleChildScrollView(
+                    // Add scrolling for the content
+                    child: AzkarSection(
+                        title: "أذكار النوم", azkarList: azkarSleep),
+                  ),
+                  SingleChildScrollView(
+                    // Add scrolling for the content
+                    child: AzkarSection(
+                        title: "أذكار الاستغفار", azkarList: azkarIstighfar),
+                  ),
+                  SingleChildScrollView(
+                    // Add scrolling for the content
+                    child: AzkarSection(
+                        title: "أذكار دخول وخروج المنزل", azkarList: azkarHome),
+                  ),
+                  SingleChildScrollView(
+                    // Add scrolling for the content
+                    child: AzkarSection(
+                        title: "أذكار الاستيقاظ", azkarList: azkarIstiqaz),
+                  ),
+                  SingleChildScrollView(
+                    // Add scrolling for the content
+                    child: AzkarSection(
+                        title: "أذكار عن فضل الذكر والشكر",
+                        azkarList: azkarShukrDhikr),
+                  ),
+                  SingleChildScrollView(
+                    // Add scrolling for the content
+                    child: AzkarSection(
+                        title: "اذكار بغد الفراغ من الوضوء",
+                        azkarList: azkarWudu),
                   ),
                 ],
               ),
             ),
-          ),
-          SliverList(
-            delegate: SliverChildListDelegate(
-              [
-                AzkarSection(title: "أذكار الصباح", azkarList: azkarAlsabah),
-                SizedBox(height: 40.h),
-                AzkarSection(title: "أذكار المساء", azkarList: azkarAlMasa),
-              ],
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
