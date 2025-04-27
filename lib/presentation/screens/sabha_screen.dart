@@ -4,8 +4,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:tazkira_app/data/tasbeeh_list.dart';
 import 'package:tazkira_app/presentation/widgets/counter/counter_item.dart';
 
-class ZakrScreen extends StatelessWidget {
-  const ZakrScreen({super.key});
+class SabhaScreen extends StatelessWidget {
+  const SabhaScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +22,7 @@ class ZakrScreen extends StatelessWidget {
         ),
         centerTitle: true,
       ),
-      backgroundColor: const Color.fromARGB(255, 69, 81, 99),
+      backgroundColor: const Color(0xff2E4053), // لون الخلفية
       body: Padding(
         padding: EdgeInsets.all(20.w),
         child: ListView.separated(

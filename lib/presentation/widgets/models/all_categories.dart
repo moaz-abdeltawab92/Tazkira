@@ -16,7 +16,7 @@ class AllCategories extends StatelessWidget {
     List<Map<String, dynamic>> categories = [
       {
         "text": "سبحة الكترونية",
-        "screen": const ZakrScreen(),
+        "screen": const SabhaScreen(),
       },
       {
         "text": "قرآن كريم",
