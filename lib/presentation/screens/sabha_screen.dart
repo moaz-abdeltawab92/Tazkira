@@ -22,7 +22,7 @@ class SabhaScreen extends StatelessWidget {
         ),
         centerTitle: true,
       ),
-      backgroundColor: const Color(0xff2E4053), // لون الخلفية
+      backgroundColor: const Color(0xff2E4053),
       body: Padding(
         padding: EdgeInsets.all(20.w),
         child: ListView.separated(
