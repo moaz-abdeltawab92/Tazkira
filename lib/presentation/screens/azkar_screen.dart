@@ -178,7 +178,7 @@ class _AzkarScreenState extends State<AzkarScreen>
                   SingleChildScrollView(
                     // Add scrolling for the content
                     child: AzkarSection(
-                        title: "اذكار بغد الفراغ من الوضوء",
+                        title: "اذكار بعد الفراغ من الوضوء",
                         azkarList: azkarWudu),
                   ),
                 ],
