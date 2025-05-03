@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:tazkira_app/data/ad3ya_list.dart';
@@ -37,7 +38,6 @@ class _Ad3yaScreenState extends State<Ad3yaScreen> {
     setState(() => isLoading = true);
 
     await Future.delayed(const Duration(seconds: 1));
-
     setState(() {
       int nextLength = currentLength + 10;
       if (nextLength > ad3yah.length) {
@@ -47,6 +47,22 @@ class _Ad3yaScreenState extends State<Ad3yaScreen> {
       currentLength = nextLength;
       isLoading = false;
     });
+  }
+
+  // Copy doaa to clipboard
+  void _copyDoaa(String doaa) {
+    Clipboard.setData(ClipboardData(text: doaa));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          'تم نسخ الدعاء',
+          textAlign: TextAlign.center,
+          style: TextStyle(fontSize: 16.sp),
+        ),
+        backgroundColor: Colors.black,
+        duration: const Duration(seconds: 1),
+      ),
+    );
   }
 
   @override
@@ -81,6 +97,7 @@ class _Ad3yaScreenState extends State<Ad3yaScreen> {
               child: const Center(child: CircularProgressIndicator()),
             );
           }
+
           return Container(
             padding: EdgeInsets.all(14.w),
             margin: EdgeInsets.symmetric(horizontal: 16.w, vertical: 4.h),
@@ -88,14 +105,31 @@ class _Ad3yaScreenState extends State<Ad3yaScreen> {
               color: const Color(0xff5A6C57),
               borderRadius: BorderRadius.circular(12.r),
             ),
-            child: Text(
-              displayedAd3ya[index],
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-                fontSize: 17.sp,
-              ),
-              textAlign: TextAlign.center,
+            child: Column(
+              children: [
+                Text(
+                  displayedAd3ya[index],
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                    fontSize: 17.sp,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                SizedBox(height: 10.h),
+                TextButton.icon(
+                  onPressed: () => _copyDoaa(displayedAd3ya[index]),
+                  icon: const Icon(Icons.copy, color: Colors.white),
+                  label: Text(
+                    'نسخ الدعاء',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 14.sp,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                )
+              ],
             ),
           );
         },
