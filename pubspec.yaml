@@ -8,6 +8,7 @@ environment:
 
 dependencies:
   cupertino_icons: ^1.0.8
+  drift_flutter: ^0.2.4
   firebase_core: ^3.12.1
   flutter:
     sdk: flutter
@@ -15,8 +16,8 @@ dependencies:
   flutter_native_splash: ^2.4.5
   flutter_screenutil: ^5.9.3
   google_fonts: ^6.2.1
-  quran_library: ^0.1.7
-  shared_preferences: ^2.5.2
+  quran_library: ^0.1.9
+  shared_preferences: ^2.5.3
 
 dev_dependencies:
   flutter_lints: ^4.0.0
