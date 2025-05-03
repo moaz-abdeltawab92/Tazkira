@@ -109,6 +109,11 @@ class _TrackPrayersState extends State<TrackPrayers> {
     });
   }
 
+  double _getProgress() {
+    int completedPrayers = prayerStatus.values.where((status) => status).length;
+    return completedPrayers / prayers.length;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -141,6 +146,23 @@ class _TrackPrayersState extends State<TrackPrayers> {
               ),
             ),
             SizedBox(height: 10.h),
+            Text(
+              'مؤشر لتتبع الصلاة',
+              style: GoogleFonts.cairo(
+                fontSize: 18.sp,
+                fontWeight: FontWeight.bold,
+                color: Colors.black,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            SizedBox(height: 10.h),
+            LinearProgressIndicator(
+              value: _getProgress(),
+              minHeight: 8.h,
+              backgroundColor: Colors.grey[300],
+              valueColor: const AlwaysStoppedAnimation<Color>(Colors.green),
+            ),
+            SizedBox(height: 20.h),
             Expanded(
               child: ListView.builder(
                 shrinkWrap: true,
