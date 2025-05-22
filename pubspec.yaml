@@ -13,10 +13,10 @@ dependencies:
   flutter:
     sdk: flutter
   flutter_launcher_icons: ^0.14.3
-  flutter_native_splash: ^2.4.5
+  flutter_native_splash: 2.4.4
   flutter_screenutil: ^5.9.3
   google_fonts: ^6.2.1
-  quran_library: ^0.1.9
+  quran_library: ^1.0.1
   shared_preferences: ^2.5.3
 
 dev_dependencies:
