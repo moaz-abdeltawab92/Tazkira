@@ -9,19 +9,28 @@ class QuranScreen extends StatefulWidget {
 }
 
 class _QuranScreenState extends State<QuranScreen> {
-  bool isDarkMode = false;
+  bool isLoading = true;
 
   @override
   void initState() {
-    QuranLibrary().init();
-    QuranLibrary().initTafsir();
     super.initState();
+    _initQuranLibrary();
+  }
+
+  Future<void> _initQuranLibrary() async {
+    await QuranLibrary().init();
+    await QuranLibrary().initTafsir();
+    setState(() {
+      isLoading = false;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      body: QuranLibraryScreen(),
+    return Scaffold(
+      body: isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : const QuranLibraryScreen(),
     );
   }
 }
