@@ -27,10 +27,8 @@ class _QuranScreenState extends State<QuranScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : const QuranLibraryScreen(),
-    );
+    return isLoading
+        ? const Center(child: CircularProgressIndicator())
+        : const QuranLibraryScreen();
   }
 }
