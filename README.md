@@ -4,7 +4,8 @@
 
 
 <h1> Download the App</h1>
-🔗 **[Download Tazkira Islamic App Now ]([https://tazkira.netlify.app/](https://tazkira.netlify.app/))**  
+🔗 **[Download Tazkira Islamic App Now](https://tazkira.netlify.app/)**
+ 
 
 ## **Overview**  
 
