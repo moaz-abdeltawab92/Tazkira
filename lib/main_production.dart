@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:tazkira_app/presentation/screens/homepage.dart';
+import 'package:tazkira_app/features/home/presentation/screens/homepage.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
   // To fix text being hidden bug in flutter_screenutil in release mode
   await ScreenUtil.ensureScreenSize();
   runApp(const TazkiraApp());
