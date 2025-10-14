@@ -2,7 +2,7 @@ import 'package:tazkira_app/core/routing/route_export.dart';
 
 class HadithSectionTitle extends StatelessWidget {
   final String title;
-  const HadithSectionTitle({Key? key, required this.title}) : super(key: key);
+  const HadithSectionTitle({super.key, required this.title});
 
   @override
   Widget build(BuildContext context) {
@@ -55,11 +55,11 @@ class HadithCard extends StatefulWidget {
   final VoidCallback? onFavoriteToggle;
 
   const HadithCard({
-    Key? key,
+    super.key,
     required this.hadith,
     this.isFavorite = false,
     this.onFavoriteToggle,
-  }) : super(key: key);
+  });
 
   @override
   State<HadithCard> createState() => _HadithCardState();

@@ -9,8 +9,8 @@ class Category extends StatelessWidget {
     required this.text,
     required this.color,
     this.onTap,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {

@@ -65,5 +65,4 @@ class DefaultFirebaseOptions {
     storageBucket: 'tazkira-app.firebasestorage.app',
     iosBundleId: 'com.example.tazkiraApp',
   );
-
 }

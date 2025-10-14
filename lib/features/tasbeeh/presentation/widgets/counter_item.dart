@@ -2,7 +2,7 @@ import 'package:tazkira_app/core/routing/route_export.dart';
 
 class CounterItem extends StatefulWidget {
   final int index;
-  const CounterItem({Key? key, required this.index}) : super(key: key);
+  const CounterItem({super.key, required this.index});
 
   @override
   State<CounterItem> createState() => _CounterItemState();

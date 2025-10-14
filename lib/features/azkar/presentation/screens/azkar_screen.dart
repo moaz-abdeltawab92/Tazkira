@@ -375,7 +375,7 @@ class _AzkarScreenState extends State<AzkarScreen> {
 class AzkarCardWithCopy extends StatelessWidget {
   final String zekr;
 
-  const AzkarCardWithCopy({Key? key, required this.zekr}) : super(key: key);
+  const AzkarCardWithCopy({super.key, required this.zekr});
 
   void _copyToClipboard(BuildContext context) {
     Clipboard.setData(ClipboardData(text: zekr));

@@ -1,7 +1,7 @@
 import 'package:tazkira_app/core/routing/route_export.dart';
 
 class PrayerTimesCard extends StatefulWidget {
-  const PrayerTimesCard({Key? key}) : super(key: key);
+  const PrayerTimesCard({super.key});
 
   @override
   State<PrayerTimesCard> createState() => _PrayerTimesCardState();
@@ -21,7 +21,6 @@ class _PrayerTimesCardState extends State<PrayerTimesCard> {
 
   Future<void> _initializePrayerTimes() async {
     try {
-      // 1) طلب الإذن
       LocationPermission permission = await Geolocator.checkPermission();
       if (permission == LocationPermission.denied) {
         permission = await Geolocator.requestPermission();
@@ -42,15 +41,12 @@ class _PrayerTimesCardState extends State<PrayerTimesCard> {
         return;
       }
 
-      // 2) الحصول على الموقع
       Position position = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high,
       );
 
-      // 3) جلب اسم المدينة
       await _getCityName(position.latitude, position.longitude);
 
-      // 4) حساب مواقيت الصلاة
       final coordinates = Coordinates(position.latitude, position.longitude);
       final params = CalculationMethod.egyptian.getParameters();
       params.madhab = Madhab.shafi;
@@ -139,9 +135,9 @@ class _PrayerTimesCardState extends State<PrayerTimesCard> {
       highlightColor: Colors.grey.shade100,
       child: Container(
         width: double.infinity,
-        height: 150.h, // نفس ارتفاع الكارد المتوقع
+        height: 150.h,
         decoration: BoxDecoration(
-          color: Colors.white, // هنا خليها أبيض مش نفس لون الكارد
+          color: Colors.white,
           borderRadius: BorderRadius.circular(20.r),
         ),
       ),

@@ -4,8 +4,7 @@ class AzkarSection extends StatelessWidget {
   final String title;
   final List<String> azkarList;
 
-  const AzkarSection({Key? key, required this.title, required this.azkarList})
-      : super(key: key);
+  const AzkarSection({super.key, required this.title, required this.azkarList});
 
   @override
   Widget build(BuildContext context) {

@@ -178,11 +178,11 @@ class Ad3yaCard extends StatefulWidget {
   final VoidCallback? onFavoriteToggle;
 
   const Ad3yaCard({
-    Key? key,
+    super.key,
     required this.doaa,
     this.isFavorite = false,
     this.onFavoriteToggle,
-  }) : super(key: key);
+  });
 
   @override
   State<Ad3yaCard> createState() => _Ad3yaCardState();

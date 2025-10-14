@@ -5,10 +5,10 @@ class HadithFavoritesScreen extends StatefulWidget {
   final Function(String) onRemoveFavorite;
 
   const HadithFavoritesScreen({
-    Key? key,
+    super.key,
     required this.favoriteHadiths,
     required this.onRemoveFavorite,
-  }) : super(key: key);
+  });
 
   @override
   State<HadithFavoritesScreen> createState() => _HadithFavoritesScreenState();

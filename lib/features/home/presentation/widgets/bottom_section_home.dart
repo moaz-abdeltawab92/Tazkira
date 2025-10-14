@@ -32,7 +32,6 @@ class BottomSection extends StatelessWidget {
       ),
       child: Column(
         children: [
-          // زخرفة علوية
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -48,8 +47,6 @@ class BottomSection extends StatelessWidget {
             ],
           ),
           SizedBox(height: 12.h),
-
-          // النص القرآني
           Text(
             "وَالذَّاكِرِينَ اللَّهَ كَثِيرًا وَالذَّاكِرَاتِ",
             textAlign: TextAlign.center,
@@ -85,9 +82,7 @@ class BottomSection extends StatelessWidget {
               ],
             ),
           ),
-
           SizedBox(height: 12.h),
-          // زخرفة سفلية
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [

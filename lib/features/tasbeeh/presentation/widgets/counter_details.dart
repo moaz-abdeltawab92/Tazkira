@@ -7,12 +7,12 @@ class CounterDetails extends StatefulWidget {
   final String title;
 
   const CounterDetails({
-    Key? key,
+    super.key,
     required this.count,
     required this.onIncrement,
     required this.onReset,
     required this.title,
-  }) : super(key: key);
+  });
 
   @override
   State<CounterDetails> createState() => _CounterDetailsState();

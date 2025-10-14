@@ -20,7 +20,7 @@ class FridayBanner extends StatelessWidget {
       width: double.infinity,
       height: 180.h,
       decoration: BoxDecoration(
-        gradient: LinearGradient(
+        gradient: const LinearGradient(
           begin: Alignment.centerRight,
           end: Alignment.centerLeft,
           colors: [
@@ -34,13 +34,12 @@ class FridayBanner extends StatelessWidget {
           BoxShadow(
             color: Colors.black.withOpacity(0.06),
             blurRadius: 12,
-            offset: Offset(0, 3),
+            offset: const Offset(0, 3),
           ),
         ],
       ),
       child: Stack(
         children: [
-          // النقوش على اليمين
           Positioned(
             right: -10,
             top: -10,
@@ -49,8 +48,6 @@ class FridayBanner extends StatelessWidget {
               painter: IslamicPatternPainter(),
             ),
           ),
-
-          // النقوش على اليسار
           Positioned(
             left: -10,
             top: -10,
@@ -59,8 +56,6 @@ class FridayBanner extends StatelessWidget {
               painter: IslamicPatternPainter(),
             ),
           ),
-
-          // المحتوى
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 85.w, vertical: 16.h),
             child: Column(
@@ -71,7 +66,7 @@ class FridayBanner extends StatelessWidget {
                   'جمعة مباركة',
                   textAlign: TextAlign.right,
                   style: GoogleFonts.cairo(
-                    color: Color(0xFF2C5454),
+                    color: const Color(0xFF2C5454),
                     fontSize: 17.sp,
                     fontWeight: FontWeight.bold,
                   ),
@@ -81,7 +76,7 @@ class FridayBanner extends StatelessWidget {
                   "لا تنسَ قراءة سورة الكهف ",
                   textAlign: TextAlign.right,
                   style: GoogleFonts.cairo(
-                    color: Color(0xFF5A8C8C),
+                    color: const Color(0xFF5A8C8C),
                     fontSize: 15.sp,
                     fontWeight: FontWeight.w600,
                   ),
@@ -91,7 +86,7 @@ class FridayBanner extends StatelessWidget {
                   'قال النبي ﷺ: "من قرأ سورة الكهف في يوم الجمعة أضاء له من النور ما بين الجمعتين"',
                   textAlign: TextAlign.right,
                   style: GoogleFonts.cairo(
-                    color: Color(0xFF2C5454),
+                    color: const Color(0xFF2C5454),
                     fontSize: 13.sp,
                     fontWeight: FontWeight.w500,
                     height: 1.5,
@@ -111,21 +106,17 @@ class IslamicPatternPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final paint = Paint()..style = PaintingStyle.fill;
 
-    // ألوان النقوش الإسلامية
-    final orangeColor = Color(0xFFD4A574).withOpacity(0.25);
-    final tealColor = Color(0xFF5A8C8C).withOpacity(0.2);
-    final blueColor = Color(0xFF6B9999).withOpacity(0.18);
+    final orangeColor = const Color(0xFFD4A574).withOpacity(0.25);
+    final tealColor = const Color(0xFF5A8C8C).withOpacity(0.2);
+    final blueColor = const Color(0xFF6B9999).withOpacity(0.18);
 
-    // رسم نجمة في الأعلى
     paint.color = orangeColor;
     _drawStar(canvas, Offset(size.width * 0.5, size.height * 0.25), 20, paint);
 
-    // رسم شكل هندسي في الوسط
     paint.color = tealColor;
     _drawDiamond(
         canvas, Offset(size.width * 0.5, size.height * 0.5), 25, paint);
 
-    // رسم نجمة صغيرة في الأسفل
     paint.color = blueColor;
     _drawStar(canvas, Offset(size.width * 0.5, size.height * 0.75), 18, paint);
   }

@@ -15,9 +15,7 @@ class HomeBody extends StatelessWidget {
             child: Column(
               children: [
                 SizedBox(height: spacing),
-                // البانر بتاع الجمعة - هيظهر بس يوم الجمعة
                 const FridayBanner(),
-                // لو البانر ظاهر، حط spacing بعده
                 if (DateTime.now().weekday == DateTime.friday)
                   SizedBox(height: spacing),
                 const PrayerTimesCard(),
