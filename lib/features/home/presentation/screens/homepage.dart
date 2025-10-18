@@ -10,32 +10,32 @@ class Homepage extends StatefulWidget {
 class _HomepageState extends State<Homepage> {
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Scaffold(
-        appBar: AppBar(
-          centerTitle: true,
-          backgroundColor: const Color.fromARGB(255, 175, 197, 195),
-          title: Text(
-            "تَذْكِرَة",
-            style: GoogleFonts.tajawal(
-              fontWeight: FontWeight.bold,
-              fontSize: 24.sp.clamp(18, 28),
-              color: Colors.black,
-            ),
-          ),
-          leading: IconButton(
-            icon: const Icon(Icons.menu, color: Colors.black),
-            onPressed: () {
-              // Navigate to podcasts page
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (_) => const PodcastsPage(),
-                ),
-              );
-            },
+    return Scaffold(
+      appBar: AppBar(
+        centerTitle: true,
+        backgroundColor: const Color.fromARGB(255, 175, 197, 195),
+        title: Text(
+          "تَذْكِرَة",
+          style: GoogleFonts.tajawal(
+            fontWeight: FontWeight.bold,
+            fontSize: 24.sp.clamp(18, 28),
+            color: Colors.black,
           ),
         ),
-        body: LayoutBuilder(
+        leading: IconButton(
+          icon: const Icon(Icons.menu, color: Colors.black),
+          onPressed: () {
+            // Navigate to podcasts page
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (_) => const PodcastsPage(),
+              ),
+            );
+          },
+        ),
+      ),
+      body: SafeArea(
+        child: LayoutBuilder(
           builder: (context, constraints) {
             return SingleChildScrollView(
               child: Container(

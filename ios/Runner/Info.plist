@@ -47,7 +47,13 @@
 		<true/>
 		<key>UIStatusBarHidden</key>
 		<true/>
-		<key>UIViewControllerBasedStatusBarAppearance</key>
-		<false/>
-	</dict>
+	<key>UIViewControllerBasedStatusBarAppearance</key>
+	<false/>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>يحتاج هذا التطبيق للوصول إلى موقعك لتحديد أوقات الصلاة بدقة حسب موقعك الحالي</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>يحتاج هذا التطبيق للوصول إلى موقعك لتحديد أوقات الصلاة بدقة حسب موقعك الحالي</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>يحتاج هذا التطبيق للوصول إلى موقعك لتحديد أوقات الصلاة بدقة حسب موقعك الحالي</string>
+</dict>
 </plist>
