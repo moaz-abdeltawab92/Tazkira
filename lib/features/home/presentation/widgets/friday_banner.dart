@@ -62,15 +62,6 @@ class FridayBanner extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.end,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text(
-                  'جمعة مباركة',
-                  textAlign: TextAlign.right,
-                  style: GoogleFonts.cairo(
-                    color: const Color(0xFF2C5454),
-                    fontSize: 17.sp,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
                 SizedBox(height: 3.h),
                 Text(
                   "لا تنسَ قراءة سورة الكهف ",

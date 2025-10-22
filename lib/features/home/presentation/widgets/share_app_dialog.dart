@@ -2,7 +2,7 @@ import 'package:tazkira_app/core/routing/route_export.dart';
 
 class ShareAppDialog extends StatelessWidget {
   static const playStoreLink =
-      'https://play.google.com/store/apps/details?id=com.example.app';
+      'https://play.google.com/store/apps/details?id=com.moaz.tazkira';
   const ShareAppDialog({super.key});
 
   @override

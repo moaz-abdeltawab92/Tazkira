@@ -1,4 +1,5 @@
 import 'package:tazkira_app/core/routing/route_export.dart';
+import 'package:in_app_update/in_app_update.dart';
 
 class Homepage extends StatefulWidget {
   const Homepage({super.key});
@@ -9,33 +10,50 @@ class Homepage extends StatefulWidget {
 
 class _HomepageState extends State<Homepage> {
   @override
+  void initState() {
+    super.initState();
+    checkForUpdate();
+  }
+
+  Future<void> checkForUpdate() async {
+    try {
+      final info = await InAppUpdate.checkForUpdate();
+
+      if (info.updateAvailability == UpdateAvailability.updateAvailable) {
+        await InAppUpdate.performImmediateUpdate();
+      }
+    } catch (e) {
+      print("Error checking for update: $e");
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
-        backgroundColor: const Color.fromARGB(255, 175, 197, 195),
-        title: Text(
-          "تَذْكِرَة",
-          style: GoogleFonts.tajawal(
-            fontWeight: FontWeight.bold,
-            fontSize: 24.sp.clamp(18, 28),
-            color: Colors.black,
+    return SafeArea(
+      child: Scaffold(
+        appBar: AppBar(
+          centerTitle: true,
+          backgroundColor: const Color.fromARGB(255, 175, 197, 195),
+          title: Text(
+            "تَذْكِرَة",
+            style: GoogleFonts.tajawal(
+              fontWeight: FontWeight.bold,
+              fontSize: 24.sp.clamp(18, 28),
+              color: Colors.black,
+            ),
+          ),
+          leading: IconButton(
+            icon: const Icon(Icons.menu, color: Colors.black),
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => const PodcastsPage(),
+                ),
+              );
+            },
           ),
         ),
-        leading: IconButton(
-          icon: const Icon(Icons.menu, color: Colors.black),
-          onPressed: () {
-            // Navigate to podcasts page
-            Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (_) => const PodcastsPage(),
-              ),
-            );
-          },
-        ),
-      ),
-      body: SafeArea(
-        child: LayoutBuilder(
+        body: LayoutBuilder(
           builder: (context, constraints) {
             return SingleChildScrollView(
               child: Container(
