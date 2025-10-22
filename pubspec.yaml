@@ -26,7 +26,7 @@ dependencies:
   in_app_update: ^4.2.5
   intl: ^0.20.2
   permission_handler: ^12.0.1
-  quran_library: ^2.1.2
+  quran_library: ^2.1.4
   share_plus: 12.0.0
   shared_preferences: ^2.5.3
   shimmer: ^3.0.0
