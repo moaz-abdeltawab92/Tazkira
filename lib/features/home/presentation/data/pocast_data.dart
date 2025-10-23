@@ -54,6 +54,12 @@ const List<PodcastItem> podcasts = [
     imagePath: 'assets/podcasts/abobakr.jpg',
   ),
   PodcastItem(
+    title: 'وَاهْدِ قَلْبِي\nسلسلة عن التزكية والقلب',
+    url:
+        'https://www.youtube.com/playlist?list=PL_ZXIiZMp3MINfUt4fycnLniWL_vhKwny',
+    imagePath: 'assets/podcasts/sherifff.jpg',
+  ),
+  PodcastItem(
     title: 'كيف نبني علاقة مع الله؟ ',
     url: 'https://www.youtube.com/watch?v=G-IYILvvFtc',
     imagePath: 'assets/podcasts/ro.png',
