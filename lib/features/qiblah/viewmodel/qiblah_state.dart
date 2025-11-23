@@ -1,5 +1,4 @@
-import 'package:geolocator/geolocator.dart';
-import 'package:latlong2/latlong.dart';
+import 'package:tazkira_app/core/routing/route_export.dart';
 
 enum QiblahStatus { initial, loading, success, error }
 

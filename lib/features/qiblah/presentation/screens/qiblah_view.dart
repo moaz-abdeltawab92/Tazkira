@@ -1,5 +1,4 @@
 import 'package:tazkira_app/core/routing/route_export.dart';
-import '../widgets/compass_widget.dart';
 
 class QiblahView extends StatelessWidget {
   const QiblahView({super.key});

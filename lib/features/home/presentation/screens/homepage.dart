@@ -1,5 +1,4 @@
 import 'package:tazkira_app/core/routing/route_export.dart';
-import 'package:in_app_update/in_app_update.dart';
 
 class Homepage extends StatefulWidget {
   const Homepage({super.key});

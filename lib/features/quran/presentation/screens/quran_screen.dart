@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:tazkira_app/core/routing/route_export.dart';
 import 'package:quran_library/quran_library.dart';
 
 class QuranScreen extends StatefulWidget {

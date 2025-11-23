@@ -1,5 +1,4 @@
 import 'package:tazkira_app/core/routing/route_export.dart';
-import 'package:tazkira_app/features/home/presentation/widgets/friday_banner.dart';
 
 class HomeBody extends StatelessWidget {
   const HomeBody({super.key});

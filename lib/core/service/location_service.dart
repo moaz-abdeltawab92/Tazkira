@@ -1,4 +1,4 @@
-import 'package:geolocator/geolocator.dart';
+import 'package:tazkira_app/core/routing/route_export.dart';
 
 class LocationService {
   Stream<ServiceStatus> get serviceStatusStream =>

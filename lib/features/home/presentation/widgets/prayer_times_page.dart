@@ -1,4 +1,3 @@
-import 'package:intl/intl.dart';
 import 'package:tazkira_app/core/routing/route_export.dart';
 
 class PrayerTimesPage extends StatefulWidget {

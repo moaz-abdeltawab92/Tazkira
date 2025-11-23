@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:tazkira_app/core/routing/route_export.dart';
 
 class ProfessionalArrowPainter extends CustomPainter {
   ProfessionalArrowPainter({required this.theme});

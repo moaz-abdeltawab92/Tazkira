@@ -1,8 +1,4 @@
-import 'dart:math';
 import 'package:tazkira_app/core/routing/route_export.dart';
-import '../../../../core/utils/custom_loading_indicator.dart';
-import 'arrow_painter.dart';
-import 'compass_background_painter.dart';
 
 class CompassWidget extends StatelessWidget {
   const CompassWidget({

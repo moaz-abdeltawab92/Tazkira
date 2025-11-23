@@ -1,4 +1,4 @@
-import 'package:tazkira_app/features/home/presentation/data/podcast_item.dart';
+import 'package:tazkira_app/core/routing/route_export.dart';
 
 const List<PodcastItem> podcasts = [
   PodcastItem(

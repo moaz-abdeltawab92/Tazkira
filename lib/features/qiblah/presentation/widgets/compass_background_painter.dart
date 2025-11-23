@@ -1,5 +1,4 @@
-import 'dart:math';
-import 'package:flutter/material.dart';
+import 'package:tazkira_app/core/routing/route_export.dart';
 
 class CompassBackgroundPainter extends CustomPainter {
   CompassBackgroundPainter({required this.theme});
