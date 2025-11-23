@@ -34,6 +34,10 @@ class AllCategories extends StatelessWidget {
         "text": "احاديث نبوية",
         "screen": const HadithScreen(),
       },
+      {
+        "text": "اتجاه القبلة",
+        "screen": const QiblahView(),
+      },
     ];
 
     return Padding(

@@ -17,14 +17,16 @@ dependencies:
   flutter_bloc: ^9.1.1
   flutter_launcher_icons: ^0.14.3
   flutter_native_splash: 2.4.4
+  flutter_qiblah: ^3.1.0+1
   flutter_screenutil: ^5.9.3
   geocoding: ^4.0.0
-  geolocator: ^14.0.2
+  geolocator: ^13.0.4
   get: ^4.7.2
   google_fonts: ^6.2.1
   http: ^1.5.0
   in_app_update: ^4.2.5
   intl: ^0.20.2
+  latlong2: ^0.9.1
   path_provider: ^2.1.5
   permission_handler: ^12.0.1
   quran_library: ^2.3.1
