@@ -147,6 +147,7 @@ class _AzkarScreenState extends State<AzkarScreen> {
       appBar: AppBar(
         centerTitle: true,
         elevation: 0,
+        automaticallyImplyLeading: false,
         flexibleSpace: Container(
           decoration: const BoxDecoration(
             gradient: LinearGradient(
@@ -164,30 +165,33 @@ class _AzkarScreenState extends State<AzkarScreen> {
             fontSize: 22.sp,
           ),
         ),
-        actions: [
-          Stack(
-            children: [
-              IconButton(
-                icon:
-                    const Icon(Icons.filter_list_rounded, color: Colors.white),
-                onPressed: _showFilterDialog,
-              ),
-              if (selectedCategory != null)
-                Positioned(
-                  right: 8,
-                  top: 8,
-                  child: Container(
-                    width: 8.w,
-                    height: 8.h,
-                    decoration: const BoxDecoration(
-                      color: Colors.red,
-                      shape: BoxShape.circle,
-                    ),
+        leading: Stack(
+          children: [
+            IconButton(
+              icon: const Icon(Icons.filter_list_rounded, color: Colors.white),
+              onPressed: _showFilterDialog,
+            ),
+            if (selectedCategory != null)
+              Positioned(
+                right: 8,
+                top: 8,
+                child: Container(
+                  width: 8.w,
+                  height: 8.h,
+                  decoration: const BoxDecoration(
+                    color: Colors.red,
+                    shape: BoxShape.circle,
                   ),
                 ),
-            ],
+              ),
+          ],
+        ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.arrow_forward_ios_rounded,
+                color: Colors.white),
+            onPressed: () => Navigator.pop(context),
           ),
-          SizedBox(width: 8.w),
         ],
       ),
       body: Column(

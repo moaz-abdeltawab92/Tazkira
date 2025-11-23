@@ -11,7 +11,7 @@ class QiblahView extends StatelessWidget {
         service: QiblahService(),
         locationService: LocationService(),
       )..init(),
-      child: _QiblahViewContent(),
+      child: const _QiblahViewContent(),
     );
   }
 }
@@ -25,6 +25,7 @@ class _QiblahViewContent extends StatelessWidget {
       appBar: AppBar(
         centerTitle: true,
         elevation: 0,
+        automaticallyImplyLeading: false,
         flexibleSpace: Container(
           decoration: const BoxDecoration(
             gradient: LinearGradient(
@@ -42,6 +43,13 @@ class _QiblahViewContent extends StatelessWidget {
             fontSize: 22.sp,
           ),
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.arrow_forward_ios_rounded,
+                color: Colors.white),
+            onPressed: () => Navigator.pop(context),
+          ),
+        ],
       ),
       body: SafeArea(
         child: BlocBuilder<QiblahCubit, QiblahState>(

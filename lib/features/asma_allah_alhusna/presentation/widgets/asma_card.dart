@@ -27,12 +27,12 @@ class AsmaCard extends StatelessWidget {
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16.r),
-          gradient: LinearGradient(
+          gradient: const LinearGradient(
             begin: Alignment.topRight,
             end: Alignment.bottomLeft,
             colors: [
               Colors.white,
-              const Color(0xFFF8F9FA),
+              Color(0xFFF8F9FA),
             ],
           ),
         ),

@@ -8,7 +8,7 @@ class LocationService {
     final isServiceEnabled = await Geolocator.isLocationServiceEnabled();
 
     if (!isServiceEnabled) {
-      return LocationStatus(isGranted: false, isServiceEnabled: false);
+      return const LocationStatus(isGranted: false, isServiceEnabled: false);
     }
 
     final permission = await Geolocator.checkPermission();
@@ -23,7 +23,7 @@ class LocationService {
     }
 
     if (permission == LocationPermission.deniedForever) {
-      return LocationStatus(isGranted: false, isServiceEnabled: true);
+      return const LocationStatus(isGranted: false, isServiceEnabled: true);
     }
 
     return LocationStatus(

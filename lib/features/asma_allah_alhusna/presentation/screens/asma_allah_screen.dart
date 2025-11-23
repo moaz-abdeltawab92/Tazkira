@@ -132,18 +132,11 @@ class _AsmaAllahScreenState extends State<AsmaAllahScreen> {
     });
 
     try {
-      final textLength = item.text.length;
-      final estimatedHeight = 950.0 + (textLength > 200 ? 150.0 : 0.0);
-
       final imageBytes = await _screenshotController.captureFromWidget(
         Directionality(
           textDirection: TextDirection.rtl,
           child: Container(
             width: 800,
-            constraints: BoxConstraints(
-              minHeight: 900,
-              maxHeight: estimatedHeight,
-            ),
             padding: const EdgeInsets.all(40),
             decoration: BoxDecoration(
               gradient: const LinearGradient(
@@ -154,88 +147,91 @@ class _AsmaAllahScreenState extends State<AsmaAllahScreen> {
               borderRadius: BorderRadius.circular(20),
             ),
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
                   'أسماء الله الحسنى',
                   style: GoogleFonts.amiri(
-                    fontSize: 42,
+                    fontSize: 38,
                     fontWeight: FontWeight.bold,
                     color: Colors.white,
                   ),
                   textAlign: TextAlign.center,
                 ),
-                const SizedBox(height: 5),
+                const SizedBox(height: 8),
                 Container(
                   padding:
-                      const EdgeInsets.symmetric(horizontal: 28, vertical: 12),
+                      const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
                   decoration: BoxDecoration(
                     color: Colors.white.withOpacity(0.2),
-                    borderRadius: BorderRadius.circular(15),
+                    borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
                     '${index + 1}',
                     style: GoogleFonts.cairo(
-                      fontSize: 30,
+                      fontSize: 26,
                       fontWeight: FontWeight.bold,
                       color: Colors.white,
                     ),
                   ),
                 ),
-                const SizedBox(height: 5),
+                const SizedBox(height: 8),
                 Text(
                   item.name,
                   style: GoogleFonts.amiri(
-                    fontSize: 50,
+                    fontSize: 46,
                     fontWeight: FontWeight.bold,
                     color: Colors.white,
                   ),
                   textAlign: TextAlign.center,
                 ),
-                const SizedBox(height: 10),
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(28),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(18),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        'المعنى',
-                        style: GoogleFonts.cairo(
-                          fontSize: 22,
-                          fontWeight: FontWeight.bold,
-                          color: const Color(0xFF7CB9AD),
-                        ),
-                      ),
-                      const SizedBox(height: 18),
-                      ConstrainedBox(
-                        constraints: const BoxConstraints(maxWidth: 680),
-                        child: Text(
-                          item.text,
+                const SizedBox(height: 15),
+                Flexible(
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(24),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          'المعنى',
                           style: GoogleFonts.cairo(
-                            fontSize: 19,
-                            height: 1.9,
-                            color: const Color(0xFF2C3E50),
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: const Color(0xFF7CB9AD),
                           ),
-                          textAlign: TextAlign.center,
-                          maxLines: 10,
-                          overflow: TextOverflow.fade,
                         ),
-                      ),
-                    ],
+                        const SizedBox(height: 14),
+                        Flexible(
+                          child: ConstrainedBox(
+                            constraints: const BoxConstraints(maxWidth: 680),
+                            child: Text(
+                              item.text,
+                              style: GoogleFonts.cairo(
+                                fontSize: 17,
+                                height: 1.7,
+                                color: const Color(0xFF2C3E50),
+                              ),
+                              textAlign: TextAlign.center,
+                              maxLines: 15,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-                const SizedBox(height: 10),
+                const SizedBox(height: 12),
                 Text(
                   'تمت المشاركة من تطبيق تَذْكِرَة',
                   style: GoogleFonts.cairo(
-                    fontSize: 17,
+                    fontSize: 15,
                     color: Colors.white.withOpacity(0.9),
                     fontWeight: FontWeight.w500,
                   ),
@@ -281,6 +277,7 @@ class _AsmaAllahScreenState extends State<AsmaAllahScreen> {
         appBar: AppBar(
           centerTitle: true,
           elevation: 0,
+          automaticallyImplyLeading: false,
           flexibleSpace: Container(
             decoration: const BoxDecoration(
               gradient: LinearGradient(
@@ -311,50 +308,64 @@ class _AsmaAllahScreenState extends State<AsmaAllahScreen> {
                     fontSize: 22.sp,
                   ),
                 ),
-          actions: [
-            IconButton(
-              icon: Icon(
-                isSearching ? Icons.close : Icons.search,
-                color: Colors.white,
-              ),
-              onPressed: () {
-                setState(() {
-                  if (isSearching) {
-                    _searchController.clear();
-                  }
-                  isSearching = !isSearching;
-                });
-              },
-            ),
-            Stack(
+          leading: SizedBox(
+            width: 112.w,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
               children: [
                 IconButton(
-                  icon: const Icon(Icons.favorite_rounded, color: Colors.white),
-                  onPressed: _showFavoritesScreen,
+                  icon: Icon(
+                    isSearching ? Icons.close : Icons.search,
+                    color: Colors.white,
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      if (isSearching) {
+                        _searchController.clear();
+                      }
+                      isSearching = !isSearching;
+                    });
+                  },
                 ),
-                if (favoriteIds.isNotEmpty)
-                  Positioned(
-                    right: 8,
-                    top: 8,
-                    child: Container(
-                      padding: EdgeInsets.all(4.w),
-                      decoration: const BoxDecoration(
-                        color: Colors.red,
-                        shape: BoxShape.circle,
-                      ),
-                      child: Text(
-                        '${favoriteIds.length}',
-                        style: GoogleFonts.cairo(
-                          color: Colors.white,
-                          fontSize: 10.sp,
-                          fontWeight: FontWeight.bold,
+                Stack(
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.favorite_rounded,
+                          color: Colors.white),
+                      onPressed: _showFavoritesScreen,
+                    ),
+                    if (favoriteIds.isNotEmpty)
+                      Positioned(
+                        right: 8,
+                        top: 8,
+                        child: Container(
+                          padding: EdgeInsets.all(4.w),
+                          decoration: const BoxDecoration(
+                            color: Colors.red,
+                            shape: BoxShape.circle,
+                          ),
+                          child: Text(
+                            '${favoriteIds.length}',
+                            style: GoogleFonts.cairo(
+                              color: Colors.white,
+                              fontSize: 10.sp,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                         ),
                       ),
-                    ),
-                  ),
+                  ],
+                ),
               ],
             ),
-            SizedBox(width: 8.w),
+          ),
+          leadingWidth: 112.w,
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.arrow_forward_ios_rounded,
+                  color: Colors.white),
+              onPressed: () => Navigator.pop(context),
+            ),
           ],
         ),
         body: isLoading

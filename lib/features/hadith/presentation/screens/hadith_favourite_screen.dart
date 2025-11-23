@@ -36,6 +36,7 @@ class _HadithFavoritesScreenState extends State<HadithFavoritesScreen> {
       appBar: AppBar(
         centerTitle: true,
         elevation: 0,
+        automaticallyImplyLeading: false,
         flexibleSpace: Container(
           decoration: const BoxDecoration(
             gradient: LinearGradient(
@@ -53,10 +54,13 @@ class _HadithFavoritesScreenState extends State<HadithFavoritesScreen> {
             fontSize: 22.sp,
           ),
         ),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => Navigator.pop(context),
-        ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.arrow_forward_ios_rounded,
+                color: Colors.white),
+            onPressed: () => Navigator.pop(context),
+          ),
+        ],
       ),
       body:
           _localFavorites.isEmpty ? _buildEmptyState() : _buildFavoritesList(),

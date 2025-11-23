@@ -20,6 +20,7 @@ class AsmaAllahFavoritesScreen extends StatelessWidget {
       appBar: AppBar(
         centerTitle: true,
         elevation: 0,
+        automaticallyImplyLeading: false,
         flexibleSpace: Container(
           decoration: const BoxDecoration(
             gradient: LinearGradient(
@@ -37,10 +38,13 @@ class AsmaAllahFavoritesScreen extends StatelessWidget {
             fontSize: 22.sp,
           ),
         ),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_rounded, color: Colors.white),
-          onPressed: () => Navigator.pop(context),
-        ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.arrow_forward_ios_rounded,
+                color: Colors.white),
+            onPressed: () => Navigator.pop(context),
+          ),
+        ],
       ),
       body: favoriteItems.isEmpty
           ? Center(

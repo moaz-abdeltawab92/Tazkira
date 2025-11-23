@@ -237,6 +237,7 @@ class _HadithScreenState extends State<HadithScreen> {
       appBar: AppBar(
         centerTitle: true,
         elevation: 0,
+        automaticallyImplyLeading: false,
         flexibleSpace: Container(
           decoration: const BoxDecoration(
             gradient: LinearGradient(
@@ -254,60 +255,73 @@ class _HadithScreenState extends State<HadithScreen> {
             fontSize: 22.sp,
           ),
         ),
-        actions: [
-          Stack(
+        leading: SizedBox(
+          width: 112.w,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
             children: [
-              IconButton(
-                icon: const Icon(
-                  Icons.favorite_rounded,
-                ),
-                onPressed: _showFavoritesScreen,
-              ),
-              if (favoriteHadiths.isNotEmpty)
-                Positioned(
-                  right: 8,
-                  top: 8,
-                  child: Container(
-                    padding: EdgeInsets.all(4.w),
-                    decoration: const BoxDecoration(
-                      color: Colors.red,
-                      shape: BoxShape.circle,
-                    ),
-                    child: Text(
-                      '${favoriteHadiths.length}',
-                      style: GoogleFonts.cairo(
-                        color: Colors.white,
-                        fontSize: 10.sp,
-                        fontWeight: FontWeight.bold,
+              Stack(
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.filter_list_rounded,
+                        color: Colors.white),
+                    onPressed: _showFilterDialog,
+                  ),
+                  if (selectedCategory != null)
+                    Positioned(
+                      right: 8,
+                      top: 8,
+                      child: Container(
+                        width: 8.w,
+                        height: 8.h,
+                        decoration: const BoxDecoration(
+                          color: Colors.red,
+                          shape: BoxShape.circle,
+                        ),
                       ),
                     ),
-                  ),
-                ),
-            ],
-          ),
-          Stack(
-            children: [
-              IconButton(
-                icon:
-                    const Icon(Icons.filter_list_rounded, color: Colors.white),
-                onPressed: _showFilterDialog,
+                ],
               ),
-              if (selectedCategory != null)
-                Positioned(
-                  right: 8,
-                  top: 8,
-                  child: Container(
-                    width: 8.w,
-                    height: 8.h,
-                    decoration: const BoxDecoration(
-                      color: Colors.red,
-                      shape: BoxShape.circle,
+              Stack(
+                children: [
+                  IconButton(
+                    icon: const Icon(
+                      Icons.favorite_rounded,
                     ),
+                    onPressed: _showFavoritesScreen,
                   ),
-                ),
+                  if (favoriteHadiths.isNotEmpty)
+                    Positioned(
+                      right: 8,
+                      top: 8,
+                      child: Container(
+                        padding: EdgeInsets.all(4.w),
+                        decoration: const BoxDecoration(
+                          color: Colors.red,
+                          shape: BoxShape.circle,
+                        ),
+                        child: Text(
+                          '${favoriteHadiths.length}',
+                          style: GoogleFonts.cairo(
+                            color: Colors.white,
+                            fontSize: 10.sp,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
             ],
           ),
-          SizedBox(width: 8.w),
+        ),
+        leadingWidth: 112.w,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.arrow_forward_ios_rounded,
+                color: Colors.white),
+            onPressed: () => Navigator.pop(context),
+          ),
         ],
       ),
       body: Column(

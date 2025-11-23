@@ -97,6 +97,7 @@ class _Ad3yaScreenState extends State<Ad3yaScreen> {
       appBar: AppBar(
         centerTitle: true,
         elevation: 0,
+        automaticallyImplyLeading: false,
         flexibleSpace: Container(
           decoration: const BoxDecoration(
             gradient: LinearGradient(
@@ -114,36 +115,41 @@ class _Ad3yaScreenState extends State<Ad3yaScreen> {
             fontSize: 22.sp,
           ),
         ),
-        actions: [
-          Stack(
-            children: [
-              IconButton(
-                icon: const Icon(Icons.favorite_rounded, color: Colors.white),
-                onPressed: _showFavoritesScreen,
-              ),
-              if (favoriteAd3ya.isNotEmpty)
-                Positioned(
-                  right: 8,
-                  top: 8,
-                  child: Container(
-                    padding: EdgeInsets.all(4.w),
-                    decoration: const BoxDecoration(
-                      color: Colors.red,
-                      shape: BoxShape.circle,
-                    ),
-                    child: Text(
-                      '${favoriteAd3ya.length}',
-                      style: GoogleFonts.cairo(
-                        color: Colors.white,
-                        fontSize: 10.sp,
-                        fontWeight: FontWeight.bold,
-                      ),
+        leading: Stack(
+          children: [
+            IconButton(
+              icon: const Icon(Icons.favorite_rounded, color: Colors.white),
+              onPressed: _showFavoritesScreen,
+            ),
+            if (favoriteAd3ya.isNotEmpty)
+              Positioned(
+                right: 8,
+                top: 8,
+                child: Container(
+                  padding: EdgeInsets.all(4.w),
+                  decoration: const BoxDecoration(
+                    color: Colors.red,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Text(
+                    '${favoriteAd3ya.length}',
+                    style: GoogleFonts.cairo(
+                      color: Colors.white,
+                      fontSize: 10.sp,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                 ),
-            ],
+              ),
+          ],
+        ),
+        leadingWidth: 56,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.arrow_forward_ios_rounded,
+                color: Colors.white),
+            onPressed: () => Navigator.pop(context),
           ),
-          SizedBox(width: 8.w),
         ],
       ),
       body: ListView.builder(

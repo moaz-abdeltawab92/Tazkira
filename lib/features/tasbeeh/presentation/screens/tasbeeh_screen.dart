@@ -9,6 +9,7 @@ class SabhaScreen extends StatelessWidget {
       appBar: AppBar(
         centerTitle: true,
         elevation: 0,
+        automaticallyImplyLeading: false,
         flexibleSpace: Container(
           decoration: const BoxDecoration(
             gradient: LinearGradient(
@@ -26,6 +27,13 @@ class SabhaScreen extends StatelessWidget {
             fontSize: 22.sp,
           ),
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.arrow_forward_ios_rounded,
+                color: Colors.white),
+            onPressed: () => Navigator.pop(context),
+          ),
+        ],
       ),
       backgroundColor: const Color(0xFFF5F7F5),
       body: Padding(

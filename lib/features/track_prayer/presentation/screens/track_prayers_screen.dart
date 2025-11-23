@@ -116,6 +116,7 @@ class _TrackPrayersState extends State<TrackPrayers> {
       appBar: AppBar(
         centerTitle: true,
         elevation: 0,
+        automaticallyImplyLeading: false,
         flexibleSpace: Container(
           decoration: const BoxDecoration(
             gradient: LinearGradient(
@@ -133,6 +134,13 @@ class _TrackPrayersState extends State<TrackPrayers> {
             fontSize: 22.sp,
           ),
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.arrow_forward_ios_rounded,
+                color: Colors.white),
+            onPressed: () => Navigator.pop(context),
+          ),
+        ],
       ),
       body: Padding(
         padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 5.h),

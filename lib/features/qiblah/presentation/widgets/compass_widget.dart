@@ -44,7 +44,7 @@ class CompassWidget extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           if (isLoading) ...[
-            CustomLoadingIndicator(text: 'جاري تحميل البوصلة...'),
+            const CustomLoadingIndicator(text: 'جاري تحميل البوصلة...'),
           ] else ...[
             Stack(
               alignment: Alignment.center,
