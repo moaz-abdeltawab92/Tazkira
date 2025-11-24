@@ -16,7 +16,7 @@ class HomeBody extends StatelessWidget {
                 SizedBox(height: spacing),
                 const FridayBanner(),
                 if (DateTime.now().weekday == DateTime.friday)
-                  SizedBox(height: spacing),
+                  SizedBox(height: 20.h),
                 const PrayerTimesCard(),
                 SizedBox(height: spacing),
                 Container(

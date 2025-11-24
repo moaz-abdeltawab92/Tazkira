@@ -1,6 +1,6 @@
 import 'package:tazkira_app/core/routing/route_export.dart';
 
-class AsmaAllahFavoritesScreen extends StatelessWidget {
+class AsmaAllahFavoritesScreen extends StatefulWidget {
   final List<AsmaAllahItem> favoriteItems;
   final Set<int> favoriteIds;
   final Function(int) onRemoveFavorite;
@@ -13,6 +13,30 @@ class AsmaAllahFavoritesScreen extends StatelessWidget {
     required this.onRemoveFavorite,
     required this.onShare,
   });
+
+  @override
+  State<AsmaAllahFavoritesScreen> createState() =>
+      _AsmaAllahFavoritesScreenState();
+}
+
+class _AsmaAllahFavoritesScreenState extends State<AsmaAllahFavoritesScreen> {
+  late List<AsmaAllahItem> _localFavoriteItems;
+  late Set<int> _localFavoriteIds;
+
+  @override
+  void initState() {
+    super.initState();
+    _localFavoriteItems = List.from(widget.favoriteItems);
+    _localFavoriteIds = Set.from(widget.favoriteIds);
+  }
+
+  void _handleRemove(int id) {
+    setState(() {
+      _localFavoriteIds.remove(id);
+      _localFavoriteItems.removeWhere((item) => item.id == id);
+    });
+    widget.onRemoveFavorite(id);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -46,7 +70,7 @@ class AsmaAllahFavoritesScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: favoriteItems.isEmpty
+      body: _localFavoriteItems.isEmpty
           ? Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -78,17 +102,17 @@ class AsmaAllahFavoritesScreen extends StatelessWidget {
             )
           : ListView.builder(
               padding: EdgeInsets.symmetric(vertical: 8.h),
-              itemCount: favoriteItems.length,
+              itemCount: _localFavoriteItems.length,
               itemBuilder: (context, index) {
-                final item = favoriteItems[index];
+                final item = _localFavoriteItems[index];
                 final actualIndex = item.id - 2;
 
                 return AsmaCard(
                   item: item,
                   index: actualIndex,
                   isFavorite: true,
-                  onFavoriteToggle: () => onRemoveFavorite(item.id),
-                  onShare: () => onShare(item, actualIndex),
+                  onFavoriteToggle: () => _handleRemove(item.id),
+                  onShare: () => widget.onShare(item, actualIndex),
                 );
               },
             ),
