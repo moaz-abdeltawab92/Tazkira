@@ -69,7 +69,12 @@ class ShareAppDialog extends StatelessWidget {
                 padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 10.h),
               ),
               onPressed: () {
-                Share.share(playStoreLink);
+                SharePlus.instance.share(
+                  ShareParams(
+                    text: playStoreLink,
+                    sharePositionOrigin: const Rect.fromLTWH(0, 0, 1, 1),
+                  ),
+                );
                 Navigator.pop(context);
               },
               icon: Icon(Icons.send_rounded, color: Colors.white, size: 18.sp),

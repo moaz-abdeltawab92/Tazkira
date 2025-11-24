@@ -8,7 +8,6 @@ class PodcastsPage extends StatelessWidget {
     return Directionality(
         textDirection: TextDirection.rtl,
         child: Scaffold(
-          // keep the AppBar minimal (no page title as requested)
           appBar: AppBar(
             backgroundColor: const Color.fromARGB(255, 175, 197, 195),
             elevation: 0,

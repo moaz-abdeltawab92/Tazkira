@@ -246,9 +246,12 @@ class _AsmaAllahScreenState extends State<AsmaAllahScreen> {
       final file = File('${dir.path}/اسم_الله_${item.name}.png');
       await file.writeAsBytes(imageBytes);
 
-      await Share.shareXFiles(
-        [XFile(file.path)],
-        text: 'أسماء الله الحسنى - ${item.name}\nمن تطبيق تَذْكِرَة',
+      await SharePlus.instance.share(
+        ShareParams(
+          files: [XFile(file.path)],
+          text: 'أسماء الله الحسنى - ${item.name}\nمن تطبيق تَذْكِرَة',
+          sharePositionOrigin: const Rect.fromLTWH(0, 0, 1, 1),
+        ),
       );
     } catch (e) {
       if (mounted) {
