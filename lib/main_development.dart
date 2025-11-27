@@ -1,5 +1,4 @@
 import 'package:tazkira_app/core/routing/route_export.dart';
-import 'package:device_preview/device_preview.dart';
 import 'package:timezone/data/latest.dart' as tz;
 
 void main() async {
@@ -8,12 +7,7 @@ void main() async {
   tz.initializeTimeZones();
   await ScreenUtil.ensureScreenSize();
 
-  runApp(
-    DevicePreview(
-      enabled: false,
-      builder: (context) => const TazkiraApp(),
-    ),
-  );
+  runApp(const TazkiraApp());
 }
 
 class TazkiraApp extends StatelessWidget {
