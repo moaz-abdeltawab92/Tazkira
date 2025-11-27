@@ -44,7 +44,7 @@ class PodcastCardWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 200.h,
+      height: 230.h,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         itemCount: podcasts.length,
@@ -54,7 +54,7 @@ class PodcastCardWidget extends StatelessWidget {
           return GestureDetector(
             onTap: () => _openUrl(podcast.url, context),
             child: Container(
-              width: 140.w,
+              width: 150.w,
               decoration: BoxDecoration(
                 color: Colors.white.withOpacity(0.95),
                 borderRadius: BorderRadius.circular(16.r),

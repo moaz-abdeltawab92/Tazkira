@@ -1,14 +1,19 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:tazkira_app/features/home/presentation/screens/homepage.dart';
-
+import 'package:tazkira_app/core/routing/route_export.dart';
+import 'package:device_preview/device_preview.dart';
 import 'package:timezone/data/latest.dart' as tz;
 
 void main() async {
-  //To fix text being hidden bug in flutter_screenutil in release mode tz.initializeTimeZones(); await ScreenUtil.ensureScreenSize(); runApp(const TazkiraApp()); } class TazkiraApp extends StatelessWidget { const TazkiraApp({super.key}); @override Widget build(BuildContext context) { return ScreenUtilInit( designSize: const Size(375, 812), minTextAdapt: true, splitScreenMode: true, builder: (context, child) { return MaterialApp( theme: ThemeData( useMaterial3: false, ), debugShowCheckedModeBanner: false, home: const Homepage(), ); }, ); } }
+  WidgetsFlutterBinding.ensureInitialized();
+
   tz.initializeTimeZones();
   await ScreenUtil.ensureScreenSize();
-  runApp(const TazkiraApp());
+
+  runApp(
+    DevicePreview(
+      enabled: false,
+      builder: (context) => const TazkiraApp(),
+    ),
+  );
 }
 
 class TazkiraApp extends StatelessWidget {

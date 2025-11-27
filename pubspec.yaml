@@ -49,3 +49,4 @@ flutter:
     - assets/podcasts/
     - assets/icons/
     - assets/json/
+    - shorebird.yaml

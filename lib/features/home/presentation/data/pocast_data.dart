@@ -111,4 +111,10 @@ const List<PodcastItem> podcasts = [
     url: 'https://youtu.be/pJ0auP7dbcY?si=At2CqtsJiw3dhKW8',
     imagePath: 'assets/podcasts/fangan.jpg',
   ),
+  PodcastItem(
+    title: 'سلسلة رعاية الصلاة',
+    url:
+        'https://www.youtube.com/playlist?list=PLSUcSqxe9RhzbP2F4xTE9GCrIUUEuFJoa',
+    imagePath: 'assets/podcasts/ra3ya.jpg',
+  ),
 ];
