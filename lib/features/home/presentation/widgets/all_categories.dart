@@ -12,7 +12,7 @@ class AllCategories extends StatelessWidget {
       },
       {
         "text": "قرآن كريم",
-        "screen": const QuranScreen(),
+        "screen": const MyQuranPage(),
       },
       {
         "text": "أسماء الله الحسنى",

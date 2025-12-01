@@ -1,3 +1,4 @@
+import 'package:quran_library/quran.dart';
 import 'package:tazkira_app/core/routing/route_export.dart';
 import 'package:timezone/data/latest.dart' as tz;
 
@@ -6,6 +7,7 @@ void main() async {
 
   tz.initializeTimeZones();
   await ScreenUtil.ensureScreenSize();
+  await QuranLibrary.init();
 
   runApp(const TazkiraApp());
 }
