@@ -20,8 +20,8 @@ class _MyQuranPageState extends State<MyQuranPage> {
           isDark: isDark,
         ),
         Positioned(
-          bottom: 20,
-          right: 20,
+          bottom: 15,
+          left: 5,
           child: FloatingActionButton.small(
             onPressed: () {
               setState(() {
@@ -29,12 +29,15 @@ class _MyQuranPageState extends State<MyQuranPage> {
               });
             },
             backgroundColor: Colors.white,
-            child: Icon(
-              isDark ? Icons.light_mode : Icons.dark_mode,
-              color: isDark ? Colors.amber : Colors.grey[800],
+            child: Text(
+              isDark ? "☀️" : "🌙",
+              style: TextStyle(
+                fontSize: 20,
+                color: isDark ? Colors.amber : Colors.grey[800],
+              ),
             ),
           ),
-        ),
+        )
       ],
     );
   }
