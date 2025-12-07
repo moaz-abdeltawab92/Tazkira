@@ -1,0 +1,2 @@
+C:/Users/JoeStore/projects/vs_projects/Tazkira/tazkira_app/android/app/.cxx/RelWithDebInfo/3as4w3n6/armeabi-v7a/CMakeFiles/edit_cache.dir
+C:/Users/JoeStore/projects/vs_projects/Tazkira/tazkira_app/android/app/.cxx/RelWithDebInfo/3as4w3n6/armeabi-v7a/CMakeFiles/rebuild_cache.dir

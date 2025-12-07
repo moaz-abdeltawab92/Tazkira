@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "340805022809",
+    "project_id": "tazkira-app",
+    "storage_bucket": "tazkira-app.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:340805022809:android:58aafb386adbec11b42d48",
+        "android_client_info": {
+          "package_name": "com.example.tazkira_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAob5lWThBhar85Qw1XtwaZDKMcueQdWpg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:340805022809:android:d53bedf5717bca78b42d48",
+        "android_client_info": {
+          "package_name": "com.moaz.tazkira"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAob5lWThBhar85Qw1XtwaZDKMcueQdWpg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

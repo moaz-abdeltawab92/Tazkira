@@ -1,0 +1,2 @@
+C:/Users/JoeStore/projects/vs_projects/Tazkira/tazkira_app/android/app/.cxx/Debug/18315n2h/x86/CMakeFiles/edit_cache.dir
+C:/Users/JoeStore/projects/vs_projects/Tazkira/tazkira_app/android/app/.cxx/Debug/18315n2h/x86/CMakeFiles/rebuild_cache.dir
