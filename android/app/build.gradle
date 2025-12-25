@@ -16,7 +16,7 @@ if (keystorePropertiesFile.exists()) {
 
 android {
     namespace = "com.moaz.tazkira"
-    compileSdk = 35
+    compileSdk = 36
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
@@ -40,7 +40,7 @@ android {
     defaultConfig {
         applicationId = "com.moaz.tazkira"
         minSdk = flutter.minSdkVersion
-        targetSdk = flutter.targetSdkVersion
+        targetSdk = 36// flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
     }
@@ -61,7 +61,7 @@ android {
         release {
             signingConfig signingConfigs.release
             minifyEnabled true
-            shrinkResources true
+            shrinkResources false  // تم تعطيله لحل مشكلة AssetManifest.json - يمكن تفعيله مع keep.xml
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             // TODO: Add your own signing config for the release build.
             // Signing with the debug keys for now, so `flutter run --release` works.
