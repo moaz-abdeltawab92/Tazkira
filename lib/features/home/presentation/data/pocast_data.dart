@@ -14,6 +14,11 @@ const List<PodcastItem> podcasts = [
     imagePath: 'assets/podcasts/way.png',
   ),
   PodcastItem(
+    title: 'الشيخ امجد سمير',
+    url: 'https://www.youtube.com/@amgad_samir',
+    imagePath: 'assets/podcasts/amgaad.jpg',
+  ),
+  PodcastItem(
     title: 'ايه المشكلة',
     url:
         'https://www.youtube.com/watch?v=1XpFCr3yFSY&list=PLlXQj2VGUTmdUP1KDQ9pkmKJU-KDNOkwt',

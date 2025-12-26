@@ -90,7 +90,7 @@ class PodcastCardWidget extends StatelessWidget {
                   Expanded(
                     flex: 1,
                     child: Padding(
-                      padding: EdgeInsets.all(8.0.w),
+                      padding: EdgeInsets.all(4.0.w),
                       child: Center(
                         child: Text(
                           podcast.title,

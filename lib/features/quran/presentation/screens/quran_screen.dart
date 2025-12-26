@@ -23,20 +23,17 @@ class _MyQuranPageState extends State<MyQuranPage> {
           bottom: 15,
           left: 5,
           child: FloatingActionButton.small(
-            onPressed: () {
-              setState(() {
-                isDark = !isDark;
-              });
-            },
-            backgroundColor: Colors.white,
-            child: Text(
-              isDark ? "☀️" : "🌙",
-              style: TextStyle(
-                fontSize: 20,
+              onPressed: () {
+                setState(() {
+                  isDark = !isDark;
+                });
+              },
+              backgroundColor: Colors.white,
+              child: Icon(
+                isDark ? Icons.light_mode : Icons.dark_mode,
                 color: isDark ? Colors.amber : Colors.grey[800],
-              ),
-            ),
-          ),
+                size: 24,
+              )),
         )
       ],
     );

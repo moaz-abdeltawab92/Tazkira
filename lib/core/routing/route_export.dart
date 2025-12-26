@@ -60,6 +60,7 @@ export 'package:tazkira_app/features/quran/presentation/screens/quran_screen.dar
 // Tasbeeh
 export 'package:tazkira_app/features/tasbeeh/presentation/data/tasbeeh_list.dart';
 export 'package:tazkira_app/features/tasbeeh/presentation/screens/tasbeeh_screen.dart';
+export 'package:tazkira_app/features/tasbeeh/presentation/screens/tasbeeh_statistics_page.dart';
 export 'package:tazkira_app/features/tasbeeh/presentation/widgets/counter_item.dart';
 export 'package:tazkira_app/features/tasbeeh/presentation/widgets/counter_details.dart';
 
@@ -102,5 +103,6 @@ export 'package:tazkira_app/features/qiblah/viewmodel/qiblah_state.dart';
 
 // Core Services & Widgets
 export 'package:tazkira_app/core/service/location_service.dart';
+export 'package:tazkira_app/core/service/app_update_service.dart';
 export 'package:tazkira_app/core/utils/custom_loading_indicator.dart';
 export 'package:tazkira_app/core/widgets/show_alert.dart';

@@ -7,22 +7,28 @@ class Homepage extends StatefulWidget {
   State<Homepage> createState() => _HomepageState();
 }
 
-class _HomepageState extends State<Homepage> {
+class _HomepageState extends State<Homepage> with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();
-    checkForUpdate();
+    WidgetsBinding.instance.addObserver(this);
+    // Trigger check on app launch
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      AppUpdateService().checkForUpdate(context);
+    });
   }
 
-  Future<void> checkForUpdate() async {
-    try {
-      final info = await InAppUpdate.checkForUpdate();
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
 
-      if (info.updateAvailability == UpdateAvailability.updateAvailable) {
-        await InAppUpdate.performImmediateUpdate();
-      }
-    } catch (e) {
-      print("Error checking for update: $e");
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      // Trigger check when app resumes from background
+      AppUpdateService().checkForUpdate(context);
     }
   }
 

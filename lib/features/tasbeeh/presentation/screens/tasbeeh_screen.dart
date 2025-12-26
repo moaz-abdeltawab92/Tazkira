@@ -27,6 +27,15 @@ class SabhaScreen extends StatelessWidget {
             fontSize: 22.sp,
           ),
         ),
+        leading: IconButton(
+          icon: const Icon(Icons.bar_chart_rounded, color: Colors.white),
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const TasbeehStatisticsPage()),
+            );
+          },
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.arrow_forward_ios_rounded,

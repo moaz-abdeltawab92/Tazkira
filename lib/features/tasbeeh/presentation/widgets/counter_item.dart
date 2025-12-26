@@ -11,9 +11,30 @@ class CounterItem extends StatefulWidget {
 class _CounterItemState extends State<CounterItem> {
   int count = 0;
 
+  @override
+  void initState() {
+    super.initState();
+    _loadCount();
+  }
+
+  Future<void> _loadCount() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      // Use the title as a unique key for persistence
+      count = prefs.getInt('tasbeeh_${azkarList[widget.index]["title"]}') ?? 0;
+    });
+  }
+
+  Future<void> _saveCount(int val) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt('tasbeeh_${azkarList[widget.index]["title"]}', val);
+  }
+
   void incrementCounter() {
+    HapticFeedback.lightImpact();
     setState(() {
       count++;
+      _saveCount(count);
 
       List<int> milestones = [
         25,
@@ -30,26 +51,6 @@ class _CounterItemState extends State<CounterItem> {
         800,
         900,
         1000,
-        1100,
-        1200,
-        1300,
-        1400,
-        1500,
-        1600,
-        1700,
-        1800,
-        1900,
-        2000,
-        2500,
-        3000,
-        3500,
-        4000,
-        4500,
-        5000,
-        6000,
-        7000,
-        8000,
-        9000,
         10000
       ];
 
@@ -67,6 +68,7 @@ class _CounterItemState extends State<CounterItem> {
   void resetCounter() {
     setState(() {
       count = 0;
+      _saveCount(0);
     });
   }
 
