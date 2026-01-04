@@ -4,7 +4,9 @@
 
 
 <h1> Download the App</h1>
-## 🔗 [Download Tazkira Islamic App Now](https://play.google.com/store/apps/details?id=com.moaz.tazkira)
+<a href="https://play.google.com/store/apps/details?id=com.moaz.tazkira" target="_blank">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg" height="55"/>
+  </a> 
  
 
 ## **Overview**  
