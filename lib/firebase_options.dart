@@ -63,6 +63,6 @@ class DefaultFirebaseOptions {
     messagingSenderId: '340805022809',
     projectId: 'tazkira-app',
     storageBucket: 'tazkira-app.firebasestorage.app',
-    iosBundleId: 'com.example.tazkiraApp',
+    iosBundleId: 'com.moaz.tazkira',
   );
 }

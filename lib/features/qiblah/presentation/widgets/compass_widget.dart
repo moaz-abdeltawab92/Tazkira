@@ -6,6 +6,7 @@ class CompassWidget extends StatelessWidget {
     required this.qiblahAngle,
     required this.isAligned,
     required this.isLoading,
+    this.sensorAccuracy,
     super.key,
   });
 
@@ -13,6 +14,7 @@ class CompassWidget extends StatelessWidget {
   final double qiblahAngle;
   final bool isAligned;
   final bool isLoading;
+  final double? sensorAccuracy;
 
   static const _compassDiameterFactor = 0.8;
   static const _maxCompassDiameter = 300.0;
@@ -67,8 +69,11 @@ class CompassWidget extends StatelessWidget {
           shape: BoxShape.circle,
           color: Colors.white,
           border: Border.all(
-            color:
-                isAligned ? const Color(0xFF7CB9AD) : const Color(0xFFE0E0E0),
+            color: isAligned
+                ? const Color(0xFF7CB9AD)
+                : (sensorAccuracy != null && sensorAccuracy! > 45)
+                    ? Colors.orange.withOpacity(0.5)
+                    : const Color(0xFFE0E0E0),
             width: isAligned ? 18.0 : 14.0,
           ),
           boxShadow: [

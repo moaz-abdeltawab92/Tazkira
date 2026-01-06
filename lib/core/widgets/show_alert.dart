@@ -11,33 +11,38 @@ void showAlert({
     context: context,
     barrierDismissible: false,
     builder: (context) {
-      return AlertDialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12.r),
-        ),
-        title: Text(
-          title,
-          style:
-              GoogleFonts.cairo(fontSize: 20.sp, fontWeight: FontWeight.bold),
-        ),
-        content: Text(
-          message,
-          style:
-              GoogleFonts.cairo(fontSize: 18.sp, fontWeight: FontWeight.w600),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-              if (onConfirm != null) onConfirm();
-            },
-            child: Text(
-              confirmText,
-              style: GoogleFonts.tajawal(
-                  fontSize: 16.sp, fontWeight: FontWeight.bold),
-            ),
+      return Directionality(
+        textDirection: TextDirection.rtl,
+        child: AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12.r),
           ),
-        ],
+          title: Text(
+            title,
+            style:
+                GoogleFonts.cairo(fontSize: 20.sp, fontWeight: FontWeight.bold),
+            textAlign: TextAlign.center,
+          ),
+          content: Text(
+            message,
+            style:
+                GoogleFonts.cairo(fontSize: 18.sp, fontWeight: FontWeight.w600),
+            textAlign: TextAlign.center,
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                if (onConfirm != null) onConfirm();
+              },
+              child: Text(
+                confirmText,
+                style: GoogleFonts.tajawal(
+                    fontSize: 16.sp, fontWeight: FontWeight.bold),
+              ),
+            ),
+          ],
+        ),
       );
     },
   );

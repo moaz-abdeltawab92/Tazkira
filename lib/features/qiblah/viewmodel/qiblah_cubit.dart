@@ -1,4 +1,5 @@
 import 'package:tazkira_app/core/routing/route_export.dart';
+import 'package:flutter_compass_v2/flutter_compass_v2.dart';
 
 class QiblahCubit extends Cubit<QiblahState> {
   QiblahCubit({required this.service, required this.locationService})
@@ -7,15 +8,17 @@ class QiblahCubit extends Cubit<QiblahState> {
   final QiblahService service;
   final LocationService locationService;
 
-  StreamSubscription<QiblahDirection>? _qiblahSubscription;
+  StreamSubscription<QiblahCompassEvent>? _qiblahSubscription;
   StreamSubscription<ServiceStatus>? _locationSubscription;
-  bool _hasTriggeredFeedback = false;
   bool _isInitialized = false;
+  Position? _currentPosition;
+  Timer? _stillnessTimer;
+  Timer? _initTimeoutTimer;
+  double? _lastHeading;
+  int _stillnessCount = 0;
 
   static const double _alignmentThreshold = 0.09;
-  static const double _degreesToRadians = pi / 180;
 
-  /// Initializes listeners
   Future<void> init() async {
     if (_isInitialized) return;
     _isInitialized = true;
@@ -86,46 +89,125 @@ class QiblahCubit extends Cubit<QiblahState> {
       emit(state.copyWith(status: QiblahStatus.loading));
     }
 
+    if (FlutterCompass.events == null) {
+      emit(state.copyWith(
+        status: QiblahStatus.success,
+        hasMagnetometer: false,
+      ));
+      return;
+    }
+
     await _qiblahSubscription?.cancel();
     _hasTriggeredFeedback = false;
 
-    _qiblahSubscription = service.qiblahStream
-        .distinct(
-          (prev, curr) =>
-              (prev.direction - curr.direction).abs() < 0.5 &&
-              (prev.qiblah - curr.qiblah).abs() < 0.5,
-        )
-        .listen(
-          _handleQiblahData,
-          onError: (error) => emit(
-            state.copyWith(
-              status: QiblahStatus.error,
-              message: 'خطأ في بوصلة القبلة: $error',
-            ),
-          ),
-        );
+    _qiblahSubscription = service.compassStream.listen(
+      _handleCompassData,
+      onError: (error) => emit(
+        state.copyWith(
+          status: QiblahStatus.error,
+          message: 'خطأ في بوصلة القبلة: $error',
+        ),
+      ),
+    );
+
+    _initTimeoutTimer?.cancel();
+    _initTimeoutTimer = Timer(const Duration(seconds: 5), () {
+      if (state.status == QiblahStatus.loading ||
+          (state.status == QiblahStatus.success && _lastHeading == null)) {
+        if (!isClosed) {
+          emit(state.copyWith(
+            status: QiblahStatus.success,
+            hasMagnetometer: false,
+          ));
+        }
+      }
+    });
   }
 
-  void _handleQiblahData(QiblahDirection data) {
-    final qiblahAngle = _validateAndConvertAngle(data.qiblah);
-    final headingAngle = _validateAndConvertAngle(data.direction);
-    final isAligned = (qiblahAngle % (2 * pi)).abs() < _alignmentThreshold;
+  Future<void> _handleCompassData(QiblahCompassEvent data) async {
+    _initTimeoutTimer?.cancel();
+
+    if (_currentPosition == null) {
+      try {
+        _currentPosition = await locationService.getCurrentPosition();
+      } catch (e) {}
+    }
+
+    double qiblahBearing = 0.0;
+    if (_currentPosition != null) {
+      qiblahBearing = service.calculateQiblaBearing(
+        _currentPosition!.latitude,
+        _currentPosition!.longitude,
+      );
+    }
+
+    final heading = data.heading;
+    final accuracy = data.accuracy;
+
+    if (heading != null) {
+      if (_lastHeading != null && (heading - _lastHeading!).abs() < 0.001) {
+        _stillnessCount++;
+      } else {
+        _stillnessCount = 0;
+      }
+      _lastHeading = heading;
+    }
+
+    _stillnessTimer?.cancel();
+    _stillnessTimer = Timer(const Duration(seconds: 3), () {
+      if (state.status == QiblahStatus.success && state.hasMagnetometer) {
+        emit(state.copyWith(hasMagnetometer: false));
+      }
+    });
+
+    bool hasMagnetometer = state.hasMagnetometer;
+    bool calibrationNeeded = false;
+
+    if (heading == null || _stillnessCount > 50) {
+      hasMagnetometer = false;
+    } else if (accuracy != null) {
+      if (Platform.isAndroid) {
+        if (accuracy < 2) {
+          calibrationNeeded = true;
+        }
+      } else if (Platform.isIOS) {
+        if (accuracy < 0 || accuracy > 20) {
+          calibrationNeeded = true;
+        }
+      }
+    }
+
+    final currentHeading = heading ?? 0.0;
+
+    final headingRad = -currentHeading * pi / 180;
+    final qiblahRad = (qiblahBearing - currentHeading) * pi / 180;
+
+    final isAligned = (qiblahRad % (2 * pi)).abs() < _alignmentThreshold;
 
     _triggerHapticFeedback(isAligned);
 
     emit(
       state.copyWith(
         status: QiblahStatus.success,
-        qiblahAngle: qiblahAngle,
-        headingAngle: headingAngle,
+        qiblahAngle: qiblahRad,
+        headingAngle: headingRad,
         isAligned: isAligned,
+        sensorAccuracy: accuracy,
+        isCalibrationNeeded: calibrationNeeded,
+        qiblahBearing: qiblahBearing,
+        userLocation: _currentPosition,
+        hasMagnetometer: hasMagnetometer,
       ),
     );
   }
 
-  double _validateAndConvertAngle(double angle) {
-    if (angle.isNaN || !angle.isFinite) return 0.0;
-    return -angle * _degreesToRadians;
+  @override
+  Future<void> close() async {
+    _stillnessTimer?.cancel();
+    _initTimeoutTimer?.cancel();
+    await _qiblahSubscription?.cancel();
+    await _locationSubscription?.cancel();
+    return super.close();
   }
 
   void _triggerHapticFeedback(bool isAligned) {
@@ -137,10 +219,5 @@ class QiblahCubit extends Cubit<QiblahState> {
     }
   }
 
-  @override
-  Future<void> close() async {
-    await _qiblahSubscription?.cancel();
-    await _locationSubscription?.cancel();
-    return super.close();
-  }
+  bool _hasTriggeredFeedback = false;
 }

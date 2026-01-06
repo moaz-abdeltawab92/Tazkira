@@ -333,22 +333,6 @@ class _HadithScreenState extends State<HadithScreen> {
               color: const Color(0xFF4A5D4F).withOpacity(0.1),
               child: Row(
                 children: [
-                  Icon(
-                    Icons.filter_alt_rounded,
-                    size: 20.sp,
-                    color: const Color(0xFF4A5D4F),
-                  ),
-                  SizedBox(width: 8.w),
-                  Expanded(
-                    child: Text(
-                      'القسم: $selectedCategory',
-                      style: GoogleFonts.cairo(
-                        fontSize: 14.sp,
-                        fontWeight: FontWeight.bold,
-                        color: const Color(0xFF3C4D40),
-                      ),
-                    ),
-                  ),
                   InkWell(
                     onTap: () {
                       setState(() {
@@ -369,6 +353,24 @@ class _HadithScreenState extends State<HadithScreen> {
                         color: Colors.white,
                       ),
                     ),
+                  ),
+                  SizedBox(width: 8.w),
+                  Expanded(
+                    child: Text(
+                      'القسم: $selectedCategory',
+                      style: GoogleFonts.cairo(
+                        fontSize: 14.sp,
+                        fontWeight: FontWeight.bold,
+                        color: const Color(0xFF3C4D40),
+                      ),
+                      textAlign: TextAlign.right,
+                    ),
+                  ),
+                  SizedBox(width: 8.w),
+                  Icon(
+                    Icons.filter_alt_rounded,
+                    size: 20.sp,
+                    color: const Color(0xFF4A5D4F),
                   ),
                 ],
               ),

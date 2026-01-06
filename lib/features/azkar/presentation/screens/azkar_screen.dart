@@ -1,7 +1,13 @@
 import 'package:tazkira_app/core/routing/route_export.dart';
+import 'package:tazkira_app/features/azkar/presentation/data/azkar_safar.dart';
+import 'package:tazkira_app/features/azkar/presentation/data/azkarfood.dart';
+import 'package:tazkira_app/features/azkar/presentation/widgets/interactive_azkar_card.dart';
+import 'package:tazkira_app/features/azkar/presentation/controllers/azkar_progress_manager.dart';
+import 'package:tazkira_app/features/azkar/presentation/utils/azkar_parser.dart';
 
 class AzkarScreen extends StatefulWidget {
-  const AzkarScreen({super.key});
+  final String? initialCategory;
+  const AzkarScreen({super.key, this.initialCategory});
 
   @override
   State<AzkarScreen> createState() => _AzkarScreenState();
@@ -10,6 +16,61 @@ class AzkarScreen extends StatefulWidget {
 class _AzkarScreenState extends State<AzkarScreen> {
   String? selectedCategory;
   final ScrollController _scrollController = ScrollController();
+  bool _isLoading = true;
+  int _resetKey = 0; // Key to force rebuild of cards
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.initialCategory != null) {
+      selectedCategory = widget.initialCategory;
+    }
+    _initManager();
+  }
+
+  Future<void> _initManager() async {
+    await AzkarProgressManager().init();
+    if (mounted) {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  Future<void> _resetAndRefresh(String category) async {
+    await AzkarProgressManager().resetCategory(category);
+    if (mounted) {
+      setState(() {
+        _resetKey++;
+      });
+    }
+  }
+
+  void _checkCategoryCompletion(String category, List<String> azkarList) {
+    if (AzkarProgressManager().isCategoryComplete(category)) return;
+
+    bool allComplete = true;
+    for (int i = 0; i < azkarList.length; i++) {
+      final parsed = AzkarParser.parse(azkarList[i]);
+      final current = AzkarProgressManager().getProgress(category, i);
+      if (current < parsed.count) {
+        allComplete = false;
+        break;
+      }
+    }
+
+    if (allComplete) {
+      AzkarProgressManager().setCategoryComplete(category, true);
+      // Show celebration dialog
+      showAlert(
+        context: context,
+        title: "ما شاء الله",
+        message: "أتممت $category بفضل الله.\nتقبل الله منك صالح الأعمال.",
+        confirmText: "حسناً",
+        onConfirm: () => _resetAndRefresh(category),
+      );
+    }
+  }
 
   final Map<String, List<String>> azkarCategories = {
     'أذكار الصباح': azkarAlsabah,
@@ -20,9 +81,11 @@ class _AzkarScreenState extends State<AzkarScreen> {
     'أذكار النوم': azkarSleep,
     'أذكار الاستغفار': azkarIstighfar,
     'أذكار دخول وخروج المنزل': azkarHome,
+    'أذكار السفر': azkarTravel,
     'أذكار الاستيقاظ': azkarIstiqaz,
     'أذكار عن فضل الذكر والشكر': azkarShukrDhikr,
     'أذكار بعد الفراغ من الوضوء': azkarWudu,
+    'أذكار قبل وبعد الطعام': azkarFood,
   };
 
   void _showFilterDialog() {
@@ -194,58 +257,64 @@ class _AzkarScreenState extends State<AzkarScreen> {
           ),
         ],
       ),
-      body: Column(
-        children: [
-          if (selectedCategory != null)
-            Container(
-              width: double.infinity,
-              padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
-              color: const Color(0xFF4A5D4F).withOpacity(0.1),
-              child: Row(
-                children: [
-                  Icon(
-                    Icons.filter_alt_rounded,
-                    size: 20.sp,
-                    color: const Color(0xFF4A5D4F),
-                  ),
-                  SizedBox(width: 8.w),
-                  Expanded(
-                    child: Text(
-                      selectedCategory!,
-                      style: GoogleFonts.cairo(
-                        fontSize: 14.sp,
-                        fontWeight: FontWeight.bold,
-                        color: const Color(0xFF3C4D40),
-                      ),
-                    ),
-                  ),
-                  InkWell(
-                    onTap: () {
-                      setState(() => selectedCategory = null);
-                    },
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : Column(
+              children: [
+                if (selectedCategory != null)
+                  Directionality(
+                    textDirection: TextDirection.rtl,
                     child: Container(
-                      padding: EdgeInsets.all(6.w),
-                      decoration: const BoxDecoration(
-                        color: Color(0xFF4A5D4F),
-                        shape: BoxShape.circle,
-                      ),
-                      child: Icon(
-                        Icons.close_rounded,
-                        size: 16.sp,
-                        color: Colors.white,
+                      width: double.infinity,
+                      padding: EdgeInsets.symmetric(
+                          horizontal: 16.w, vertical: 12.h),
+                      color: const Color(0xFF4A5D4F).withOpacity(0.1),
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.filter_alt_rounded,
+                            size: 20.sp,
+                            color: const Color(0xFF4A5D4F),
+                          ),
+                          SizedBox(width: 8.w),
+                          Expanded(
+                            child: Text(
+                              selectedCategory!,
+                              style: GoogleFonts.cairo(
+                                fontSize: 14.sp,
+                                fontWeight: FontWeight.bold,
+                                color: const Color(0xFF3C4D40),
+                              ),
+                            ),
+                          ),
+                          InkWell(
+                            onTap: () {
+                              setState(() => selectedCategory = null);
+                            },
+                            child: Container(
+                              padding: EdgeInsets.all(6.w),
+                              decoration: const BoxDecoration(
+                                color: Color(0xFF4A5D4F),
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(
+                                Icons.close_rounded,
+                                size: 16.sp,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ),
-                ],
-              ),
+                Expanded(
+                  child: selectedCategory == null
+                      ? _buildAllAzkar()
+                      : _buildFilteredAzkar(),
+                ),
+              ],
             ),
-          Expanded(
-            child: selectedCategory == null
-                ? _buildAllAzkar()
-                : _buildFilteredAzkar(),
-          ),
-        ],
-      ),
     );
   }
 
@@ -305,7 +374,14 @@ class _AzkarScreenState extends State<AzkarScreen> {
               physics: const NeverScrollableScrollPhysics(),
               itemCount: azkarList.length,
               itemBuilder: (context, i) {
-                return AzkarCardWithCopy(zekr: azkarList[i]);
+                return InteractiveAzkarCard(
+                  key: ValueKey('${category}_${i}_$_resetKey'),
+                  rawText: azkarList[i],
+                  category: category,
+                  index: i,
+                  onComplete: () =>
+                      _checkCategoryCompletion(category, azkarList),
+                );
               },
             ),
             Padding(
@@ -358,113 +434,28 @@ class _AzkarScreenState extends State<AzkarScreen> {
   }
 
   Widget _buildFilteredAzkar() {
-    List<String> azkarList = azkarCategories[selectedCategory]!;
+    String category = selectedCategory!;
+    List<String> azkarList = azkarCategories[category]!;
 
     return ListView.builder(
       padding: EdgeInsets.symmetric(vertical: 16.h),
       itemCount: azkarList.length,
       itemBuilder: (context, index) {
-        return AzkarCardWithCopy(zekr: azkarList[index]);
+        return InteractiveAzkarCard(
+          key: ValueKey('${category}_${index}_$_resetKey'),
+          rawText: azkarList[index],
+          category: category,
+          index: index,
+          onComplete: () => _checkCategoryCompletion(category, azkarList),
+        );
       },
     );
   }
 
   @override
   void dispose() {
+    AzkarProgressManager().clearAllProgress();
     _scrollController.dispose();
     super.dispose();
-  }
-}
-
-class AzkarCardWithCopy extends StatelessWidget {
-  final String zekr;
-
-  const AzkarCardWithCopy({super.key, required this.zekr});
-
-  void _copyToClipboard(BuildContext context) {
-    Clipboard.setData(ClipboardData(text: zekr));
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          'تم نسخ الذكر',
-          style: GoogleFonts.cairo(fontWeight: FontWeight.bold),
-          textAlign: TextAlign.center,
-        ),
-        duration: const Duration(seconds: 2),
-        backgroundColor: const Color(0xFF4A5D4F),
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12.r),
-        ),
-      ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      margin: EdgeInsets.symmetric(vertical: 8.h, horizontal: 16.w),
-      child: Card(
-        color: const Color(0xFFF9F5EC),
-        elevation: 6,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(25.r),
-          side: BorderSide(color: Colors.green.shade200, width: 1.5),
-        ),
-        child: Padding(
-          padding: EdgeInsets.symmetric(vertical: 16.h, horizontal: 20.w),
-          child: Column(
-            children: [
-              Text(
-                zekr,
-                style: GoogleFonts.tajawal(
-                  fontSize: 18.sp,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.black87,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              SizedBox(height: 12.h),
-              InkWell(
-                onTap: () => _copyToClipboard(context),
-                borderRadius: BorderRadius.circular(12.r),
-                child: Container(
-                  padding:
-                      EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF4A5D4F).withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(12.r),
-                    border: Border.all(
-                      color: const Color(0xFF4A5D4F).withOpacity(0.3),
-                      width: 1,
-                    ),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        Icons.copy_rounded,
-                        color: const Color(0xFF4A5D4F),
-                        size: 18.sp,
-                      ),
-                      SizedBox(width: 6.w),
-                      Text(
-                        'نسخ',
-                        style: GoogleFonts.cairo(
-                          color: const Color(0xFF4A5D4F),
-                          fontSize: 14.sp,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
   }
 }

@@ -106,3 +106,4 @@ export 'package:tazkira_app/core/service/location_service.dart';
 export 'package:tazkira_app/core/service/app_update_service.dart';
 export 'package:tazkira_app/core/utils/custom_loading_indicator.dart';
 export 'package:tazkira_app/core/widgets/show_alert.dart';
+export 'package:tazkira_app/core/utils/global_keys.dart';

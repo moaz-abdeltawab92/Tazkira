@@ -13,6 +13,10 @@ class QiblahState {
     this.routePoints,
     this.distance,
     this.duration,
+    this.sensorAccuracy,
+    this.hasMagnetometer = true,
+    this.isCalibrationNeeded = false,
+    this.qiblahBearing = 0.0,
   });
 
   final QiblahStatus status;
@@ -24,6 +28,10 @@ class QiblahState {
   final List<LatLng>? routePoints;
   final double? distance;
   final double? duration;
+  final double? sensorAccuracy;
+  final bool hasMagnetometer;
+  final bool isCalibrationNeeded;
+  final double qiblahBearing;
 
   QiblahState copyWith({
     QiblahStatus? status,
@@ -35,6 +43,10 @@ class QiblahState {
     List<LatLng>? routePoints,
     double? distance,
     double? duration,
+    double? sensorAccuracy,
+    bool? hasMagnetometer,
+    bool? isCalibrationNeeded,
+    double? qiblahBearing,
   }) =>
       QiblahState(
         status: status ?? this.status,
@@ -46,5 +58,9 @@ class QiblahState {
         routePoints: routePoints ?? this.routePoints,
         distance: distance ?? this.distance,
         duration: duration ?? this.duration,
+        sensorAccuracy: sensorAccuracy ?? this.sensorAccuracy,
+        hasMagnetometer: hasMagnetometer ?? this.hasMagnetometer,
+        isCalibrationNeeded: isCalibrationNeeded ?? this.isCalibrationNeeded,
+        qiblahBearing: qiblahBearing ?? this.qiblahBearing,
       );
 }

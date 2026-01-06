@@ -52,14 +52,19 @@ class _QiblahViewContent extends StatelessWidget {
       ),
       body: SafeArea(
         child: BlocBuilder<QiblahCubit, QiblahState>(
-          buildWhen: (previous, current) =>
-              previous.status != current.status ||
-              previous.qiblahAngle != current.qiblahAngle,
           builder: (context, state) {
             if (state.status == QiblahStatus.error) {
               return _buildErrorState(context, state);
+            } else if (!state.hasMagnetometer) {
+              return _buildFallbackState(context, state);
             } else {
-              return _buildSuccessState(context, state);
+              return Stack(
+                children: [
+                  _buildSuccessState(context, state),
+                  if (state.isCalibrationNeeded)
+                    _buildCalibrationOverlay(context),
+                ],
+              );
             }
           },
         ),
@@ -108,6 +113,93 @@ class _QiblahViewContent extends StatelessWidget {
     );
   }
 
+  Widget _buildCalibrationOverlay(BuildContext context) {
+    return Positioned(
+      top: 20.h,
+      left: 20.w,
+      right: 20.w,
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.black54,
+          borderRadius: BorderRadius.circular(12.r),
+        ),
+        child: Row(
+          children: [
+            const Icon(Icons.vibration, color: Colors.orange, size: 24),
+            SizedBox(width: 12.w),
+            Expanded(
+              child: Text(
+                'البوصلة غير دقيقة، يرجى تحريك الهاتف بحركة 8 (∞) للمعايرة',
+                style: GoogleFonts.cairo(
+                  color: Colors.white,
+                  fontSize: 14.sp,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFallbackState(BuildContext context, QiblahState state) {
+    return Center(
+      child: Padding(
+        padding: EdgeInsets.all(32.w),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.explore_off_outlined,
+                size: 80, color: Color(0xFF7CB9AD)),
+            SizedBox(height: 24.h),
+            Text(
+              'عذراً، هاتفك لا يدعم مستشعر البوصلة',
+              style: GoogleFonts.cairo(
+                fontSize: 20.sp,
+                fontWeight: FontWeight.bold,
+                color: const Color(0xFF2C5F4F),
+              ),
+              textAlign: TextAlign.center,
+            ),
+            SizedBox(height: 12.h),
+            Text(
+              'يمكنك معرفة القبلة من خلال وضع الهاتف في اتجاه القبلة التقريبي بناءً على موقعك:\nالقبلة تبعد ${state.qiblahBearing.toStringAsFixed(1)} درجة من الشمال الحقيقي.',
+              style: GoogleFonts.cairo(
+                fontSize: 16.sp,
+                color: Colors.grey[700],
+              ),
+              textAlign: TextAlign.center,
+            ),
+            SizedBox(height: 32.h),
+            ElevatedButton.icon(
+              onPressed: () {
+                context.read<QiblahCubit>().init();
+              },
+              icon: const Icon(Icons.refresh, color: Colors.white),
+              label: Text(
+                'حاول مرة أخرى',
+                style: GoogleFonts.cairo(
+                  color: Colors.white,
+                  fontSize: 16.sp,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF7CB9AD),
+                padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 12.h),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12.r),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildSuccessState(BuildContext context, QiblahState state) {
     return Container(
       decoration: const BoxDecoration(
@@ -124,19 +216,18 @@ class _QiblahViewContent extends StatelessWidget {
           stops: [0.0, 0.25, 0.5, 0.75, 1.0],
         ),
       ),
-      child: SafeArea(
-        child: Column(
-          children: [
-            Expanded(
-              child: CompassWidget(
-                headingAngle: state.headingAngle,
-                qiblahAngle: state.qiblahAngle,
-                isAligned: state.isAligned,
-                isLoading: state.status == QiblahStatus.loading,
-              ),
+      child: Column(
+        children: [
+          Expanded(
+            child: CompassWidget(
+              headingAngle: state.headingAngle,
+              qiblahAngle: state.qiblahAngle,
+              isAligned: state.isAligned,
+              isLoading: state.status == QiblahStatus.loading,
+              sensorAccuracy: state.sensorAccuracy,
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

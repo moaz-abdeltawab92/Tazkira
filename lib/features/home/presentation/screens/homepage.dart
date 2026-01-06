@@ -12,9 +12,12 @@ class _HomepageState extends State<Homepage> with WidgetsBindingObserver {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    // Trigger check on app launch
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      AppUpdateService().checkForUpdate(context);
+    // Trigger check 5 seconds after app launch (not immediately)
+    // This gives Play Store API time to initialize
+    Future.delayed(const Duration(seconds: 5), () {
+      if (mounted) {
+        AppUpdateService().checkForUpdate(context);
+      }
     });
   }
 

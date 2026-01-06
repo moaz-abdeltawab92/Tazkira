@@ -53,7 +53,15 @@ class _PrayerTimesPageState extends State<PrayerTimesPage> {
         };
       });
     } catch (e) {
-      print("Error: $e");
+      debugPrint('Prayer Times Error: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              backgroundColor: const Color(0xFF2A6B5C),
+              content: Text('تعذر جلب أوقات الصلاة. يرجى التحقق من موقعك.',
+                  style: GoogleFonts.cairo(fontSize: 14.sp))),
+        );
+      }
     }
   }
 
@@ -100,7 +108,7 @@ class _PrayerTimesPageState extends State<PrayerTimesPage> {
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: Text(
-                "📍 $cityName",
+                " $cityName",
                 style:
                     const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),

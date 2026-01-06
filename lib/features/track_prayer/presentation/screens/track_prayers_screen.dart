@@ -99,7 +99,9 @@ class _TrackPrayersState extends State<TrackPrayers> {
 
   Future<void> _resetPrayers() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.clear();
+    for (var prayer in prayers) {
+      await prefs.remove(prayer);
+    }
     setState(() {
       prayerStatus = {for (var prayer in prayers) prayer: false};
     });
