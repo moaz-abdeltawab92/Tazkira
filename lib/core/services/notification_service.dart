@@ -1,11 +1,8 @@
-import 'dart:io';
-import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:timezone/timezone.dart' as tz;
-import 'package:tazkira_app/core/services/notification_content_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:tazkira_app/core/routing/route_export.dart';
+import 'package:tazkira_app/core/services/notification_content_provider.dart';
+import 'package:timezone/timezone.dart' as tz;
 
 class NotificationService {
   static final FlutterLocalNotificationsPlugin _notificationsPlugin =
@@ -63,7 +60,13 @@ class NotificationService {
       if (await Permission.scheduleExactAlarm.isDenied) {
         await Permission.scheduleExactAlarm.request();
       }
-    } else if (Platform.isIOS) {}
+    } else if (Platform.isIOS) {
+      // Use permission_handler for explicit prompt on iOS
+      if (await Permission.notification.isDenied ||
+          await Permission.notification.isPermanentlyDenied) {
+        await Permission.notification.request();
+      }
+    }
   }
 
   static Future<void> _createNotificationChannels() async {
@@ -507,25 +510,18 @@ class NotificationService {
   // TEMPORARY DEBUG ONLY - iOS Verification Notification
   // ==========================================================
   static Future<void> scheduleIOSDebugNotification() async {
-    // 1. Check/Request Permissions
-    var status = await Permission.notification.status;
-    debugPrint('[DEBUG] Notification permission status: $status');
-
-    if (!status.isGranted) {
-      debugPrint('[DEBUG] Requesting notification permission...');
-      status = await Permission.notification.request();
-      debugPrint('[DEBUG] Permission request result: $status');
-      if (!status.isGranted) {
-        debugPrint('[DEBUG] Permission denied. Cannot schedule notification.');
-        return;
-      }
+    // 1. Check Permissions
+    if (Platform.isIOS) {
+      final status = await Permission.notification.status;
+      debugPrint('[DEBUG] iOS Notification permission status: $status');
     }
 
-    // 2. Schedule for 50 seconds later (faster test)
-    final now = tz.TZDateTime.now(tz.local);
-    final scheduledDate = now.add(const Duration(seconds: 50));
-
+    // 2. Schedule for 50 seconds later
+    // We use device local timezone so it fires in 50s regardless of location (US, Cairo, etc.)
     try {
+      final now = tz.TZDateTime.now(tz.local);
+      final scheduledDate = now.add(const Duration(seconds: 120));
+
       await _notificationsPlugin.zonedSchedule(
         _iosDebugId,
         'Test notification',
@@ -536,7 +532,7 @@ class NotificationService {
         androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
       );
       debugPrint(
-          '[DEBUG] Temporary iOS test notification scheduled for: $scheduledDate');
+          '[DEBUG] Temporary test notification scheduled for: $scheduledDate (Local Time)');
     } catch (e) {
       debugPrint('[DEBUG] Error scheduling notification: $e');
     }

@@ -15,9 +15,18 @@ class _MyQuranPageState extends State<MyQuranPage> {
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        QuranLibraryScreen(
-          parentContext: context,
-          isDark: isDark,
+        Directionality(
+          textDirection: TextDirection.rtl,
+          child: QuranLibraryScreen(
+            parentContext: context,
+            isDark: isDark,
+            appLanguageCode: 'ar',
+            topBarStyle:
+                QuranTopBarStyle.defaults(isDark: isDark, context: context)
+                    .copyWith(
+              showBackButton: true,
+            ),
+          ),
         ),
         Positioned(
           bottom: 15,
