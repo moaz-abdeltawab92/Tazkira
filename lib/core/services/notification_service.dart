@@ -254,7 +254,7 @@ class NotificationService {
 
   static Future<void> _scheduleHourlyNotifications() async {
     final cairo = tz.getLocation('Africa/Cairo');
-    final hours = List.generate(12, (index) => index * 2);
+    final hours = List.generate(24, (index) => index);
 
     for (int i = 0; i < hours.length; i++) {
       final hour = hours[i];
