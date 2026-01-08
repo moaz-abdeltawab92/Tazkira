@@ -1,3 +1,6 @@
+import 'dart:io';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:tazkira_app/core/services/notification_content_provider.dart';
@@ -20,6 +23,7 @@ class NotificationService {
   static const int _surahMulkId = 400;
   static const int _beforeSleepDhikrId = 410;
   static const int _prayerReminderStartId = 500;
+  static const int _iosDebugId = 999; // TEMPORARY DEBUG ONLY
 
   static Future<void> initialize() async {
     const AndroidInitializationSettings androidSettings =
@@ -136,6 +140,15 @@ class NotificationService {
     if (prefs.getBool('prayer_reminders_enabled') ?? false) {
       await schedulePrayerTimeReminders();
     }
+
+    // ==========================================================
+    // TEMPORARY DEBUG ONLY - iOS Verification Notification
+    // This will schedule a notification to fire after 1 minute
+    // REMOVE THIS BEFORE FINAL SUBMISSION
+    // REMOVE THIS BEFORE FINAL SUBMISSION
+    await scheduleIOSDebugNotification();
+    // ==========================================================
+    // ==========================================================
   }
 
   static Future<void> _scheduleMorningAzkar() async {
@@ -488,5 +501,44 @@ class NotificationService {
       await _notificationsPlugin.cancel(_prayerReminderStartId + i);
     }
     debugPrint('Prayer time reminders cancelled');
+  }
+
+  // ==========================================================
+  // TEMPORARY DEBUG ONLY - iOS Verification Notification
+  // ==========================================================
+  static Future<void> scheduleIOSDebugNotification() async {
+    // 1. Check/Request Permissions
+    var status = await Permission.notification.status;
+    debugPrint('[DEBUG] Notification permission status: $status');
+
+    if (!status.isGranted) {
+      debugPrint('[DEBUG] Requesting notification permission...');
+      status = await Permission.notification.request();
+      debugPrint('[DEBUG] Permission request result: $status');
+      if (!status.isGranted) {
+        debugPrint('[DEBUG] Permission denied. Cannot schedule notification.');
+        return;
+      }
+    }
+
+    // 2. Schedule for 50 seconds later (faster test)
+    final now = tz.TZDateTime.now(tz.local);
+    final scheduledDate = now.add(const Duration(seconds: 50));
+
+    try {
+      await _notificationsPlugin.zonedSchedule(
+        _iosDebugId,
+        'Test notification',
+        'Test notification – iOS local notifications are working ✅',
+        scheduledDate,
+        _getNotificationDetails(_azkarChannelId,
+            body: 'Test notification – iOS local notifications are working ✅'),
+        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+      );
+      debugPrint(
+          '[DEBUG] Temporary iOS test notification scheduled for: $scheduledDate');
+    } catch (e) {
+      debugPrint('[DEBUG] Error scheduling notification: $e');
+    }
   }
 }
