@@ -2,7 +2,8 @@ import 'package:quran_library/quran.dart';
 import 'package:tazkira_app/core/routing/route_export.dart';
 
 class MyQuranPage extends StatefulWidget {
-  const MyQuranPage({super.key});
+  final int? initialPage;
+  const MyQuranPage({super.key, this.initialPage});
 
   @override
   State<MyQuranPage> createState() => _MyQuranPageState();
@@ -10,6 +11,18 @@ class MyQuranPage extends StatefulWidget {
 
 class _MyQuranPageState extends State<MyQuranPage> {
   bool isDark = false;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.initialPage != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        Future.delayed(const Duration(milliseconds: 500), () {
+          QuranLibrary().jumpToPage(widget.initialPage!);
+        });
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {

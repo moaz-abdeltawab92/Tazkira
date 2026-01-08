@@ -20,7 +20,6 @@ class NotificationService {
   static const int _surahMulkId = 400;
   static const int _beforeSleepDhikrId = 410;
   static const int _prayerReminderStartId = 500;
-  static const int _iosDebugId = 999; // TEMPORARY DEBUG ONLY
 
   static Future<void> initialize() async {
     const AndroidInitializationSettings androidSettings =
@@ -43,6 +42,18 @@ class NotificationService {
       initializationSettings,
       onDidReceiveNotificationResponse: _onNotificationTapped,
     );
+
+    // Handle when the app is launched via notification (Terminated state)
+    final NotificationAppLaunchDetails? launchDetails =
+        await _notificationsPlugin.getNotificationAppLaunchDetails();
+    if (launchDetails?.didNotificationLaunchApp ?? false) {
+      if (launchDetails?.notificationResponse != null) {
+        // Wait for app to initialize before handling the tap
+        Future.delayed(const Duration(milliseconds: 500), () {
+          _onNotificationTapped(launchDetails!.notificationResponse!);
+        });
+      }
+    }
 
     await _requestPermissions();
 
@@ -108,19 +119,45 @@ class NotificationService {
     await androidPlugin.createNotificationChannel(prayerChannel);
   }
 
-  static void _onNotificationTapped(NotificationResponse response) {
+  static void _onNotificationTapped(NotificationResponse response) async {
     debugPrint('Notification Tapped with payload: ${response.payload}');
-    if (response.payload != null) {
-      if (response.payload == 'أذكار الصباح' ||
-          response.payload == 'أذكار المساء') {
-        navigatorKey.currentState?.push(
-          MaterialPageRoute(
-            builder: (context) => AzkarScreen(
-              initialCategory: response.payload,
-            ),
+    final payload = response.payload;
+    if (payload == null) return;
+
+    // Wait for navigator to be ready (up to 2 seconds)
+    int retries = 0;
+    while (navigatorKey.currentState == null && retries < 10) {
+      await Future.delayed(const Duration(milliseconds: 200));
+      retries++;
+    }
+
+    if (navigatorKey.currentState == null) {
+      debugPrint('Navigator not ready after retries');
+      return;
+    }
+
+    if (payload == 'أذكار الصباح' ||
+        payload == 'أذكار المساء' ||
+        payload == 'أذكار النوم') {
+      navigatorKey.currentState?.push(
+        MaterialPageRoute(
+          builder: (context) => AzkarScreen(
+            initialCategory: payload,
           ),
-        );
-      }
+        ),
+      );
+    } else if (payload == 'surah_kahf') {
+      navigatorKey.currentState?.push(
+        MaterialPageRoute(
+          builder: (context) => const MyQuranPage(initialPage: 293),
+        ),
+      );
+    } else if (payload == 'surah_mulk') {
+      navigatorKey.currentState?.push(
+        MaterialPageRoute(
+          builder: (context) => const MyQuranPage(initialPage: 562),
+        ),
+      );
     }
   }
 
@@ -143,15 +180,6 @@ class NotificationService {
     if (prefs.getBool('prayer_reminders_enabled') ?? false) {
       await schedulePrayerTimeReminders();
     }
-
-    // ==========================================================
-    // TEMPORARY DEBUG ONLY - iOS Verification Notification
-    // This will schedule a notification to fire after 1 minute
-    // REMOVE THIS BEFORE FINAL SUBMISSION
-    // REMOVE THIS BEFORE FINAL SUBMISSION
-    await scheduleIOSDebugNotification();
-    // ==========================================================
-    // ==========================================================
   }
 
   static Future<void> _scheduleMorningAzkar() async {
@@ -225,13 +253,14 @@ class NotificationService {
   }
 
   static Future<void> _scheduleHourlyNotifications() async {
+    final cairo = tz.getLocation('Africa/Cairo');
     final hours = List.generate(12, (index) => index * 2);
 
     for (int i = 0; i < hours.length; i++) {
       final hour = hours[i];
-      final now = tz.TZDateTime.now(tz.local);
+      final now = tz.TZDateTime.now(cairo);
       var scheduledDate = tz.TZDateTime(
-        tz.local,
+        cairo,
         now.year,
         now.month,
         now.day,
@@ -266,6 +295,7 @@ class NotificationService {
         surahKahfHours[i],
         NotificationContentProvider.getFridayNotificationTitle(),
         NotificationContentProvider.getSurahKahfReminder(),
+        payload: 'surah_kahf',
       );
     }
 
@@ -306,7 +336,7 @@ class NotificationService {
       scheduledDate,
       _getNotificationDetails(_azkarChannelId, body: surahMulkContent),
       androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-      payload: 'سورة التبارك',
+      payload: 'surah_mulk',
       matchDateTimeComponents: DateTimeComponents.time,
     );
   }
@@ -346,8 +376,9 @@ class NotificationService {
     int id,
     int hour,
     String title,
-    String body,
-  ) async {
+    String body, {
+    String? payload,
+  }) async {
     final cairo = tz.getLocation('Africa/Cairo');
     final now = tz.TZDateTime.now(cairo);
 
@@ -383,6 +414,7 @@ class NotificationService {
       scheduledDate,
       _getNotificationDetails(_fridayChannelId, body: body),
       androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+      payload: payload,
       matchDateTimeComponents: DateTimeComponents.dayOfWeekAndTime,
     );
   }
@@ -504,37 +536,5 @@ class NotificationService {
       await _notificationsPlugin.cancel(_prayerReminderStartId + i);
     }
     debugPrint('Prayer time reminders cancelled');
-  }
-
-  // ==========================================================
-  // TEMPORARY DEBUG ONLY - iOS Verification Notification
-  // ==========================================================
-  static Future<void> scheduleIOSDebugNotification() async {
-    // 1. Check Permissions
-    if (Platform.isIOS) {
-      final status = await Permission.notification.status;
-      debugPrint('[DEBUG] iOS Notification permission status: $status');
-    }
-
-    // 2. Schedule for 50 seconds later
-    // We use device local timezone so it fires in 50s regardless of location (US, Cairo, etc.)
-    try {
-      final now = tz.TZDateTime.now(tz.local);
-      final scheduledDate = now.add(const Duration(seconds: 120));
-
-      await _notificationsPlugin.zonedSchedule(
-        _iosDebugId,
-        'Test notification',
-        'Test notification – iOS local notifications are working ✅',
-        scheduledDate,
-        _getNotificationDetails(_azkarChannelId,
-            body: 'Test notification – iOS local notifications are working ✅'),
-        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-      );
-      debugPrint(
-          '[DEBUG] Temporary test notification scheduled for: $scheduledDate (Local Time)');
-    } catch (e) {
-      debugPrint('[DEBUG] Error scheduling notification: $e');
-    }
   }
 }
