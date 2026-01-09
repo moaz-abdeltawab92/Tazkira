@@ -1,4 +1,9 @@
-# **Tazkira Islamic App**  
+# **Tazkira Islamic App || تَذْكِرَة  – رفيق المسلم اليومي**  
+
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/moaz-abdeltawab92/Tazkira/main/app_banner.png" alt="Tazkira App Banner" width="800"/>
+</p>
 
 *A Flutter application designed to help Muslims stay connected with their daily religious practices.*  
 
