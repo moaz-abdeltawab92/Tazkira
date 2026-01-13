@@ -49,11 +49,30 @@
 		<true/>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
+	<!-- Location permissions for geolocator, geocoding, and flutter_qiblah -->
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>يحتاج هذا التطبيق للوصول إلى موقعك لتحديد أوقات الصلاة والقبلة بدقة بناءً على مكانك الحالي.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>يحتاج هذا التطبيق للوصول إلى موقعك في الخلفية لتذكيرك بمواعيد الصلاة حتى عند إغلاق التطبيق.</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>يحتاج هذا التطبيق للوصول إلى موقعك في الخلفية لتذكيرك بمواعيد الصلاة حتى عند إغلاق التطبيق.</string>
 	
-	<!-- Notification permissions -->
+	<!-- Notification permissions for flutter_local_notifications -->
 	<key>NSUserNotificationsUsageDescription</key>
 	<string>يستخدم التطبيق الإشعارات لتذكيرك بمواعيد الصلاة والأذكار اليومية في وقتها.</string>
+	
+	<!-- Photo Library permissions for share_plus -->
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>يحتاج التطبيق للوصول إلى مكتبة الصور لمشاركة الصور والصور المحفوظة.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>يحتاج التطبيق لحفظ الصور في مكتبة الصور.</string>
+	
+	<!-- Background modes for location updates and notifications -->
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>location</string>
+		<string>fetch</string>
+		<string>remote-notification</string>
+	</array>
 </dict>
 </plist>
