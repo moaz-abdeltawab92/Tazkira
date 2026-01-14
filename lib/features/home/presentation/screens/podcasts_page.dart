@@ -93,35 +93,7 @@ class _PodcastsPageState extends State<PodcastsPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      // internal section header (matches screenshot style)
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Container(
-                            padding: EdgeInsets.symmetric(
-                                horizontal: 8.w, vertical: 4.h),
-                            decoration: BoxDecoration(
-                              color: Colors.black.withOpacity(0.4),
-                              borderRadius: BorderRadius.circular(8.r),
-                            ),
-                            child: Text(
-                              'البودكاستات والقنوات المقترحة',
-                              style: GoogleFonts.cairo(
-                                fontSize: 18.sp,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 12.h),
-
-                      // nicer podcast cards horizontally
-                      const PodcastCardWidget(),
-                      SizedBox(height: 18.h),
-
-                      // Settings Section
+                      // Settings Section at the top
                       Container(
                         decoration: BoxDecoration(
                           color: Colors.white.withOpacity(0.9),
@@ -167,6 +139,34 @@ class _PodcastsPageState extends State<PodcastsPage> {
                           ),
                         ),
                       ),
+                      SizedBox(height: 18.h),
+
+                      // internal section header (matches screenshot style)
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Container(
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 8.w, vertical: 4.h),
+                            decoration: BoxDecoration(
+                              color: Colors.black.withOpacity(0.4),
+                              borderRadius: BorderRadius.circular(8.r),
+                            ),
+                            child: Text(
+                              'البودكاستات والقنوات المقترحة',
+                              style: GoogleFonts.cairo(
+                                fontSize: 18.sp,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 12.h),
+
+                      // nicer podcast cards horizontally
+                      const PodcastCardWidget(),
                       SizedBox(height: 18.h),
 
                       // share button

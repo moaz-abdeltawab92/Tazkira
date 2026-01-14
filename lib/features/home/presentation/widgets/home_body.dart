@@ -1,4 +1,5 @@
 import 'package:tazkira_app/core/routing/route_export.dart';
+import 'package:tazkira_app/core/widgets/daily_quote_widget.dart';
 
 class HomeBody extends StatelessWidget {
   const HomeBody({super.key});
@@ -17,7 +18,12 @@ class HomeBody extends StatelessWidget {
                 const FridayBanner(),
                 if (DateTime.now().weekday == DateTime.friday)
                   SizedBox(height: 16.h),
-                const PrayerTimesCard(),
+                SizedBox(height: 16.h),
+                const HijriDateCard(),
+                SizedBox(height: 16.h),
+                const PrayerTimesCardsWidget(),
+                SizedBox(height: spacing),
+                const DailyQuoteWidget(),
                 SizedBox(height: spacing),
                 Container(
                   decoration: BoxDecoration(

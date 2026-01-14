@@ -19,6 +19,10 @@ class AllCategories extends StatelessWidget {
         "screen": const AsmaAllahScreen(),
       },
       {
+        "text": " السنن النبوية",
+        "screen": const SunanScreen(),
+      },
+      {
         "text": "الدعاء",
         "screen": const Ad3yaScreen(),
       },

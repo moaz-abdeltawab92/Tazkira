@@ -1,4 +1,6 @@
 import 'package:tazkira_app/core/routing/route_export.dart';
+import 'package:tazkira_app/features/track_prayer/presentation/data/prayer_statistics_service.dart';
+import 'package:tazkira_app/features/track_prayer/presentation/screens/prayer_statistics_screen.dart';
 
 class TrackPrayers extends StatefulWidget {
   const TrackPrayers({super.key});
@@ -40,6 +42,11 @@ class _TrackPrayersState extends State<TrackPrayers> {
 
     _savePrayerStatus();
 
+    // Increment total prayers completed in statistics
+    if (prayerStatus[prayer] == true) {
+      PrayerStatisticsService.incrementTotalPrayers();
+    }
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       bool allPreviousChecked = true;
       for (String p in prayers) {
@@ -51,6 +58,9 @@ class _TrackPrayersState extends State<TrackPrayers> {
       }
 
       if (allPreviousChecked && prayerStatus[prayer]!) {
+        // Check if all prayers are completed and update streak
+        _checkAndUpdateStreak();
+
         if (prayer == prayers.last) {
           _showNextPrayerAlert("");
         } else {
@@ -58,6 +68,28 @@ class _TrackPrayersState extends State<TrackPrayers> {
         }
       }
     });
+  }
+
+  Future<void> _checkAndUpdateStreak() async {
+    final allCompleted = await PrayerStatisticsService.areAllPrayersCompleted();
+    if (allCompleted) {
+      await PrayerStatisticsService.updateStreakIfComplete();
+
+      // Show streak notification
+      final currentStreak = await PrayerStatisticsService.getCurrentStreak();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              ' ما شاء الله! سلسلة الالتزام: $currentStreak يوم',
+              style: GoogleFonts.cairo(fontWeight: FontWeight.bold),
+            ),
+            backgroundColor: const Color(0xFF4CAF50),
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      }
+    }
   }
 
   void _showNextPrayerAlert(String nextPrayer) {
@@ -240,6 +272,7 @@ class _TrackPrayersState extends State<TrackPrayers> {
                 ),
               ),
               SizedBox(height: 20.h),
+              // Reset Button (ابدأ من الأول)
               ElevatedButton(
                 onPressed: _resetPrayers,
                 style: ElevatedButton.styleFrom(
@@ -256,6 +289,43 @@ class _TrackPrayersState extends State<TrackPrayers> {
                     color: Colors.black,
                     fontWeight: FontWeight.bold,
                   ),
+                ),
+              ),
+              SizedBox(height: 15.h),
+              // Prayer Statistics Button
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const PrayerStatisticsScreen(),
+                    ),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF7CB9AD),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12.r),
+                  ),
+                  minimumSize: Size(double.infinity, 50.h),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      '📊',
+                      style: TextStyle(fontSize: 20.sp),
+                    ),
+                    SizedBox(width: 8.w),
+                    Text(
+                      'إحصائيات صلاتك',
+                      style: GoogleFonts.cairo(
+                        fontSize: 18.sp,
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
                 ),
               ),
               SizedBox(height: 30.h),

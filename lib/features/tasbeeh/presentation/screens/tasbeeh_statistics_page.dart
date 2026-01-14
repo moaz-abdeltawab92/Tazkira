@@ -41,6 +41,7 @@ class _TasbeehStatisticsPageState extends State<TasbeehStatisticsPage> {
     final prefs = await SharedPreferences.getInstance();
 
     // Show confirmation dialog first
+    if (!mounted) return;
     bool? confirm = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -180,17 +181,17 @@ class _TasbeehStatisticsPageState extends State<TasbeehStatisticsPage> {
                               mainAxisAlignment: MainAxisAlignment.end,
                               children: [
                                 Text(
-                                  "مرات التسبيح: ",
-                                  style: GoogleFonts.cairo(
-                                      fontSize: 12.sp, color: Colors.grey[600]),
-                                ),
-                                Text(
                                   count.toString(),
                                   style: GoogleFonts.cairo(
                                     fontSize: 16.sp,
                                     fontWeight: FontWeight.bold,
                                     color: const Color(0xFF5A9A8E),
                                   ),
+                                ),
+                                Text(
+                                  " :مرات التسبيح",
+                                  style: GoogleFonts.cairo(
+                                      fontSize: 12.sp, color: Colors.grey[600]),
                                 ),
                               ],
                             ),
