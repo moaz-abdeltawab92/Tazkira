@@ -52,10 +52,6 @@
 	<!-- Location permissions for geolocator, geocoding, and flutter_qiblah -->
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>يحتاج هذا التطبيق للوصول إلى موقعك لتحديد أوقات الصلاة والقبلة بدقة بناءً على مكانك الحالي.</string>
-	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-	<string>يحتاج هذا التطبيق للوصول إلى موقعك في الخلفية لتذكيرك بمواعيد الصلاة حتى عند إغلاق التطبيق.</string>
-	<key>NSLocationAlwaysUsageDescription</key>
-	<string>يحتاج هذا التطبيق للوصول إلى موقعك في الخلفية لتذكيرك بمواعيد الصلاة حتى عند إغلاق التطبيق.</string>
 	
 	<!-- Notification permissions for flutter_local_notifications -->
 	<key>NSUserNotificationsUsageDescription</key>
@@ -67,10 +63,9 @@
 	<key>NSPhotoLibraryAddUsageDescription</key>
 	<string>يحتاج التطبيق لحفظ الصور في مكتبة الصور.</string>
 	
-	<!-- Background modes for location updates and notifications -->
+	<!-- Background modes for notifications -->
 	<key>UIBackgroundModes</key>
 	<array>
-		<string>location</string>
 		<string>fetch</string>
 		<string>remote-notification</string>
 	</array>
