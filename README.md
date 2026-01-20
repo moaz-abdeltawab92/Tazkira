@@ -1,80 +1,152 @@
-#                                                                                                              **Tazkira Islamic App || تَذْكِرَة  – رفيق المسلم اليومي**  
+# 🕌 Tazkira Islamic App | تَذْكِرَة – رفيق المسلم اليومي
 
 ![App Banner](https://github.com/moaz-abdeltawab92/moaz-abdeltawab92/blob/main/banner.png?)
 
+**تَذْكِرَة** هو تطبيق إسلامي متكامل، صُمم ليكون رفيقك اليومي في طريقك إلى الله،  
+ويساعدك على تنظيم عباداتك والمواظبة عليها بسهولة وثبات، في أي وقت وأي مكان.
 
-*A Flutter application designed to help Muslims stay connected with their daily religious practices.*  
+---
 
+## 📲 Download the App
 
-<h1> Download the App</h1>
 <a href="https://play.google.com/store/apps/details?id=com.moaz.tazkira" target="_blank">
-    <img src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg" height="55"/>
-  </a> 
-   <a href="https://apps.apple.com/eg/app/%D8%AA%D8%B0%D9%83%D8%B1%D8%A9-%D8%B1%D9%81%D9%8A%D9%82-%D8%A7%D9%84%D9%85%D8%B3%D9%84%D9%85-%D8%A7%D9%84%D9%8A%D9%88%D9%85%D9%8A/id6757756421" target="_blank">
-    <img src="https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg" height="65"/>
-  </a>
- 
+  <img src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg" height="55"/>
+</a>
+&nbsp;&nbsp;
+<a href="https://apps.apple.com/eg/app/%D8%AA%D8%B0%D9%83%D8%B1%D8%A9-%D8%B1%D9%81%D9%8A%D9%82-%D8%A7%D9%84%D9%85%D8%B3%D9%84%D9%85-%D8%A7%D9%84%D9%8A%D9%88%D9%85%D9%8A/id6757756421" target="_blank">
+  <img src="https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg" height="65"/>
+</a>
 
-## **Overview**  
+---
 
-Tazkira is a comprehensive Islamic mobile application designed to help Muslims stay connected to their faith with ease and consistency.
-The app brings together essential daily worship tools in one place — from Quran reading, listening, and Tafsir, to Azkar, prayer tracking, and spiritual content.
-With a clean, intuitive, and distraction-free interface, Tazkira supports users of all ages in maintaining their spiritual routine anytime, anywhere.
+##  نظرة عامة
 
-## **Features**  
+تطبيق **تَذْكِرَة – رفيقك اليومي لكل مسلم**  
+يجمع أهم العبادات اليومية في مكان واحد، مع تجربة استخدام بسيطة ومريحة تناسب جميع الأعمار.
 
-📖 Quran
+ محتوى موثوق  
+ تصميم نظيف وسهل  
+ يعمل بدون إنترنت في معظم الخصائص  
 
-   Read the Holy Quran with a smooth and user-friendly reading experience
-   Listen to Quran recitations with clear audio
-   Integrated Tafsir available while reading for deeper understanding
+---
 
-🌅 Azkar
+##  مميزات التطبيق
 
-   Morning & Evening Azkar
-   Additional categorized Azkar for different times and situations
-   Simple and readable presentation for daily use
+### 📖 القرآن الكريم
+- مصحف كامل لقراءة القرآن الكريم بسهولة  
+- الاستماع إلى التلاوات بصوت واضح  
+- تفسير ميسر أثناء القراءة لفهم أعمق  
+- إمكانية التحميل للاستخدام بدون اتصال بالإنترنت  
 
-🕌 Prayer Tracking
+---
 
-   Track daily prayers easily
-   Monitor your consistency and commitment over time
+### 🌅 الأذكار اليومية
+- أذكار الصباح والمساء  
+- أذكار النوم  
+- أذكار متنوعة مصنفة حسب الحالة، مثل:
+  - بعد الصلاة  
+  - الأذان  
+  - الوضوء  
+  - المسجد  
+  - الطعام  
+  - دخول وخروج المنزل  
+  - الاستيقاظ  
+  - الشكر والاستغفار  
+- عرض بسيط وسهل للمواظبة اليومية  
 
-📿 Digital Tasbih
+---
 
-   Digital Tasbih counter for daily dhikr
-   Detailed Tasbih statistics showing how many times each dhikr was recited
-   Helps users stay motivated and consistent
+### 📿 السبحة الإلكترونية
+- سبحة رقمية سهلة الاستخدام  
+- إحصائيات توضح عدد مرات كل ذكر  
+- تساعدك على متابعة تقدمك والاستمرار  
 
-🤲 Duas
+---
 
-   A curated collection of authentic Islamic supplications
-   Duas from the Quran and Sunnah
+### 🕌 مواقيت الصلاة حسب موقعك
+- عرض مواقيت الصلاة اليومية بدقة بناءً على موقعك الجغرافي  
+- تظهر بوضوح في الصفحة الرئيسية  
 
-📝 Hadith
+---
 
-  Authentic Hadith collection
-  Clean layout for easy reading and reflection
+### 📝 تتبع الصلاة
+- تسجيل ومتابعة الصلوات الخمس  
+- يساعدك على الحفاظ على الانتظام في أدائها  
 
-🌿 Asma’ Allah Al-Husna
+---
 
-  Complete list of the 99 Names of Allah
-  Simple explanation for each name to encourage reflection
+### 🔔 الإشعارات والتنبيهات
+- تذكير يومي بالأذكار والأدعية  
+- تنبيهات قبل أوقات الصلاة حسب موقعك  
+- تذكيرات خاصة:
+  - يوم الجمعة (سورة الكهف + الصلاة على النبي ﷺ)
+  - تذكير يومي بقراءة سورة الملك قبل النوم  
 
-🧭 Qibla Direction
+---
 
-  Accurate Qibla direction using device sensors
-  Helps users pray correctly wherever they are
+### 🤲 الأدعية
+- مجموعة من الأدعية المأثورة من القرآن والسنة  
+- محتوى موثوق ومنظم  
 
-🎙️ Islamic Podcasts
+---
 
-   Listen to beneficial Islamic podcasts and religious content
-   Encourages continuous learning and spiritual growth
-   
-## **Preview**  
+### 📜 الأحاديث النبوية
+- أحاديث نبوية صحيحة  
+- مصنفة حسب الموضوع:
+  - الإيمان  
+  - الصلاة  
+  - الصبر  
+  - التوكل  
+  - وغيرها  
+- أسلوب عرض واضح وسهل القراءة  
 
-Here is an overview of the app showcasing its main features:  
+---
 
+### 🌿 أسماء الله الحسنى
+- عرض كامل لأسماء الله الحسنى  
+- شرح مبسط لمعاني كل اسم للتدبر  
+
+---
+
+### 🧭 اتجاه القبلة
+- تحديد دقيق لاتجاه القبلة باستخدام مستشعرات الهاتف  
+- يعمل في أي مكان  
+
+---
+
+### 📚 السنن والآداب الإسلامية
+- مجموعة من السنن النبوية والآداب اليومية  
+- مدعومة بالأدلة من القرآن والسنة  
+- تساعدك على تطبيقها في حياتك اليومية  
+
+---
+
+### 🎙️ البودكاستات الدينية
+- قائمة مختارة من البودكاستات الدينية النافعة  
+- تشمل:
+  - السيرة النبوية  
+  - التزكية  
+  - الفقه  
+  - وغيرها  
+- توجيه المستخدم للاستماع من المصادر الأصلية  
+
+---
+
+## ⭐ ليه تطبيق تَذْكِرَة؟
+
+لأن **تَذْكِرَة** يجمع كل ما يحتاجه المسلم يوميًا في تطبيق واحد:
+- تصميم بسيط  
+- تجربة استخدام مريحة  
+- محتوى موثوق  
+- إمكانية الاستخدام بدون إنترنت  
+
+**اجعل تَذْكِرَة جزءًا من يومك، وداوم على عبادتك وذكرك بسهولة.**
+
+---
+
+## 📸 Preview
+
+نظرة سريعة على واجهة التطبيق وبعض المميزات:
 
 ![App Preview](https://github.com/moaz-abdeltawab92/moaz-abdeltawab92/blob/main/40.png?)
 ![App Preview](https://github.com/moaz-abdeltawab92/moaz-abdeltawab92/blob/main/41.png?)
@@ -83,11 +155,12 @@ Here is an overview of the app showcasing its main features:
 ![App Preview](https://github.com/moaz-abdeltawab92/moaz-abdeltawab92/blob/main/44.png?)
 ![App Preview](https://github.com/moaz-abdeltawab92/moaz-abdeltawab92/blob/main/45.png?)
 
-## **Technologies Used**  
+---
 
-- **Flutter:** For building the cross-platform mobile application.  
-- **Dart:** As the programming language.  
- 
-![Flutter](https://img.shields.io/badge/Flutter-3.10.5-blue)  
-![Dart](https://img.shields.io/badge/Dart-2.20-green)  
+## 🛠️ Technologies Used
 
+- **Flutter** – Cross-platform mobile development  
+- **Dart** – Programming language  
+
+![Flutter](https://img.shields.io/badge/Flutter-3.10.5-blue)
+![Dart](https://img.shields.io/badge/Dart-2.20-green)
