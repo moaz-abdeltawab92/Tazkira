@@ -10,6 +10,9 @@
 <a href="https://play.google.com/store/apps/details?id=com.moaz.tazkira" target="_blank">
     <img src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg" height="55"/>
   </a> 
+   <a href="https://apps.apple.com/eg/app/%D8%AA%D8%B0%D9%83%D8%B1%D8%A9-%D8%B1%D9%81%D9%8A%D9%82-%D8%A7%D9%84%D9%85%D8%B3%D9%84%D9%85-%D8%A7%D9%84%D9%8A%D9%88%D9%85%D9%8A/id6757756421" target="_blank">
+    <img src="https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg" height="65"/>
+  </a>
  
 
 ## **Overview**  
