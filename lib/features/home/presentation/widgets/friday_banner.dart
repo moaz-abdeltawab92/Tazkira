@@ -258,24 +258,6 @@ class _QuranScreenWithSurahKahfState extends State<_QuranScreenWithSurahKahf> {
       showAyahBookmarkedIcon: true,
       ayahIconColor: const Color(0xffcdad80),
       isFontsLocal: false,
-      anotherMenuChild:
-          const Icon(Icons.play_arrow_outlined, size: 28, color: Colors.grey),
-      anotherMenuChildOnTap: (ayah) {
-        QuranLibrary().playAyah(
-          context: context,
-          currentAyahUniqueNumber: ayah.ayahUQNumber,
-          playSingleAyah: true,
-        );
-      },
-      secondMenuChild:
-          const Icon(Icons.playlist_play, size: 28, color: Colors.grey),
-      secondMenuChildOnTap: (ayah) {
-        QuranLibrary().playAyah(
-          context: context,
-          currentAyahUniqueNumber: ayah.ayahUQNumber,
-          playSingleAyah: false,
-        );
-      },
     );
   }
 }

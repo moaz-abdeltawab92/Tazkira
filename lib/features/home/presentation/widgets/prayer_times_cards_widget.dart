@@ -1,5 +1,4 @@
 import 'package:tazkira_app/core/routing/route_export.dart';
-import 'dart:async';
 
 class PrayerTimesCardsWidget extends StatefulWidget {
   const PrayerTimesCardsWidget({super.key});
@@ -8,16 +7,49 @@ class PrayerTimesCardsWidget extends StatefulWidget {
   State<PrayerTimesCardsWidget> createState() => _PrayerTimesCardsWidgetState();
 }
 
-class _PrayerTimesCardsWidgetState extends State<PrayerTimesCardsWidget> {
+class _PrayerTimesCardsWidgetState extends State<PrayerTimesCardsWidget>
+    with WidgetsBindingObserver {
   PrayerTimes? prayerTimes;
   bool isLoading = true;
   String? errorMessage;
   String? cityName;
+  Timer? _countdownTimer;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _initializePrayerTimes();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _countdownTimer?.cancel();
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      // Restart the timer when app resumes
+      _startCountdownTimer();
+    }
+  }
+
+  void _startCountdownTimer() {
+    // Cancel any existing timer
+    _countdownTimer?.cancel();
+
+    // Create a new timer that runs every minute
+    _countdownTimer = Timer.periodic(const Duration(seconds: 60), (timer) {
+      if (!mounted) {
+        timer.cancel();
+        return;
+      }
+      // Trigger rebuild to update countdown
+      setState(() {});
+    });
   }
 
   Future<void> _initializePrayerTimes() async {
@@ -66,6 +98,9 @@ class _PrayerTimesCardsWidgetState extends State<PrayerTimesCardsWidget> {
         prayerTimes = prayers;
         isLoading = false;
       });
+
+      // Start the countdown timer after prayer times are loaded
+      _startCountdownTimer();
     } catch (e) {
       setState(() {
         errorMessage = 'حدث خطأ: ${e.toString()}';
@@ -288,38 +323,107 @@ class _PrayerTimesCardsWidgetState extends State<PrayerTimesCardsWidget> {
     }
 
     if (errorMessage != null) {
+      // Check if error is related to permission being permanently denied
+      final isPermissionDenied = errorMessage!.contains('مرفوض نهائياً') ||
+          errorMessage!.contains('الإعدادات');
+
       return Container(
         padding: EdgeInsets.all(20.w),
         child: Column(
           children: [
-            Icon(Icons.error_outline, color: Colors.red, size: 40.sp),
-            SizedBox(height: 8.h),
+            Icon(
+              isPermissionDenied
+                  ? Icons.location_off_rounded
+                  : Icons.error_outline,
+              color: isPermissionDenied ? const Color(0xFF5A8C8C) : Colors.red,
+              size: 40.sp,
+            ),
+            SizedBox(height: 12.h),
             Text(
               errorMessage!,
               style: GoogleFonts.cairo(
-                color: Colors.red,
+                color:
+                    isPermissionDenied ? const Color(0xFF1A1A1A) : Colors.red,
                 fontSize: 14.sp,
+                fontWeight: FontWeight.bold,
+                height: 1.5,
               ),
               textAlign: TextAlign.center,
             ),
-            SizedBox(height: 12.h),
-            ElevatedButton(
-              onPressed: () {
-                setState(() {
-                  isLoading = true;
-                  errorMessage = null;
-                });
-                _initializePrayerTimes();
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF5A8C8C),
-                foregroundColor: Colors.white,
+            SizedBox(height: 16.h),
+            if (isPermissionDenied)
+              // Show "Open Settings" button for permission errors
+              Column(
+                children: [
+                  ElevatedButton.icon(
+                    onPressed: () async {
+                      await openAppSettings();
+                    },
+                    icon: const Icon(Icons.settings, size: 18),
+                    label: Text(
+                      'فتح الإعدادات',
+                      style: GoogleFonts.cairo(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14.sp,
+                      ),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF5A8C8C),
+                      foregroundColor: Colors.white,
+                      padding: EdgeInsets.symmetric(
+                          horizontal: 20.w, vertical: 12.h),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12.r),
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 8.h),
+                  TextButton(
+                    onPressed: () {
+                      setState(() {
+                        isLoading = true;
+                        errorMessage = null;
+                      });
+                      _initializePrayerTimes();
+                    },
+                    child: Text(
+                      'إعادة المحاولة',
+                      style: GoogleFonts.cairo(
+                        color: const Color(0xFF5A8C8C),
+                        fontWeight: FontWeight.w600,
+                        fontSize: 13.sp,
+                      ),
+                    ),
+                  ),
+                ],
+              )
+            else
+              // Show only "Try Again" for other errors
+              ElevatedButton(
+                onPressed: () {
+                  setState(() {
+                    isLoading = true;
+                    errorMessage = null;
+                  });
+                  _initializePrayerTimes();
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF5A8C8C),
+                  foregroundColor: Colors.white,
+                  padding:
+                      EdgeInsets.symmetric(horizontal: 20.w, vertical: 12.h),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12.r),
+                  ),
+                ),
+                child: Text(
+                  'إعادة المحاولة',
+                  style: GoogleFonts.cairo(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14.sp,
+                  ),
+                ),
               ),
-              child: Text(
-                'إعادة المحاولة',
-                style: GoogleFonts.cairo(fontWeight: FontWeight.bold),
-              ),
-            ),
           ],
         ),
       );

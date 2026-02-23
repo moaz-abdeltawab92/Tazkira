@@ -55,7 +55,7 @@ class PodcastCardWidget extends StatelessWidget {
               child: Container(
                 height: 85.h,
                 decoration: BoxDecoration(
-                  gradient: LinearGradient(
+                  gradient: const LinearGradient(
                     begin: Alignment.topRight,
                     end: Alignment.bottomLeft,
                     colors: [
@@ -66,7 +66,7 @@ class PodcastCardWidget extends StatelessWidget {
                   borderRadius: BorderRadius.circular(20.r),
                   boxShadow: [
                     BoxShadow(
-                      color: Color(0xFF5A8C8C).withOpacity(0.3),
+                      color: const Color(0xFF5A8C8C).withOpacity(0.3),
                       blurRadius: 12.r,
                       offset: Offset(0, 4.h),
                     )

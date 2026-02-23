@@ -100,6 +100,14 @@ class NotificationContentProvider {
   }
 
   static String getPrayerReminderText(String prayerName) {
-    return 'تبقّى 10 دقائق على صلاة $prayerName ';
+    return 'تبقّى 15 دقيقة على صلاة $prayerName ';
+  }
+
+  static String getLastThirdNightTitle() {
+    return 'بدأ الثلث الأخير من الليل';
+  }
+
+  static String getLastThirdNightBody() {
+    return 'لا تنسَ قيام الليل والدعاء';
   }
 }

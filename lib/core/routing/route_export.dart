@@ -12,6 +12,7 @@ export 'package:google_fonts/google_fonts.dart';
 export 'package:flutter_bloc/flutter_bloc.dart';
 export 'package:shared_preferences/shared_preferences.dart';
 export 'package:geolocator/geolocator.dart';
+export 'package:permission_handler/permission_handler.dart' hide ServiceStatus;
 export 'package:adhan/adhan.dart';
 export 'package:geocoding/geocoding.dart';
 export 'package:shimmer/shimmer.dart';
@@ -22,6 +23,7 @@ export 'package:screenshot/screenshot.dart';
 export 'package:flutter_qiblah/flutter_qiblah.dart' hide LocationStatus;
 export 'package:latlong2/latlong.dart' hide Path, pi;
 export 'package:intl/intl.dart' hide TextDirection;
+export 'package:in_app_review/in_app_review.dart';
 export 'package:in_app_update/in_app_update.dart';
 export 'package:timezone/data/latest.dart';
 
@@ -93,6 +95,7 @@ export 'package:tazkira_app/features/home/presentation/widgets/prayer_times_card
 export 'package:tazkira_app/features/home/presentation/widgets/prayer_times_page.dart';
 export 'package:tazkira_app/features/home/presentation/widgets/share_app_dialog.dart';
 export 'package:tazkira_app/features/home/presentation/widgets/share_button.dart';
+export 'package:tazkira_app/features/home/presentation/widgets/rate_app_button.dart';
 
 // Qiblah
 export 'package:tazkira_app/features/qiblah/presentation/screens/qiblah_view.dart';

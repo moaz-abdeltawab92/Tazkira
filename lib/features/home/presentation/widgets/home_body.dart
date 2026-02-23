@@ -1,8 +1,13 @@
 import 'package:tazkira_app/core/routing/route_export.dart';
 import 'package:tazkira_app/core/widgets/daily_quote_widget.dart';
 
+// GlobalKey to preserve PrayerTimesCardsWidget state across rebuilds
+final _prayerTimesKey = GlobalKey();
+
 class HomeBody extends StatelessWidget {
-  const HomeBody({super.key});
+  final GlobalKey? ramadanCategoryKey;
+
+  const HomeBody({super.key, this.ramadanCategoryKey});
 
   @override
   Widget build(BuildContext context) {
@@ -21,7 +26,7 @@ class HomeBody extends StatelessWidget {
                 SizedBox(height: 16.h),
                 const HijriDateCard(),
                 SizedBox(height: 16.h),
-                const PrayerTimesCardsWidget(),
+                PrayerTimesCardsWidget(key: _prayerTimesKey),
                 SizedBox(height: spacing),
                 const DailyQuoteWidget(),
                 SizedBox(height: spacing),
@@ -29,7 +34,7 @@ class HomeBody extends StatelessWidget {
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(30.r),
                   ),
-                  child: const AllCategories(),
+                  child: AllCategories(ramadanCategoryKey: ramadanCategoryKey),
                 ),
                 SizedBox(height: constraints.maxHeight * 0.015),
                 Padding(

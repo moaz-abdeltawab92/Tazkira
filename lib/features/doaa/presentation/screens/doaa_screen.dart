@@ -8,18 +8,25 @@ class Ad3yaScreen extends StatefulWidget {
 }
 
 class _Ad3yaScreenState extends State<Ad3yaScreen> {
+  final ScreenshotController _screenshotController = ScreenshotController();
   List<String> displayedAd3ya = [];
+  List<String> filteredAd3ya = [];
   Set<String> favoriteAd3ya = {};
   int currentLength = 10;
   late ScrollController _scrollController;
+  late TextEditingController _searchController;
   bool isLoading = false;
+  bool isSearching = false;
+  Timer? _debounce;
 
   @override
   void initState() {
     super.initState();
     _loadFavorites();
     displayedAd3ya = doaaList.take(currentLength).toList();
+    filteredAd3ya = displayedAd3ya;
     _scrollController = ScrollController()..addListener(_scrollListener);
+    _searchController = TextEditingController()..addListener(_onSearchChanged);
   }
 
   Future<void> _loadFavorites() async {
@@ -66,6 +73,9 @@ class _Ad3yaScreenState extends State<Ad3yaScreen> {
         nextLength = doaaList.length;
       }
       displayedAd3ya = doaaList.take(nextLength).toList();
+      if (!isSearching) {
+        filteredAd3ya = displayedAd3ya;
+      }
       currentLength = nextLength;
       isLoading = false;
     });
@@ -85,9 +95,203 @@ class _Ad3yaScreenState extends State<Ad3yaScreen> {
     ).then((_) => setState(() {}));
   }
 
+  Future<void> _shareAsImage(String doaa, int index) async {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => Center(
+        child: Container(
+          padding: EdgeInsets.all(24.w),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16.r),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const CircularProgressIndicator(
+                color: Color(0xFF7CB9AD),
+              ),
+              SizedBox(height: 16.h),
+              Text(
+                'جاري تحضير الصورة...',
+                style: GoogleFonts.cairo(
+                  fontSize: 16.sp,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black87,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+
+    try {
+      await Future.delayed(const Duration(milliseconds: 300));
+      final imageBytes = await _screenshotController.captureFromWidget(
+        Directionality(
+          textDirection: TextDirection.rtl,
+          child: Container(
+            width: 800,
+            padding: const EdgeInsets.all(48),
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                begin: Alignment.topRight,
+                end: Alignment.bottomLeft,
+                colors: [Color(0xFF7CB9AD), Color(0xFF5A9A8E)],
+              ),
+              borderRadius: BorderRadius.circular(24),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'الدعاء',
+                  style: GoogleFonts.cairo(
+                    fontSize: 36,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                    shadows: [
+                      Shadow(
+                        color: Colors.black.withOpacity(0.15),
+                        offset: const Offset(0, 2),
+                        blurRadius: 4,
+                      ),
+                    ],
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 24),
+                Flexible(
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 28,
+                      vertical: 32,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(20),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.1),
+                          blurRadius: 16,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Flexible(
+                          child: ConstrainedBox(
+                            constraints: const BoxConstraints(maxWidth: 680),
+                            child: Text(
+                              doaa,
+                              style: GoogleFonts.cairo(
+                                fontSize: 18,
+                                height: 2,
+                                color: const Color(0xFF2C3E50),
+                                fontWeight: FontWeight.w600,
+                                letterSpacing: 0.3,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.15),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Text(
+                    'تمت المشاركة من تطبيق تَذْكِرَة',
+                    style: GoogleFonts.cairo(
+                      fontSize: 14,
+                      color: Colors.white,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+
+      final dir = await getTemporaryDirectory();
+      final file =
+          File('${dir.path}/دعاء_${DateTime.now().millisecondsSinceEpoch}.png');
+      await file.writeAsBytes(imageBytes);
+
+      if (mounted) Navigator.of(context).pop();
+
+      await SharePlus.instance.share(
+        ShareParams(
+          files: [XFile(file.path)],
+          text: 'دعاء من تطبيق تَذْكِرَة',
+          sharePositionOrigin: const Rect.fromLTWH(0, 0, 1, 1),
+        ),
+      );
+    } catch (e) {
+      if (mounted) Navigator.of(context).pop();
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('حدث خطأ أثناء المشاركة: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
+  void _onSearchChanged() {
+    // Cancel the previous timer
+    if (_debounce?.isActive ?? false) _debounce!.cancel();
+
+    // Start a new timer
+    _debounce = Timer(const Duration(milliseconds: 300), () {
+      setState(() {
+        String searchText = _searchController.text.trim();
+        if (searchText.isEmpty) {
+          isSearching = false;
+          filteredAd3ya = displayedAd3ya;
+        } else {
+          isSearching = true;
+          filteredAd3ya =
+              doaaList.where((doaa) => doaa.contains(searchText)).toList();
+        }
+      });
+    });
+  }
+
+  void _clearSearch() {
+    _debounce?.cancel();
+    _searchController.clear();
+    setState(() {
+      isSearching = false;
+      filteredAd3ya = displayedAd3ya;
+    });
+  }
+
   @override
   void dispose() {
+    _debounce?.cancel();
     _scrollController.dispose();
+    _searchController.dispose();
     super.dispose();
   }
 
@@ -152,27 +356,199 @@ class _Ad3yaScreenState extends State<Ad3yaScreen> {
           ),
         ],
       ),
-      body: ListView.builder(
-        controller: _scrollController,
-        padding: EdgeInsets.symmetric(vertical: 8.h),
-        itemCount: displayedAd3ya.length + (isLoading ? 1 : 0),
-        itemBuilder: (context, index) {
-          if (index == displayedAd3ya.length) {
-            return Padding(
-              padding: EdgeInsets.symmetric(vertical: 10.h),
-              child: const Center(child: CircularProgressIndicator()),
-            );
-          }
+      body: filteredAd3ya.isEmpty
+          ? Column(
+              children: [
+                // Search Bar
+                Container(
+                  margin: EdgeInsets.all(16.w),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16.r),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.1),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: TextField(
+                    controller: _searchController,
+                    textAlign: TextAlign.right,
+                    style: GoogleFonts.cairo(
+                      fontSize: 16.sp,
+                      color: Colors.black87,
+                    ),
+                    decoration: InputDecoration(
+                      hintText: '...ابحث عن دعاء',
+                      hintStyle: GoogleFonts.cairo(
+                        color: Colors.grey,
+                        fontSize: 16.sp,
+                      ),
+                      prefixIcon: AnimatedOpacity(
+                        opacity: _searchController.text.isNotEmpty ? 1.0 : 0.0,
+                        duration: const Duration(milliseconds: 200),
+                        child: IconButton(
+                          icon: const Icon(Icons.clear, color: Colors.grey),
+                          onPressed: _clearSearch,
+                        ),
+                      ),
+                      suffixIcon: const Icon(
+                        Icons.search,
+                        color: Color(0xFF7CB9AD),
+                      ),
+                      border: InputBorder.none,
+                      contentPadding: EdgeInsets.symmetric(
+                        horizontal: 16.w,
+                        vertical: 14.h,
+                      ),
+                    ),
+                  ),
+                ),
+                if (isSearching)
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 16.w),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        Text(
+                          'النتائج: ${filteredAd3ya.length}',
+                          style: GoogleFonts.cairo(
+                            fontSize: 14.sp,
+                            color: Colors.grey[700],
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                Expanded(
+                  child: Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.search_off,
+                          size: 64.sp,
+                          color: Colors.grey[400],
+                        ),
+                        SizedBox(height: 16.h),
+                        Text(
+                          'لا توجد نتائج',
+                          style: GoogleFonts.cairo(
+                            fontSize: 18.sp,
+                            color: Colors.grey[600],
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            )
+          : CustomScrollView(
+              controller: isSearching ? null : _scrollController,
+              slivers: [
+                // Search Bar
+                SliverToBoxAdapter(
+                  child: Container(
+                    margin: EdgeInsets.all(16.w),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16.r),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.1),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: TextField(
+                      controller: _searchController,
+                      textAlign: TextAlign.right,
+                      style: GoogleFonts.cairo(
+                        fontSize: 16.sp,
+                        color: Colors.black87,
+                      ),
+                      decoration: InputDecoration(
+                        hintText: '...ابحث عن دعاء',
+                        hintStyle: GoogleFonts.cairo(
+                          color: Colors.grey,
+                          fontSize: 16.sp,
+                        ),
+                        prefixIcon: AnimatedOpacity(
+                          opacity:
+                              _searchController.text.isNotEmpty ? 1.0 : 0.0,
+                          duration: const Duration(milliseconds: 200),
+                          child: IconButton(
+                            icon: const Icon(Icons.clear, color: Colors.grey),
+                            onPressed: _clearSearch,
+                          ),
+                        ),
+                        suffixIcon: const Icon(
+                          Icons.search,
+                          color: Color(0xFF7CB9AD),
+                        ),
+                        border: InputBorder.none,
+                        contentPadding: EdgeInsets.symmetric(
+                          horizontal: 16.w,
+                          vertical: 14.h,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                // Results count when searching
+                if (isSearching)
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 16.w),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          Text(
+                            'النتائج: ${filteredAd3ya.length}',
+                            style: GoogleFonts.cairo(
+                              fontSize: 14.sp,
+                              color: Colors.grey[700],
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                SliverToBoxAdapter(child: SizedBox(height: 8.h)),
+                // List items
+                SliverList(
+                  delegate: SliverChildBuilderDelegate(
+                    (context, index) {
+                      if (index == filteredAd3ya.length) {
+                        return Padding(
+                          padding: EdgeInsets.symmetric(vertical: 10.h),
+                          child:
+                              const Center(child: CircularProgressIndicator()),
+                        );
+                      }
 
-          String doaa = displayedAd3ya[index];
+                      String doaa = filteredAd3ya[index];
 
-          return Ad3yaCard(
-            doaa: doaa,
-            isFavorite: favoriteAd3ya.contains(doaa),
-            onFavoriteToggle: () => _toggleFavorite(doaa),
-          );
-        },
-      ),
+                      return Ad3yaCard(
+                        doaa: doaa,
+                        isFavorite: favoriteAd3ya.contains(doaa),
+                        onFavoriteToggle: () => _toggleFavorite(doaa),
+                        onShare: () => _shareAsImage(doaa, index),
+                      );
+                    },
+                    childCount: filteredAd3ya.length +
+                        (!isSearching && isLoading ? 1 : 0),
+                  ),
+                ),
+              ],
+            ),
     );
   }
 }
@@ -182,12 +558,14 @@ class Ad3yaCard extends StatefulWidget {
   final String doaa;
   final bool isFavorite;
   final VoidCallback? onFavoriteToggle;
+  final VoidCallback? onShare;
 
   const Ad3yaCard({
     super.key,
     required this.doaa,
     this.isFavorite = false,
     this.onFavoriteToggle,
+    this.onShare,
   });
 
   @override
@@ -277,6 +655,12 @@ class _Ad3yaCardState extends State<Ad3yaCard> {
                     label: 'مفضل',
                     onTap: widget.onFavoriteToggle,
                     color: widget.isFavorite ? Colors.red.shade300 : null,
+                  ),
+                  SizedBox(width: 12.w),
+                  _ActionButton(
+                    icon: Icons.share_rounded,
+                    label: 'مشاركة',
+                    onTap: widget.onShare,
                   ),
                 ],
               ),

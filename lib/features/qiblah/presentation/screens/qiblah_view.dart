@@ -73,41 +73,102 @@ class _QiblahViewContent extends StatelessWidget {
   }
 
   Widget _buildErrorState(BuildContext context, QiblahState state) {
+    // Check if error is related to location permission
+    final isPermissionError = state.message?.contains('الصلاحية') ?? false;
+    final isLocationServiceError =
+        state.message?.contains('خدمة الموقع') ?? false;
+
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(Icons.error, size: 64, color: Colors.red),
+          Icon(
+            isPermissionError || isLocationServiceError
+                ? Icons.location_off_rounded
+                : Icons.error,
+            size: 64,
+            color: isPermissionError || isLocationServiceError
+                ? const Color(0xFF7CB9AD)
+                : Colors.red,
+          ),
           SizedBox(height: 16.h),
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 32.w),
             child: Text(
-              'خطأ: ${state.message}',
-              style: GoogleFonts.cairo(fontSize: 16.sp),
+              state.message ?? 'حدث خطأ',
+              style: GoogleFonts.cairo(
+                fontSize: 18.sp,
+                fontWeight: FontWeight.w600,
+                height: 1.6,
+              ),
               textAlign: TextAlign.center,
             ),
           ),
-          SizedBox(height: 16.h),
-          ElevatedButton(
-            onPressed: () {
-              context.read<QiblahCubit>().init();
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF7CB9AD),
-              padding: EdgeInsets.symmetric(horizontal: 32.w, vertical: 12.h),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12.r),
+          SizedBox(height: 24.h),
+          if (isPermissionError)
+            // Show "Open Settings" button for permission errors
+            Column(
+              children: [
+                ElevatedButton.icon(
+                  onPressed: () async {
+                    await openAppSettings();
+                  },
+                  icon: const Icon(Icons.settings, size: 20),
+                  label: Text(
+                    'فتح الإعدادات',
+                    style: GoogleFonts.cairo(
+                      fontSize: 16.sp,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF7CB9AD),
+                    foregroundColor: Colors.white,
+                    padding:
+                        EdgeInsets.symmetric(horizontal: 32.w, vertical: 14.h),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12.r),
+                    ),
+                  ),
+                ),
+                SizedBox(height: 12.h),
+                TextButton(
+                  onPressed: () {
+                    context.read<QiblahCubit>().init();
+                  },
+                  child: Text(
+                    'إعادة المحاولة',
+                    style: GoogleFonts.cairo(
+                      color: const Color(0xFF7CB9AD),
+                      fontSize: 16.sp,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ],
+            )
+          else
+            // Show only "Try Again" for other errors
+            ElevatedButton(
+              onPressed: () {
+                context.read<QiblahCubit>().init();
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF7CB9AD),
+                padding: EdgeInsets.symmetric(horizontal: 32.w, vertical: 12.h),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12.r),
+                ),
+              ),
+              child: Text(
+                'إعادة المحاولة',
+                style: GoogleFonts.cairo(
+                  color: Colors.white,
+                  fontSize: 16.sp,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
-            child: Text(
-              'إعادة المحاولة',
-              style: GoogleFonts.cairo(
-                color: Colors.white,
-                fontSize: 16.sp,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
         ],
       ),
     );

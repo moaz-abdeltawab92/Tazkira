@@ -1,4 +1,5 @@
 import 'package:tazkira_app/core/routing/route_export.dart';
+import 'package:tazkira_app/core/utils/showcase_helper.dart';
 import 'package:tazkira_app/features/azkar/presentation/data/azkar_safar.dart';
 import 'package:tazkira_app/features/azkar/presentation/data/azkarfood.dart';
 import 'package:tazkira_app/features/azkar/presentation/widgets/interactive_azkar_card.dart';
@@ -18,6 +19,7 @@ class _AzkarScreenState extends State<AzkarScreen> {
   final ScrollController _scrollController = ScrollController();
   bool _isLoading = true;
   int _resetKey = 0; // Key to force rebuild of cards
+  final GlobalKey _filterButtonKey = GlobalKey();
 
   @override
   void initState() {
@@ -26,6 +28,12 @@ class _AzkarScreenState extends State<AzkarScreen> {
       selectedCategory = widget.initialCategory;
     }
     _initManager();
+
+    ShowcaseHelper.startShowcase(
+      context,
+      [_filterButtonKey],
+      'azkar_filter_button',
+    );
   }
 
   Future<void> _initManager() async {
@@ -228,26 +236,33 @@ class _AzkarScreenState extends State<AzkarScreen> {
             fontSize: 22.sp,
           ),
         ),
-        leading: Stack(
-          children: [
-            IconButton(
-              icon: const Icon(Icons.filter_list_rounded, color: Colors.white),
-              onPressed: _showFilterDialog,
-            ),
-            if (selectedCategory != null)
-              Positioned(
-                right: 8,
-                top: 8,
-                child: Container(
-                  width: 8.w,
-                  height: 8.h,
-                  decoration: const BoxDecoration(
-                    color: Colors.red,
-                    shape: BoxShape.circle,
+        leading: AppShowcase(
+          showcaseKey: _filterButtonKey,
+          title: 'حدد نوع الذكر',
+          description: 'اضغط هنا لاختيار نوع الذكر الذي تريد قراءته',
+          targetBorderRadius: 25,
+          child: Stack(
+            children: [
+              IconButton(
+                icon:
+                    const Icon(Icons.filter_list_rounded, color: Colors.white),
+                onPressed: _showFilterDialog,
+              ),
+              if (selectedCategory != null)
+                Positioned(
+                  right: 8,
+                  top: 8,
+                  child: Container(
+                    width: 8.w,
+                    height: 8.h,
+                    decoration: const BoxDecoration(
+                      color: Colors.red,
+                      shape: BoxShape.circle,
+                    ),
                   ),
                 ),
-              ),
-          ],
+            ],
+          ),
         ),
         actions: [
           IconButton(

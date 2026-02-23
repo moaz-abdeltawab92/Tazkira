@@ -1,5 +1,5 @@
-import 'dart:async';
 import 'package:tazkira_app/core/routing/route_export.dart';
+import 'package:tazkira_app/features/home/services/prayer_times_service.dart';
 
 class PrayerTimesCard extends StatefulWidget {
   const PrayerTimesCard({super.key});
@@ -8,7 +8,8 @@ class PrayerTimesCard extends StatefulWidget {
   State<PrayerTimesCard> createState() => _PrayerTimesCardState();
 }
 
-class _PrayerTimesCardState extends State<PrayerTimesCard> {
+class _PrayerTimesCardState extends State<PrayerTimesCard>
+    with WidgetsBindingObserver {
   PrayerTimes? prayerTimes;
   bool isLoading = true;
   String? errorMessage;
@@ -20,13 +21,23 @@ class _PrayerTimesCardState extends State<PrayerTimesCard> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _initializePrayerTimes();
   }
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _countdownTimer?.cancel();
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      // Restart the timer when app resumes
+      _startCountdownTimer();
+    }
   }
 
   Future<void> _initializePrayerTimes() async {
@@ -87,120 +98,65 @@ class _PrayerTimesCardState extends State<PrayerTimesCard> {
   }
 
   void _startCountdownTimer() {
+    // Cancel any existing timer
+    _countdownTimer?.cancel();
+
+    // Initial update
     _updateCountdown();
 
-    _countdownTimer = Timer.periodic(const Duration(seconds: 60), (timer) {
-      if (mounted) {
-        _updateCountdown();
-      } else {
+    // Create a new timer that runs every second
+    _countdownTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (!mounted) {
         timer.cancel();
+        return;
       }
+      _updateCountdown();
     });
   }
 
   void _updateCountdown() {
     if (prayerTimes == null || _coordinates == null) return;
 
-    try {
-      final now = DateTime.now();
+    final prayerTimesService = PrayerTimesService();
+    final nextPrayerInfo = prayerTimesService.getNextPrayerInfo(_coordinates!);
 
-      final prayers = {
-        'الفجر': prayerTimes!.fajr.toLocal(),
-        'الظهر': prayerTimes!.dhuhr.toLocal(),
-        'العصر': prayerTimes!.asr.toLocal(),
-        'المغرب': prayerTimes!.maghrib.toLocal(),
-        'العشاء': prayerTimes!.isha.toLocal(),
-      };
-
-      DateTime? nextPrayerTime;
-      String? nextPrayerNameTemp;
-
-      for (var entry in prayers.entries) {
-        final prayerTime = entry.value;
-        if (prayerTime.isAfter(now.add(const Duration(seconds: 30)))) {
-          nextPrayerTime = prayerTime;
-          nextPrayerNameTemp = entry.key;
-          break;
-        }
-      }
-
-      if (nextPrayerTime == null) {
-        final tomorrow = now.add(const Duration(days: 1));
-        final params = CalculationMethod.egyptian.getParameters();
-        params.madhab = Madhab.shafi;
-
-        try {
-          final tomorrowDate = DateComponents(
-            tomorrow.year,
-            tomorrow.month,
-            tomorrow.day,
-          );
-
-          final tomorrowPrayers = PrayerTimes(
-            _coordinates!,
-            tomorrowDate,
-            params,
-          );
-
-          nextPrayerTime = tomorrowPrayers.fajr.toLocal();
-          nextPrayerNameTemp = 'الفجر';
-        } catch (e) {
-          debugPrint('Error calculating tomorrow\'s Fajr: $e');
-          if (mounted) {
-            setState(() {
-              _countdownText = '';
-            });
-          }
-          return;
-        }
-      }
-
-      final difference = nextPrayerTime.difference(now);
-
-      if (difference.isNegative) {
-        if (mounted) {
-          setState(() {
-            _countdownText = '';
-          });
-        }
-        return;
-      }
-
-      final hours = difference.inHours;
-      final minutes = difference.inMinutes.remainder(60);
-
-      String countdownString;
-      if (hours > 0) {
-        if (minutes > 0) {
-          countdownString =
-              'متبقي $hours ساعة و $minutes دقيقة على صلاة $nextPrayerNameTemp';
-        } else {
-          final hourWord =
-              hours == 1 ? 'ساعة' : (hours == 2 ? 'ساعتان' : 'ساعات');
-          countdownString =
-              'متبقي $hours $hourWord على صلاة $nextPrayerNameTemp';
-        }
-      } else if (minutes > 0) {
-        final minuteWord =
-            minutes == 1 ? 'دقيقة' : (minutes == 2 ? 'دقيقتان' : 'دقيقة');
-        countdownString =
-            'متبقي $minutes $minuteWord على صلاة $nextPrayerNameTemp';
-      } else {
-        countdownString = 'حان الآن موعد صلاة $nextPrayerNameTemp';
-      }
-
-      if (mounted) {
-        setState(() {
-          _countdownText = countdownString;
-        });
-      }
-    } catch (e) {
-      debugPrint('Error in countdown update: $e');
+    if (nextPrayerInfo == null) {
       if (mounted) {
         setState(() {
           _countdownText = '';
         });
       }
+      return;
+    }
+
+    final difference = nextPrayerInfo.remainingDuration;
+    final hours = difference.inHours;
+    final minutes = difference.inMinutes.remainder(60);
+    final nextPrayerNameTemp = nextPrayerInfo.nextPrayerName;
+
+    String countdownString;
+    if (hours > 0) {
+      if (minutes > 0) {
+        countdownString =
+            'متبقي $hours ساعة و $minutes دقيقة على صلاة $nextPrayerNameTemp';
+      } else {
+        final hourWord =
+            hours == 1 ? 'ساعة' : (hours == 2 ? 'ساعتان' : 'ساعات');
+        countdownString = 'متبقي $hours $hourWord على صلاة $nextPrayerNameTemp';
+      }
+    } else if (minutes > 0) {
+      final minuteWord =
+          minutes == 1 ? 'دقيقة' : (minutes == 2 ? 'دقيقتان' : 'دقيقة');
+      countdownString =
+          'متبقي $minutes $minuteWord على صلاة $nextPrayerNameTemp';
+    } else {
+      countdownString = 'حان الآن موعد صلاة $nextPrayerNameTemp';
+    }
+
+    if (mounted) {
+      setState(() {
+        _countdownText = countdownString;
+      });
     }
   }
 
