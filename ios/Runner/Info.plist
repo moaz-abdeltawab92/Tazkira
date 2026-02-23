@@ -49,6 +49,14 @@
 		<true/>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
+	
+	<!-- Background modes for notifications -->
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>remote-notification</string>
+		<string>audio</string>
+	</array>
+	
 	<!-- Location permissions for geolocator, geocoding, and flutter_qiblah -->
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>يحتاج هذا التطبيق للوصول إلى موقعك لتحديد أوقات الصلاة والقبلة بدقة بناءً على مكانك الحالي.</string>

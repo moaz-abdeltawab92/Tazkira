@@ -1,4 +1,5 @@
 import 'package:tazkira_app/core/routing/route_export.dart';
+import 'package:tazkira_app/core/utils/showcase_helper.dart';
 
 class HadithScreen extends StatefulWidget {
   const HadithScreen({super.key});
@@ -14,6 +15,7 @@ class _HadithScreenState extends State<HadithScreen> {
   String? selectedCategory;
   int currentLength = 3;
   bool isLoading = false;
+  final GlobalKey _filterButtonKey = GlobalKey();
 
   @override
   void initState() {
@@ -21,6 +23,12 @@ class _HadithScreenState extends State<HadithScreen> {
     _loadFavorites();
     _updateDisplayedSections();
     _scrollController.addListener(_onScroll);
+
+    ShowcaseHelper.startShowcase(
+      context,
+      [_filterButtonKey],
+      'hadith_filter_button',
+    );
   }
 
   Future<void> _loadFavorites() async {
@@ -260,27 +268,33 @@ class _HadithScreenState extends State<HadithScreen> {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Stack(
-                children: [
-                  IconButton(
-                    icon: const Icon(Icons.filter_list_rounded,
-                        color: Colors.white),
-                    onPressed: _showFilterDialog,
-                  ),
-                  if (selectedCategory != null)
-                    Positioned(
-                      right: 8,
-                      top: 8,
-                      child: Container(
-                        width: 8.w,
-                        height: 8.h,
-                        decoration: const BoxDecoration(
-                          color: Colors.red,
-                          shape: BoxShape.circle,
+              AppShowcase(
+                showcaseKey: _filterButtonKey,
+                title: 'انواع الاحاديث',
+                description: 'اضغط هنا لاختيار قسم معين من الأحاديث',
+                targetBorderRadius: 25,
+                child: Stack(
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.filter_list_rounded,
+                          color: Colors.white),
+                      onPressed: _showFilterDialog,
+                    ),
+                    if (selectedCategory != null)
+                      Positioned(
+                        right: 8,
+                        top: 8,
+                        child: Container(
+                          width: 8.w,
+                          height: 8.h,
+                          decoration: const BoxDecoration(
+                            color: Colors.red,
+                            shape: BoxShape.circle,
+                          ),
                         ),
                       ),
-                    ),
-                ],
+                  ],
+                ),
               ),
               Stack(
                 children: [

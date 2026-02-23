@@ -11,6 +11,7 @@ class TrackPrayers extends StatefulWidget {
 
 class _TrackPrayersState extends State<TrackPrayers> {
   late Map<String, bool> prayerStatus;
+  bool qiyamAlLayl = false;
 
   @override
   void initState() {
@@ -25,6 +26,7 @@ class _TrackPrayersState extends State<TrackPrayers> {
       prayerStatus = {
         for (var prayer in prayers) prayer: prefs.getBool(prayer) ?? false,
       };
+      qiyamAlLayl = prefs.getBool('قيام الليل') ?? false;
     });
   }
 
@@ -33,6 +35,14 @@ class _TrackPrayersState extends State<TrackPrayers> {
     for (var prayer in prayers) {
       await prefs.setBool(prayer, prayerStatus[prayer] ?? false);
     }
+    await prefs.setBool('قيام الليل', qiyamAlLayl);
+  }
+
+  void _toggleQiyamAlLayl() {
+    setState(() {
+      qiyamAlLayl = !qiyamAlLayl;
+    });
+    _savePrayerStatus();
   }
 
   void _togglePrayerStatus(String prayer, String nextPrayer) {
@@ -134,8 +144,10 @@ class _TrackPrayersState extends State<TrackPrayers> {
     for (var prayer in prayers) {
       await prefs.remove(prayer);
     }
+    await prefs.remove('قيام الليل');
     setState(() {
       prayerStatus = {for (var prayer in prayers) prayer: false};
+      qiyamAlLayl = false;
     });
   }
 
@@ -183,7 +195,49 @@ class _TrackPrayersState extends State<TrackPrayers> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Padding(
-                padding: EdgeInsets.symmetric(vertical: 20.h),
+                padding: EdgeInsets.only(top: 20.h, bottom: 10.h),
+                child: Card(
+                  elevation: 3,
+                  color: const Color(0xFFE8F5E9),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12.r),
+                    side: BorderSide(
+                      color: const Color(0xFF4CAF50).withOpacity(0.3),
+                      width: 2,
+                    ),
+                  ),
+                  child: Padding(
+                    padding:
+                        EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
+                    child: Row(
+                      children: [
+                        Checkbox(
+                          value: qiyamAlLayl,
+                          onChanged: (bool? value) {
+                            _toggleQiyamAlLayl();
+                          },
+                          activeColor: const Color(0xFF4CAF50),
+                        ),
+                        const Spacer(),
+                        Row(
+                          children: [
+                            Text(
+                              'قيام الليل',
+                              style: GoogleFonts.amiri(
+                                fontSize: 20.sp,
+                                fontWeight: FontWeight.bold,
+                                color: const Color(0xFF2E7D32),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              Padding(
+                padding: EdgeInsets.symmetric(vertical: 10.h),
                 child: Container(
                   padding: EdgeInsets.all(16.w),
                   decoration: BoxDecoration(
@@ -272,7 +326,6 @@ class _TrackPrayersState extends State<TrackPrayers> {
                 ),
               ),
               SizedBox(height: 20.h),
-              // Reset Button (ابدأ من الأول)
               ElevatedButton(
                 onPressed: _resetPrayers,
                 style: ElevatedButton.styleFrom(

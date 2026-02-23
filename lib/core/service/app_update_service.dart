@@ -1,8 +1,10 @@
 import 'dart:io';
+import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:in_app_update/in_app_update.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class AppUpdateService {
@@ -17,14 +19,14 @@ class AppUpdateService {
   bool _snackBarShowing = false;
   DateTime? _lastUpdateCheck;
 
+  // iOS App Store URL
+  static const String _appStoreUrl = 'https://apps.apple.com/app/id6757756421';
+
   /// Trigger update check.
   /// [forcePrompt] can be used to bypass the session check if needed.
   /// [showManualDialogOnError] If true, shows fallback dialog when API fails
   Future<void> checkForUpdate(BuildContext context,
       {bool forcePrompt = false, bool showManualDialogOnError = false}) async {
-    // Only works on Android
-    if (!Platform.isAndroid) return;
-
     // Prevent concurrent checks
     if (_isUpdateCheckInProgress) return;
 
@@ -39,6 +41,23 @@ class AppUpdateService {
     _isUpdateCheckInProgress = true;
     _lastUpdateCheck = DateTime.now();
 
+    try {
+      if (Platform.isAndroid) {
+        await _checkAndroidUpdate(
+            context, forcePrompt, showManualDialogOnError);
+      } else if (Platform.isIOS) {
+        await _checkIOSUpdate(context, forcePrompt);
+      }
+    } catch (e) {
+      debugPrint('AppUpdateService: Error during update check: $e');
+    } finally {
+      _isUpdateCheckInProgress = false;
+    }
+  }
+
+  /// Android update logic using in_app_update
+  Future<void> _checkAndroidUpdate(BuildContext context, bool forcePrompt,
+      bool showManualDialogOnError) async {
     try {
       final info = await InAppUpdate.checkForUpdate();
 
@@ -70,15 +89,56 @@ class AppUpdateService {
           _showInstallSnackBar(context);
         }
       }
-      // If no update available, do nothing (don't annoy user)
     } catch (e) {
-      debugPrint('AppUpdateService: Error during update check: $e');
-      // Only show fallback if explicitly requested (e.g., from Settings button)
+      debugPrint('AppUpdateService: Error during Android update check: $e');
       if (showManualDialogOnError && context.mounted) {
         _showManualUpdateDialog(context);
       }
-    } finally {
-      _isUpdateCheckInProgress = false;
+    }
+  }
+
+  /// iOS update logic using Firebase Remote Config
+  Future<void> _checkIOSUpdate(BuildContext context, bool forcePrompt) async {
+    try {
+      // Prevent repeated prompts in the same session unless forced
+      if (_promptedInThisSession && !forcePrompt) return;
+
+      // Get current app version
+      final packageInfo = await PackageInfo.fromPlatform();
+      final currentVersion = packageInfo.version;
+      final currentBuildNumber = int.parse(packageInfo.buildNumber);
+
+      // Get minimum required version from Remote Config
+      final remoteConfig = FirebaseRemoteConfig.instance;
+      await remoteConfig.setConfigSettings(RemoteConfigSettings(
+        fetchTimeout: const Duration(seconds: 10),
+        minimumFetchInterval: const Duration(minutes: 30),
+      ));
+
+      await remoteConfig.fetchAndActivate();
+
+      final minVersion =
+          remoteConfig.getString('ios_min_version').trim(); // e.g., "1.1.0"
+      final minBuildNumber =
+          remoteConfig.getInt('ios_min_build_number'); // e.g., 5
+      final forceUpdate =
+          remoteConfig.getBool('ios_force_update'); // true/false
+
+      debugPrint(
+          'AppUpdateService [iOS]: Current version: $currentVersion ($currentBuildNumber)');
+      debugPrint(
+          'AppUpdateService [iOS]: Min version from Remote Config: $minVersion ($minBuildNumber)');
+      debugPrint('AppUpdateService [iOS]: Force update: $forceUpdate');
+
+      // Check if update is needed
+      if (minBuildNumber > 0 && currentBuildNumber < minBuildNumber) {
+        _promptedInThisSession = true;
+        if (context.mounted) {
+          _showRamadanUpdateDialog(context, forceUpdate);
+        }
+      }
+    } catch (e) {
+      debugPrint('AppUpdateService: Error during iOS update check: $e');
     }
   }
 
@@ -197,6 +257,175 @@ class AppUpdateService {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  /// Beautiful Ramadan-themed update dialog for iOS
+  void _showRamadanUpdateDialog(BuildContext context, bool forceUpdate) {
+    if (!context.mounted) return;
+
+    showDialog(
+      context: context,
+      barrierDismissible: !forceUpdate, // Can't dismiss if forced
+      builder: (context) => WillPopScope(
+        onWillPop: () async => !forceUpdate, // Prevent back button if forced
+        child: Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(24.r),
+          ),
+          elevation: 8,
+          child: Container(
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  Color(0xFF2D4A3E), // Dark green
+                  Color(0xFF4A5D4F), // Medium green
+                  Color(0xFF1A2D23), // Very dark green
+                ],
+              ),
+              borderRadius: BorderRadius.circular(24.r),
+            ),
+            child: Padding(
+              padding: EdgeInsets.all(24.w),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Crescent moon and star icon
+                  Container(
+                    width: 80.w,
+                    height: 80.w,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.white.withOpacity(0.15),
+                    ),
+                    child: Center(
+                      child: Icon(
+                        Icons.star_border_rounded,
+                        size: 48.sp,
+                        color: const Color(0xFFD4AF37), // Gold color
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 20.h),
+
+                  // Title with Ramadan greeting
+                  Text(
+                    '🌙 رمضان كريم',
+                    style: GoogleFonts.cairo(
+                      fontSize: 24.sp,
+                      fontWeight: FontWeight.bold,
+                      color: const Color(0xFFD4AF37), // Gold
+                      height: 1.5,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  SizedBox(height: 12.h),
+
+                  // Update message
+                  Text(
+                    'تحديث جديد',
+                    style: GoogleFonts.cairo(
+                      fontSize: 20.sp,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  SizedBox(height: 16.h),
+
+                  // Description
+                  Container(
+                    padding: EdgeInsets.all(16.w),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(12.r),
+                    ),
+                    child: Text(
+                      forceUpdate
+                          ? 'للاستمتاع بأحدث الميزات الرمضانية وتحسينات الأداء، يجب تحديث التطبيق الآن'
+                          : 'يتوفر إصدار جديد من التطبيق مع ميزات رمضانية مميزة وتحسينات عامة على مستوى التطبيق',
+                      style: GoogleFonts.cairo(
+                        fontSize: 15.sp,
+                        color: Colors.white.withOpacity(0.9),
+                        height: 1.7,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                  SizedBox(height: 24.h),
+
+                  // Update button
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: () async {
+                        Navigator.of(context).pop();
+                        final url = Uri.parse(_appStoreUrl);
+                        try {
+                          if (await canLaunchUrl(url)) {
+                            await launchUrl(url,
+                                mode: LaunchMode.externalApplication);
+                          }
+                        } catch (e) {
+                          debugPrint(
+                              'AppUpdateService: Failed to open App Store: $e');
+                        }
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFFD4AF37), // Gold
+                        foregroundColor: const Color(0xFF1A2D23),
+                        padding: EdgeInsets.symmetric(vertical: 16.h),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16.r),
+                        ),
+                        elevation: 4,
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.system_update_alt_rounded,
+                            size: 24.sp,
+                          ),
+                          SizedBox(width: 8.w),
+                          Text(
+                            'تحديث الآن',
+                            style: GoogleFonts.cairo(
+                              fontSize: 18.sp,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+
+                  // Later button (only if not forced)
+                  if (!forceUpdate) ...[
+                    SizedBox(height: 12.h),
+                    TextButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      style: TextButton.styleFrom(
+                        padding: EdgeInsets.symmetric(vertical: 12.h),
+                      ),
+                      child: Text(
+                        'لاحقاً',
+                        style: GoogleFonts.cairo(
+                          fontSize: 16.sp,
+                          color: Colors.white.withOpacity(0.7),
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }

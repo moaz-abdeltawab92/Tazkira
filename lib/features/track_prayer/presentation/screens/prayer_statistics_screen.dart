@@ -19,11 +19,44 @@ class _PrayerStatisticsScreenState extends State<PrayerStatisticsScreen> {
   }
 
   Future<void> _loadStatistics() async {
-    final stats = await PrayerStatisticsService.getStatisticsSummary();
-    setState(() {
-      _statistics = stats;
-      _isLoading = false;
-    });
+    try {
+      // Add timeout to prevent infinite loading
+      final stats =
+          await PrayerStatisticsService.getStatisticsSummary().timeout(
+        const Duration(seconds: 10),
+        onTimeout: () {
+          debugPrint('Statistics loading timeout');
+          return {
+            'currentStreak': 0,
+            'longestStreak': 0,
+            'lastCompleteDate': null,
+            'totalDaysTracked': 0,
+            'totalPrayersCompleted': 0,
+          };
+        },
+      );
+
+      if (mounted) {
+        setState(() {
+          _statistics = stats;
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      debugPrint('Error loading statistics: $e');
+      if (mounted) {
+        setState(() {
+          _statistics = {
+            'currentStreak': 0,
+            'longestStreak': 0,
+            'lastCompleteDate': null,
+            'totalDaysTracked': 0,
+            'totalPrayersCompleted': 0,
+          };
+          _isLoading = false;
+        });
+      }
+    }
   }
 
   String _getMotivationalMessage(int streak) {
@@ -45,19 +78,24 @@ class _PrayerStatisticsScreenState extends State<PrayerStatisticsScreen> {
       return 'لم تكمل يوم بعد';
     }
 
-    final lastDate = DateTime.parse(_statistics!['lastCompleteDate']);
-    final now = DateTime.now();
-    final today = DateTime(now.year, now.month, now.day);
-    final yesterday = today.subtract(const Duration(days: 1));
-    final lastDateNormalized =
-        DateTime(lastDate.year, lastDate.month, lastDate.day);
+    try {
+      final lastDate = DateTime.parse(_statistics!['lastCompleteDate']);
+      final now = DateTime.now();
+      final today = DateTime(now.year, now.month, now.day);
+      final yesterday = today.subtract(const Duration(days: 1));
+      final lastDateNormalized =
+          DateTime(lastDate.year, lastDate.month, lastDate.day);
 
-    if (lastDateNormalized == today) {
-      return 'اليوم 🟢';
-    } else if (lastDateNormalized == yesterday) {
-      return 'أمس';
-    } else {
-      return '${lastDate.day}/${lastDate.month}/${lastDate.year}';
+      if (lastDateNormalized == today) {
+        return 'اليوم 🟢';
+      } else if (lastDateNormalized == yesterday) {
+        return 'أمس';
+      } else {
+        return '${lastDate.day}/${lastDate.month}/${lastDate.year}';
+      }
+    } catch (e) {
+      debugPrint('Error formatting date: $e');
+      return 'لم تكمل يوم بعد';
     }
   }
 
@@ -92,7 +130,7 @@ class _PrayerStatisticsScreenState extends State<PrayerStatisticsScreen> {
             onPressed: () => Navigator.pop(context),
           ),
         ),
-        body: _isLoading
+        body: _isLoading || _statistics == null
             ? const Center(child: CircularProgressIndicator())
             : Container(
                 decoration: const BoxDecoration(

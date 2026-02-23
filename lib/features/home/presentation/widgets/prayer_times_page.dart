@@ -71,6 +71,9 @@ class _PrayerTimesPageState extends State<PrayerTimesPage> {
 
     serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
+      if (mounted) {
+        _showLocationServicesDialog();
+      }
       return Future.error('Location services are disabled.');
     }
 
@@ -83,11 +86,107 @@ class _PrayerTimesPageState extends State<PrayerTimesPage> {
     }
 
     if (permission == LocationPermission.deniedForever) {
+      if (mounted) {
+        _showPermissionDeniedDialog();
+      }
       return Future.error('Location permissions are permanently denied.');
     }
 
     return await Geolocator.getCurrentPosition(
       desiredAccuracy: LocationAccuracy.high,
+    );
+  }
+
+  void _showLocationServicesDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16.r),
+        ),
+        title: Text(
+          'خدمة الموقع متوقفة',
+          style: GoogleFonts.cairo(
+            fontWeight: FontWeight.bold,
+            fontSize: 20.sp,
+          ),
+          textAlign: TextAlign.center,
+        ),
+        content: Text(
+          'لحساب أوقات الصلاة بدقة، يرجى تفعيل خدمة الموقع (GPS) من إعدادات الجهاز.',
+          style: GoogleFonts.cairo(fontSize: 16.sp),
+          textAlign: TextAlign.center,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text(
+              'حسناً',
+              style: GoogleFonts.cairo(
+                color: const Color(0xFF2A6B5C),
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showPermissionDeniedDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16.r),
+        ),
+        title: Text(
+          'صلاحية الموقع مرفوضة',
+          style: GoogleFonts.cairo(
+            fontWeight: FontWeight.bold,
+            fontSize: 20.sp,
+          ),
+          textAlign: TextAlign.center,
+        ),
+        content: Text(
+          'لاستخدام ميزة أوقات الصلاة، يجب السماح للتطبيق بالوصول إلى موقعك.\n\nيرجى فتح إعدادات التطبيق والسماح بصلاحية الموقع.',
+          style: GoogleFonts.cairo(fontSize: 16.sp, height: 1.6),
+          textAlign: TextAlign.center,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text(
+              'إلغاء',
+              style: GoogleFonts.cairo(
+                color: Colors.grey[700],
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              Navigator.of(context).pop();
+              await Permission.location.request();
+              // Try to open app settings
+              await openAppSettings();
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF2A6B5C),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12.r),
+              ),
+            ),
+            child: Text(
+              'فتح الإعدادات',
+              style: GoogleFonts.cairo(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
