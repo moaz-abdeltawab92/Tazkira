@@ -1,5 +1,4 @@
 import 'package:get/get.dart';
-import 'package:screenshot/screenshot.dart';
 import 'package:tazkira_app/core/routing/route_export.dart';
 import '../widgets/verse_image_creator.dart';
 

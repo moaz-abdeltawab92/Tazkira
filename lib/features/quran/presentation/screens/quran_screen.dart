@@ -19,7 +19,6 @@ class _MyQuranPageState extends State<MyQuranPage> {
   @override
   void initState() {
     super.initState();
-    // Initialize ShareController
     Get.put(ShareController());
     shareController = ShareController.instance;
 
@@ -33,12 +32,10 @@ class _MyQuranPageState extends State<MyQuranPage> {
   }
 
   void _showShareOptions(BuildContext context, AyahModel ayah) {
-    // Get surah name
     final surahName = QuranCtrl.instance.surahs
         .firstWhere((s) => s.surahNumber == ayah.surahNumber!)
         .arabicName;
 
-    // Get ayah text with tashkeel (using text property which contains tashkeel)
     final ayahText = ayah.text;
 
     showModalBottomSheet(
@@ -60,7 +57,6 @@ class _MyQuranPageState extends State<MyQuranPage> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Close button
               Align(
                 alignment: Alignment.topRight,
                 child: Padding(
@@ -82,8 +78,6 @@ class _MyQuranPageState extends State<MyQuranPage> {
                   ),
                 ),
               ),
-
-              // Share as text section
               _buildShareTextSection(
                 context,
                 bottomSheetContext,
@@ -91,15 +85,11 @@ class _MyQuranPageState extends State<MyQuranPage> {
                 surahName,
                 ayah.ayahNumber,
               ),
-
-              // Divider
               Container(
                 height: 1,
                 margin: const EdgeInsets.symmetric(horizontal: 16.0),
                 color: Colors.teal,
               ),
-
-              // Share as image section
               _buildShareImageSection(
                 context,
                 bottomSheetContext,
@@ -108,7 +98,6 @@ class _MyQuranPageState extends State<MyQuranPage> {
                 ayah.ayahNumber,
                 ayah.surahNumber!,
               ),
-
               const SizedBox(height: 16),
             ],
           ),
@@ -169,7 +158,7 @@ class _MyQuranPageState extends State<MyQuranPage> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Expanded(
+                const Expanded(
                   flex: 2,
                   child: Icon(
                     Icons.text_fields,
@@ -230,7 +219,6 @@ class _MyQuranPageState extends State<MyQuranPage> {
           onTap: () async {
             Navigator.pop(bottomSheetContext);
 
-            // Show loading
             showDialog(
               context: context,
               barrierDismissible: false,
@@ -256,7 +244,6 @@ class _MyQuranPageState extends State<MyQuranPage> {
               ),
             );
 
-            // Share image
             try {
               await shareController.shareImage(
                 ayahText,
@@ -268,7 +255,6 @@ class _MyQuranPageState extends State<MyQuranPage> {
               debugPrint('Error: $e');
             }
 
-            // Close loading
             if (context.mounted) {
               Navigator.pop(context);
             }
@@ -313,20 +299,21 @@ class _MyQuranPageState extends State<MyQuranPage> {
         Directionality(
           textDirection: TextDirection.rtl,
           child: QuranLibraryScreen(
+            showAyahBookmarkedIcon: true,
             ayahMenuStyle:
                 AyahMenuStyle.defaults(isDark: false, context: context)
                     .copyWith(
+              showCopyButton: false,
               customMenuItems: [
                 InkWell(
                   onTap: () {
-                    // Get selected ayah
                     if (QuranCtrl
                         .instance.selectedAyahsByUnequeNumber.isNotEmpty) {
                       final selectedUQ =
                           QuranCtrl.instance.selectedAyahsByUnequeNumber.first;
                       final ayah = QuranCtrl.instance.ayahs
                           .firstWhere((a) => a.ayahUQNumber == selectedUQ);
-                      Navigator.pop(context); // Close menu
+                      Navigator.pop(context);
                       _showShareOptions(context, ayah);
                     }
                   },

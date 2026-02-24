@@ -37,10 +37,11 @@ void main() async {
   }
 
   runApp(
-    DevicePreview(
-      enabled: true,
-      builder: (context) => const TazkiraApp(),
-    ),
+    const TazkiraApp(),
+    // DevicePreview(
+    //   enabled: false, // Set to true to enable device preview
+    //   builder: (context) => const TazkiraApp(),
+    // ),
   );
 }
 
