@@ -182,21 +182,19 @@ class NotificationService {
   static Future<void> scheduleAllNotifications() async {
     await _notificationsPlugin.cancelAll();
 
-    await _scheduleMorningAzkar();
-
-    await _scheduleEveningAzkar();
-
-    await _scheduleRamadanDuaIfNeeded();
-
-    await _scheduleHourlyNotifications();
-
-    await _scheduleFridayNotifications();
-
-    await _scheduleSurahMulk();
-
-    await _scheduleBeforeSleepDhikr();
-
     final prefs = await SharedPreferences.getInstance();
+    final generalNotificationsEnabled = prefs.getBool('general_notifications_enabled') ?? true;
+
+    if (generalNotificationsEnabled) {
+      await _scheduleMorningAzkar();
+      await _scheduleEveningAzkar();
+      await _scheduleRamadanDuaIfNeeded();
+      await _scheduleHourlyNotifications();
+      await _scheduleFridayNotifications();
+      await _scheduleSurahMulk();
+      await _scheduleBeforeSleepDhikr();
+    }
+
     if (prefs.getBool('prayer_reminders_enabled') ?? false) {
       await schedulePrayerTimeReminders();
     }
@@ -204,7 +202,7 @@ class NotificationService {
 
   static Future<void> _scheduleMorningAzkar() async {
     final cairo = tz.getLocation('Africa/Cairo');
-    final hours = [6, 9];
+    final hours = [7]; // مرة واحدة الساعة 7 صباحاً
 
     for (int i = 0; i < hours.length; i++) {
       final hour = hours[i];
@@ -240,12 +238,8 @@ class NotificationService {
   static Future<void> _scheduleEveningAzkar() async {
     final cairo = tz.getLocation('Africa/Cairo');
 
-    // Check if it's Ramadan to adjust notification times
-    final isRamadan = await _isRamadan();
-
-    // During Ramadan: send only at 4 PM (19:00 will be for Ramadan du'a)
-    // Outside Ramadan: send at 4 PM and 7 PM as usual
-    final hours = isRamadan ? [16] : [16, 19];
+    // إرسال إشعار أذكار المساء مرة واحدة الساعة 5 عصراً
+    final hours = [17];
 
     for (int i = 0; i < hours.length; i++) {
       final hour = hours[i];
@@ -326,13 +320,9 @@ class NotificationService {
 
   static Future<void> _scheduleHourlyNotifications() async {
     final cairo = tz.getLocation('Africa/Cairo');
-    // Reduce hourly notifications for iOS to stay under 64 notification limit
-    // Android: every hour (24), iOS: selected hours only (9)
-    // iOS times avoid conflicts with other notifications:
-    // Morning Azkar: 6, 9 | Evening Azkar: 16, 19 | Mulk: 22 | Sleep: 0
-    final hours = Platform.isIOS
-        ? [3, 7, 10, 11, 13, 15, 17, 18, 21] // 9 times, optimized distribution
-        : List.generate(24, (index) => index);
+    // إشعارات عامة (4 مرات يومياً) متوزعة على مدار اليوم بدون تعارض مع الإشعارات الأساسية
+    // الأوقات: 5 فجراً، 10 صباحاً، 3 عصراً، 8 مساءً
+    final hours = [5, 10, 15, 20];
 
     for (int i = 0; i < hours.length; i++) {
       final hour = hours[i];
@@ -377,7 +367,7 @@ class NotificationService {
       );
     }
 
-    final salatProphetHours = [8, 12, 14, 20];
+    final salatProphetHours = [14]; // الساعة 2 ظهراً
 
     for (int i = 0; i < salatProphetHours.length; i++) {
       await _scheduleFridayNotification(

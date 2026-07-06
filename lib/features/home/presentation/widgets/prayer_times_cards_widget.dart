@@ -171,97 +171,66 @@ class _PrayerTimesCardsWidgetState extends State<PrayerTimesCardsWidget>
     final bool isNextPrayer = _isNextPrayer(time);
 
     return Container(
-      margin: EdgeInsets.only(bottom: 8.h),
-      padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
+      width: 100.w,
+      margin: EdgeInsets.only(left: 8.w, top: 4.h, bottom: 4.h),
+      padding: EdgeInsets.symmetric(vertical: 16.h, horizontal: 8.w),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          begin: Alignment.topRight,
-          end: Alignment.bottomLeft,
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
           colors: [
-            color1.withOpacity(isNextPrayer ? 1.0 : 0.85),
-            color2.withOpacity(isNextPrayer ? 1.0 : 0.85),
+            color1.withValues(alpha: isNextPrayer ? 1.0 : 0.6),
+            color2.withValues(alpha: isNextPrayer ? 1.0 : 0.6),
           ],
         ),
-        borderRadius: BorderRadius.circular(16.r),
+        borderRadius: BorderRadius.circular(20.r),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(isNextPrayer ? 0.25 : 0.15),
-            blurRadius: isNextPrayer ? 12 : 8,
-            offset: Offset(0, isNextPrayer ? 5 : 3),
+            color: color2.withValues(alpha: isNextPrayer ? 0.3 : 0.05),
+            blurRadius: isNextPrayer ? 12 : 4,
+            offset: Offset(0, isNextPrayer ? 6 : 2),
           ),
         ],
         border: isNextPrayer
             ? Border.all(
-                color: Colors.white.withOpacity(0.5),
+                color: Colors.white.withValues(alpha: 0.9),
                 width: 2,
               )
             : null,
       ),
-      child: Row(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Container(
-            padding: EdgeInsets.all(8.w),
+            padding: EdgeInsets.all(10.w),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.2),
+              color: Colors.white.withValues(alpha: 0.2),
               shape: BoxShape.circle,
             ),
             child: Icon(
               icon,
               color: Colors.white,
-              size: 20.sp,
+              size: 24.sp,
             ),
           ),
-          SizedBox(width: 12.w),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Text(
-                  name,
-                  style: GoogleFonts.cairo(
-                    color: Colors.white,
-                    fontSize: 16.sp,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                if (isNextPrayer) ...[
-                  SizedBox(height: 2.h),
-                  Text(
-                    'الصلاة القادمة',
-                    style: GoogleFonts.cairo(
-                      color: Colors.white.withOpacity(0.9),
-                      fontSize: 10.sp,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ],
-              ],
+          SizedBox(height: 12.h),
+          Text(
+            name,
+            style: GoogleFonts.cairo(
+              color: Colors.white,
+              fontSize: 16.sp,
+              fontWeight: FontWeight.bold,
             ),
           ),
-          SizedBox(width: 12.w),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text(
-                _formatTime(time),
-                style: GoogleFonts.cairo(
-                  color: Colors.white,
-                  fontSize: 17.sp,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              if (isNextPrayer) ...[
-                SizedBox(height: 4.h),
-                Text(
-                  _getTimeRemaining(time),
-                  style: GoogleFonts.cairo(
-                    color: Colors.white.withOpacity(0.85),
-                    fontSize: 9.sp,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ],
-            ],
+          SizedBox(height: 4.h),
+          Text(
+            _formatTime(time),
+            style: GoogleFonts.cairo(
+              color: Colors.white.withValues(alpha: 0.9),
+              fontSize: 14.sp,
+              fontWeight: FontWeight.w600,
+            ),
           ),
         ],
       ),
@@ -323,7 +292,6 @@ class _PrayerTimesCardsWidgetState extends State<PrayerTimesCardsWidget>
     }
 
     if (errorMessage != null) {
-      // Check if error is related to permission being permanently denied
       final isPermissionDenied = errorMessage!.contains('مرفوض نهائياً') ||
           errorMessage!.contains('الإعدادات');
 
@@ -352,7 +320,6 @@ class _PrayerTimesCardsWidgetState extends State<PrayerTimesCardsWidget>
             ),
             SizedBox(height: 16.h),
             if (isPermissionDenied)
-              // Show "Open Settings" button for permission errors
               Column(
                 children: [
                   ElevatedButton.icon(
@@ -398,7 +365,6 @@ class _PrayerTimesCardsWidgetState extends State<PrayerTimesCardsWidget>
                 ],
               )
             else
-              // Show only "Try Again" for other errors
               ElevatedButton(
                 onPressed: () {
                   setState(() {
@@ -433,77 +399,171 @@ class _PrayerTimesCardsWidgetState extends State<PrayerTimesCardsWidget>
       return const SizedBox.shrink();
     }
 
+    DateTime? nextTime;
+    String nextName = '';
+    final now = DateTime.now();
+    final prayersMap = {
+      'الفجر': prayerTimes!.fajr.toLocal(),
+      'الشروق': prayerTimes!.sunrise.toLocal(),
+      'الظهر': prayerTimes!.dhuhr.toLocal(),
+      'العصر': prayerTimes!.asr.toLocal(),
+      'المغرب': prayerTimes!.maghrib.toLocal(),
+      'العشاء': prayerTimes!.isha.toLocal(),
+    };
+
+    for (var entry in prayersMap.entries) {
+      if (entry.value.isAfter(now)) {
+        nextTime = entry.value;
+        nextName = entry.key;
+        break;
+      }
+    }
+    
+    // Fallback if all prayers today have passed (next prayer is Fajr tomorrow)
+    if (nextTime == null) {
+      nextTime = prayerTimes!.fajr.toLocal().add(const Duration(days: 1));
+      nextName = 'الفجر';
+    }
+
     return Column(
       children: [
-        // Location header - small
+        // Location header
         if (cityName != null)
           Padding(
-            padding: EdgeInsets.only(bottom: 8.h),
+            padding: EdgeInsets.only(bottom: 12.h),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Icon(
                   Icons.location_on,
                   color: Colors.white,
-                  size: 12.sp,
+                  size: 14.sp,
                 ),
                 SizedBox(width: 4.w),
                 Text(
                   cityName!,
                   style: GoogleFonts.cairo(
                     color: Colors.white,
-                    fontSize: 12.sp,
+                    fontSize: 14.sp,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
               ],
             ),
           ),
+          
+        // Next Prayer Info Banner
+        Container(
+          margin: EdgeInsets.only(bottom: 16.h),
+          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+          decoration: BoxDecoration(
+            color: Colors.white.withValues(alpha: 0.15),
+            borderRadius: BorderRadius.circular(16.r),
+            border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.25),
+                  borderRadius: BorderRadius.circular(20.r),
+                ),
+                child: Row(
+                  children: [
+                    Icon(Icons.timer_outlined, color: Colors.white, size: 18.sp),
+                    SizedBox(width: 6.w),
+                    Text(
+                      _getTimeRemaining(nextTime),
+                      style: GoogleFonts.cairo(
+                        color: Colors.white,
+                        fontSize: 14.sp,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      textDirection: TextDirection.rtl,
+                    ),
+                  ],
+                ),
+              ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(
+                    'الصلاة القادمة',
+                    style: GoogleFonts.cairo(
+                      color: Colors.white.withValues(alpha: 0.9),
+                      fontSize: 12.sp,
+                    ),
+                  ),
+                  Text(
+                    nextName,
+                    style: GoogleFonts.cairo(
+                      color: Colors.white,
+                      fontSize: 18.sp,
+                      fontWeight: FontWeight.bold,
+                      height: 1.2,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
 
-        // Prayer Cards
-        _buildPrayerCard(
-          name: 'الفجر',
-          time: prayerTimes!.fajr,
-          icon: Icons.nightlight_round,
-          color1: const Color(0xFF2D5F7F),
-          color2: const Color(0xFF4A7FA0),
-        ),
-        _buildPrayerCard(
-          name: 'الشروق',
-          time: prayerTimes!.sunrise,
-          icon: Icons.wb_sunny,
-          color1: const Color(0xFFE59866),
-          color2: const Color(0xFFF39C12),
-        ),
-        _buildPrayerCard(
-          name: 'الظهر',
-          time: prayerTimes!.dhuhr,
-          icon: Icons.wb_twilight,
-          color1: const Color(0xFF5A8C8C),
-          color2: const Color(0xFF7CB9AD),
-        ),
-        _buildPrayerCard(
-          name: 'العصر',
-          time: prayerTimes!.asr,
-          icon: Icons.wb_cloudy,
-          color1: const Color(0xFFB8860B),
-          color2: const Color(0xFFDAA520),
-        ),
-        _buildPrayerCard(
-          name: 'المغرب',
-          time: prayerTimes!.maghrib,
-          icon: Icons.nightlight,
-          color1: const Color(0xFF8E44AD),
-          color2: const Color(0xFF9B59B6),
-        ),
-        _buildPrayerCard(
-          name: 'العشاء',
-          time: prayerTimes!.isha,
-          icon: Icons.nights_stay,
-          color1: const Color(0xFF1B3A4B),
-          color2: const Color(0xFF2C5364),
+        // Horizontal Prayer Cards
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          physics: const BouncingScrollPhysics(),
+          child: Row(
+            children: [
+              _buildPrayerCard(
+                name: 'العشاء',
+                time: prayerTimes!.isha,
+                icon: Icons.nights_stay,
+                color1: const Color(0xFF1B3A4B),
+                color2: const Color(0xFF2C5364),
+              ),
+              _buildPrayerCard(
+                name: 'المغرب',
+                time: prayerTimes!.maghrib,
+                icon: Icons.nightlight,
+                color1: const Color(0xFF8E44AD),
+                color2: const Color(0xFF9B59B6),
+              ),
+              _buildPrayerCard(
+                name: 'العصر',
+                time: prayerTimes!.asr,
+                icon: Icons.wb_cloudy,
+                color1: const Color(0xFFB8860B),
+                color2: const Color(0xFFDAA520),
+              ),
+              _buildPrayerCard(
+                name: 'الظهر',
+                time: prayerTimes!.dhuhr,
+                icon: Icons.wb_twilight,
+                color1: const Color(0xFF5A8C8C),
+                color2: const Color(0xFF7CB9AD),
+              ),
+              _buildPrayerCard(
+                name: 'الشروق',
+                time: prayerTimes!.sunrise,
+                icon: Icons.wb_sunny,
+                color1: const Color(0xFFE59866),
+                color2: const Color(0xFFF39C12),
+              ),
+              _buildPrayerCard(
+                name: 'الفجر',
+                time: prayerTimes!.fajr,
+                icon: Icons.nightlight_round,
+                color1: const Color(0xFF2D5F7F),
+                color2: const Color(0xFF4A7FA0),
+              ),
+            ].reversed.toList(), // Reversed so Fajr is on the right side for RTL UI
+          ),
         ),
       ],
     );
   }
 }
+

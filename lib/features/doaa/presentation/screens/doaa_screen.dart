@@ -1,16 +1,113 @@
 import 'package:tazkira_app/core/routing/route_export.dart';
 
-class Ad3yaScreen extends StatefulWidget {
+
+class Ad3yaScreen extends StatelessWidget {
   const Ad3yaScreen({super.key});
 
   @override
-  State<Ad3yaScreen> createState() => _Ad3yaScreenState();
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        centerTitle: true,
+        elevation: 0,
+        automaticallyImplyLeading: false,
+        flexibleSpace: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Color(0xFF7CB9AD), Color(0xFF5A9A8E)],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
+        ),
+        title: Text(
+          "أقسام الأدعية",
+          style: GoogleFonts.cairo(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+            fontSize: 22.sp,
+          ),
+        ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.arrow_forward_ios_rounded, color: Colors.white),
+            onPressed: () => Navigator.pop(context),
+          ),
+        ],
+      ),
+      body: ListView.builder(
+        padding: EdgeInsets.all(16.w),
+        itemCount: doaaCategories.length,
+        itemBuilder: (context, index) {
+          final category = doaaCategories[index];
+          return GestureDetector(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => Ad3yaListScreen(category: category),
+                ),
+              );
+            },
+            child: Container(
+              margin: EdgeInsets.only(bottom: 16.h),
+              padding: EdgeInsets.all(20.w),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16.r),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.05),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.arrow_back_ios_new_rounded, size: 16.sp, color: Colors.grey),
+                  const Spacer(),
+                  Text(
+                    category.name,
+                    style: GoogleFonts.cairo(
+                      fontSize: 20.sp,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87,
+                    ),
+                    textAlign: TextAlign.right,
+                  ),
+                  SizedBox(width: 16.w),
+                  Container(
+                    padding: EdgeInsets.all(12.w),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF7CB9AD).withOpacity(0.1),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(category.icon, size: 28.sp, color: const Color(0xFF7CB9AD)),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
 }
 
-class _Ad3yaScreenState extends State<Ad3yaScreen> {
+class Ad3yaListScreen extends StatefulWidget {
+  final DoaaCategory category;
+  const Ad3yaListScreen({super.key, required this.category});
+
+  @override
+  State<Ad3yaListScreen> createState() => _Ad3yaListScreenState();
+}
+
+class _Ad3yaListScreenState extends State<Ad3yaListScreen> {
   final ScreenshotController _screenshotController = ScreenshotController();
-  List<String> displayedAd3ya = [];
-  List<String> filteredAd3ya = [];
+  List<DoaaItem> categoryItems = [];
+  List<DoaaItem> displayedAd3ya = [];
+  List<DoaaItem> filteredAd3ya = [];
   Set<String> favoriteAd3ya = {};
   int currentLength = 10;
   late ScrollController _scrollController;
@@ -19,15 +116,18 @@ class _Ad3yaScreenState extends State<Ad3yaScreen> {
   bool isSearching = false;
   Timer? _debounce;
 
+
   @override
   void initState() {
     super.initState();
     _loadFavorites();
-    displayedAd3ya = doaaList.take(currentLength).toList();
+    categoryItems = doaaItems.where((e) => e.categoryId == widget.category.id).toList();
+    displayedAd3ya = categoryItems.take(currentLength).toList();
     filteredAd3ya = displayedAd3ya;
     _scrollController = ScrollController()..addListener(_scrollListener);
     _searchController = TextEditingController()..addListener(_onSearchChanged);
   }
+
 
   Future<void> _loadFavorites() async {
     final prefs = await SharedPreferences.getInstance();
@@ -61,18 +161,19 @@ class _Ad3yaScreenState extends State<Ad3yaScreen> {
     }
   }
 
+
   void loadMore() async {
-    if (currentLength >= doaaList.length) return;
+    if (currentLength >= categoryItems.length) return;
 
     setState(() => isLoading = true);
 
     await Future.delayed(const Duration(seconds: 1));
     setState(() {
       int nextLength = currentLength + 10;
-      if (nextLength > doaaList.length) {
-        nextLength = doaaList.length;
+      if (nextLength > categoryItems.length) {
+        nextLength = categoryItems.length;
       }
-      displayedAd3ya = doaaList.take(nextLength).toList();
+      displayedAd3ya = categoryItems.take(nextLength).toList();
       if (!isSearching) {
         filteredAd3ya = displayedAd3ya;
       }
@@ -80,6 +181,7 @@ class _Ad3yaScreenState extends State<Ad3yaScreen> {
       isLoading = false;
     });
   }
+
 
   void _showFavoritesScreen() {
     Navigator.push(
@@ -190,14 +292,14 @@ class _Ad3yaScreenState extends State<Ad3yaScreen> {
                             constraints: const BoxConstraints(maxWidth: 680),
                             child: Text(
                               doaa,
-                              style: GoogleFonts.cairo(
-                                fontSize: 18,
-                                height: 2,
+                              style: GoogleFonts.amiri(
+                                fontSize: 24,
+                                height: 1.8,
                                 color: const Color(0xFF2C3E50),
-                                fontWeight: FontWeight.w600,
-                                letterSpacing: 0.3,
+                                fontWeight: FontWeight.bold,
                               ),
                               textAlign: TextAlign.center,
+                              textDirection: TextDirection.rtl,
                             ),
                           ),
                         ),
@@ -258,6 +360,7 @@ class _Ad3yaScreenState extends State<Ad3yaScreen> {
     }
   }
 
+
   void _onSearchChanged() {
     // Cancel the previous timer
     if (_debounce?.isActive ?? false) _debounce!.cancel();
@@ -272,11 +375,12 @@ class _Ad3yaScreenState extends State<Ad3yaScreen> {
         } else {
           isSearching = true;
           filteredAd3ya =
-              doaaList.where((doaa) => doaa.contains(searchText)).toList();
+              categoryItems.where((item) => item.text.contains(searchText)).toList();
         }
       });
     });
   }
+
 
   void _clearSearch() {
     _debounce?.cancel();
@@ -312,7 +416,7 @@ class _Ad3yaScreenState extends State<Ad3yaScreen> {
           ),
         ),
         title: Text(
-          "الأدعية",
+          widget.category.name,
           style: GoogleFonts.cairo(
             color: Colors.white,
             fontWeight: FontWeight.bold,
@@ -526,6 +630,7 @@ class _Ad3yaScreenState extends State<Ad3yaScreen> {
                 SliverList(
                   delegate: SliverChildBuilderDelegate(
                     (context, index) {
+
                       if (index == filteredAd3ya.length) {
                         return Padding(
                           padding: EdgeInsets.symmetric(vertical: 10.h),
@@ -534,14 +639,15 @@ class _Ad3yaScreenState extends State<Ad3yaScreen> {
                         );
                       }
 
-                      String doaa = filteredAd3ya[index];
+                      DoaaItem doaaItem = filteredAd3ya[index];
 
                       return Ad3yaCard(
-                        doaa: doaa,
-                        isFavorite: favoriteAd3ya.contains(doaa),
-                        onFavoriteToggle: () => _toggleFavorite(doaa),
-                        onShare: () => _shareAsImage(doaa, index),
+                        doaaItem: doaaItem,
+                        isFavorite: favoriteAd3ya.contains(doaaItem.text),
+                        onFavoriteToggle: () => _toggleFavorite(doaaItem.text),
+                        onShare: () => _shareAsImage(doaaItem.text, index),
                       );
+
                     },
                     childCount: filteredAd3ya.length +
                         (!isSearching && isLoading ? 1 : 0),
@@ -554,19 +660,21 @@ class _Ad3yaScreenState extends State<Ad3yaScreen> {
 }
 
 // Card Widget
+
 class Ad3yaCard extends StatefulWidget {
-  final String doaa;
+  final DoaaItem doaaItem;
   final bool isFavorite;
   final VoidCallback? onFavoriteToggle;
   final VoidCallback? onShare;
 
   const Ad3yaCard({
     super.key,
-    required this.doaa,
+    required this.doaaItem,
     this.isFavorite = false,
     this.onFavoriteToggle,
     this.onShare,
   });
+
 
   @override
   State<Ad3yaCard> createState() => _Ad3yaCardState();
@@ -576,7 +684,7 @@ class _Ad3yaCardState extends State<Ad3yaCard> {
   bool _isPressed = false;
 
   void _copyToClipboard() {
-    Clipboard.setData(ClipboardData(text: widget.doaa));
+    Clipboard.setData(ClipboardData(text: widget.doaaItem.text));
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
@@ -628,18 +736,36 @@ class _Ad3yaCardState extends State<Ad3yaCard> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Text(
-                widget.doaa,
-                style: GoogleFonts.cairo(
+                widget.doaaItem.text,
+                style: GoogleFonts.amiri(
                   fontWeight: FontWeight.bold,
                   color: Colors.white,
-                  fontSize: 17.sp,
+                  fontSize: 20.sp,
                   height: 1.8,
                 ),
                 textAlign: TextAlign.center,
                 softWrap: true,
+                textDirection: TextDirection.rtl,
               ),
+
               SizedBox(height: 12.h),
+              if (widget.doaaItem.reference != null) ...[
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    '(${widget.doaaItem.reference})',
+                    style: GoogleFonts.cairo(
+                      color: Colors.white.withOpacity(0.9),
+                      fontSize: 14.sp,
+                      fontWeight: FontWeight.w600,
+                    ),
+                    textDirection: TextDirection.rtl,
+                  ),
+                ),
+                SizedBox(height: 12.h),
+              ],
               Row(
+
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   _ActionButton(

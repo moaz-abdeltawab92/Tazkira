@@ -141,8 +141,12 @@ class _Ad3yaFavoritesScreenState extends State<Ad3yaFavoritesScreen> {
             itemCount: favoritesList.length,
             itemBuilder: (context, index) {
               String doaa = favoritesList[index];
+              DoaaItem doaaItem = doaaItems.firstWhere(
+                (item) => item.text == doaa,
+                orElse: () => DoaaItem(text: doaa, categoryId: 'general'),
+              );
               return Ad3yaCard(
-                doaa: doaa,
+                doaaItem: doaaItem,
                 isFavorite: true,
                 onFavoriteToggle: () => _handleRemove(doaa),
               );

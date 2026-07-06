@@ -80,4 +80,10 @@ flutter {
 dependencies {
     // Core library desugaring for flutter_local_notifications
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.1.4'
+    
+    // إجبار استخدام إصدار متوافق مع Android Gradle Plugin 8.6.0
+    constraints {
+        implementation("androidx.core:core:1.13.1")
+        implementation("androidx.core:core-ktx:1.13.1")
+    }
 }

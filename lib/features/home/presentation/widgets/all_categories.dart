@@ -3,6 +3,7 @@ import 'package:tazkira_app/core/routing/route_export.dart';
 import 'package:tazkira_app/core/utils/islamic_season_helper.dart';
 import 'package:tazkira_app/core/utils/showcase_helper.dart';
 import 'package:tazkira_app/features/ramadan_khatma/presentation/screens/ramadan_khatma_entry_point.dart';
+import 'package:tazkira_app/features/home/presentation/screens/podcasts_list_screen.dart';
 
 class AllCategories extends StatelessWidget {
   final GlobalKey? ramadanCategoryKey;
@@ -55,6 +56,11 @@ class AllCategories extends StatelessWidget {
         "text": "اتجاه القبلة",
         "screen": const QiblahView(),
         "icon": FontAwesomeIcons.kaaba,
+      },
+      {
+        "text": "قنوات مقترحة",
+        "screen": const PodcastsListScreen(),
+        "icon": Icons.podcasts_rounded,
       },
     ];
 

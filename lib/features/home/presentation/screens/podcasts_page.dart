@@ -10,6 +10,7 @@ class PodcastsPage extends StatefulWidget {
 }
 
 class _PodcastsPageState extends State<PodcastsPage> {
+  bool _generalNotificationsEnabled = true;
   bool _prayerRemindersEnabled = false;
   bool _lastThirdNightEnabled = false;
   int _hijriDateOffset = 0;
@@ -25,6 +26,8 @@ class _PodcastsPageState extends State<PodcastsPage> {
     final prefs = await SharedPreferences.getInstance();
     final offset = await HijriDateOffsetHelper.getOffset();
     setState(() {
+      _generalNotificationsEnabled =
+          prefs.getBool('general_notifications_enabled') ?? true;
       _prayerRemindersEnabled =
           prefs.getBool('prayer_reminders_enabled') ?? false;
       _lastThirdNightEnabled =
@@ -32,6 +35,32 @@ class _PodcastsPageState extends State<PodcastsPage> {
       _hijriDateOffset = offset;
       _initialHijriDateOffset = offset;
     });
+  }
+
+  Future<void> _toggleGeneralNotifications(bool value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('general_notifications_enabled', value);
+
+    setState(() {
+      _generalNotificationsEnabled = value;
+    });
+
+    await NotificationService.scheduleAllNotifications();
+
+    if (mounted) {
+      ScaffoldMessenger.of(context).clearSnackBars();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            value ? 'تم تفعيل الإشعارات العامة' : 'تم إيقاف الإشعارات العامة',
+            style: GoogleFonts.tajawal(),
+          ),
+          backgroundColor: value ? const Color(0xFF1B5E5E) : Colors.redAccent,
+          behavior: SnackBarBehavior.floating,
+          duration: const Duration(seconds: 2),
+        ),
+      );
+    }
   }
 
   Future<void> _togglePrayerReminders(bool value) async {
@@ -159,6 +188,15 @@ class _PodcastsPageState extends State<PodcastsPage> {
           appBar: AppBar(
             backgroundColor: const Color.fromARGB(255, 175, 197, 195),
             elevation: 0,
+            title: Text(
+              'الإعدادات',
+              style: GoogleFonts.tajawal(
+                fontWeight: FontWeight.bold,
+                fontSize: 20.sp,
+                color: Colors.black,
+              ),
+            ),
+            centerTitle: true,
             iconTheme: const IconThemeData(color: Colors.black),
             leading: IconButton(
               icon: const Icon(Icons.arrow_back, color: Colors.black),
@@ -206,6 +244,43 @@ class _PodcastsPageState extends State<PodcastsPage> {
                         ),
                         child: Column(
                           children: [
+                            SwitchListTile(
+                              value: _generalNotificationsEnabled,
+                              onChanged: _toggleGeneralNotifications,
+                              activeColor: const Color(0xFF1B5E5E),
+                              title: Text(
+                                'إشعارات الأذكار العامة',
+                                style: GoogleFonts.tajawal(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 14.sp,
+                                  color: Colors.black87,
+                                ),
+                              ),
+                              subtitle: Text(
+                                'تنبيهات أذكار الصباح والمساء والإشعارات اليومية',
+                                style: GoogleFonts.tajawal(
+                                  fontSize: 12.sp,
+                                  color: Colors.black54,
+                                ),
+                              ),
+                              secondary: Container(
+                                padding: EdgeInsets.all(8.w),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFF1B5E5E).withOpacity(0.1),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Icon(
+                                  Icons.notifications,
+                                  color: const Color(0xFF1B5E5E),
+                                  size: 24.sp,
+                                ),
+                              ),
+                            ),
+                            Divider(
+                              height: 1,
+                              thickness: 1,
+                              color: Colors.grey.withOpacity(0.2),
+                            ),
                             SwitchListTile(
                               value: _prayerRemindersEnabled,
                               onChanged: _togglePrayerReminders,
@@ -408,34 +483,6 @@ class _PodcastsPageState extends State<PodcastsPage> {
                           ],
                         ),
                       ),
-                      SizedBox(height: 18.h),
-
-                      // internal section header (matches screenshot style)
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Container(
-                            padding: EdgeInsets.symmetric(
-                                horizontal: 8.w, vertical: 4.h),
-                            decoration: BoxDecoration(
-                              color: Colors.black.withOpacity(0.4),
-                              borderRadius: BorderRadius.circular(8.r),
-                            ),
-                            child: Text(
-                              'البودكاستات والقنوات المقترحة',
-                              style: GoogleFonts.cairo(
-                                fontSize: 18.sp,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 12.h),
-
-                      // nicer podcast cards horizontally
-                      const PodcastCardWidget(),
                       SizedBox(height: 18.h),
 
                       // share button
