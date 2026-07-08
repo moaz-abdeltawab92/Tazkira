@@ -41,7 +41,7 @@ end
 # The Lock Screen widget (accessoryRectangular) is guarded with
 # @available(iOS 16.0, *) in Swift — no Podfile change needed for that.
 # This target has no Flutter pods; it reads data from shared UserDefaults only.
-target 'TazkiraWidget' do
+target 'TazkiraWidgetExtension' do
   use_frameworks!
   # No pods required — WidgetKit and SwiftUI are system frameworks.
 end
@@ -52,7 +52,7 @@ post_install do |installer|
 
     # Set the minimum deployment target for the widget extension explicitly.
     # The Runner target remains at iOS 13.0 (set by Flutter tooling).
-    if target.name == 'TazkiraWidget'
+    if target.name == 'TazkiraWidgetExtension'
       target.build_configurations.each do |config|
         config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '14.0'
       end
