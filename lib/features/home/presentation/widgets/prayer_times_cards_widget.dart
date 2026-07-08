@@ -1,4 +1,8 @@
 import 'package:tazkira_app/core/routing/route_export.dart';
+import 'package:tazkira_app/core/models/prayer_data_snapshot.dart';
+import 'package:tazkira_app/core/services/widget_data_service.dart';
+import 'package:tazkira_app/core/utils/islamic_season_helper.dart'
+    as season_helper;
 
 class PrayerTimesCardsWidget extends StatefulWidget {
   const PrayerTimesCardsWidget({super.key});
@@ -14,6 +18,10 @@ class _PrayerTimesCardsWidgetState extends State<PrayerTimesCardsWidget>
   String? errorMessage;
   String? cityName;
   Timer? _countdownTimer;
+
+  /// Cached Hijri date string refreshed asynchronously on each timer tick.
+  /// Stored here so the widget snapshot can include it without blocking the UI.
+  String _cachedHijriDate = '';
 
   @override
   void initState() {
@@ -34,6 +42,9 @@ class _PrayerTimesCardsWidgetState extends State<PrayerTimesCardsWidget>
     if (state == AppLifecycleState.resumed) {
       // Restart the timer when app resumes
       _startCountdownTimer();
+      // Re-publish snapshot when the app returns to foreground so widgets
+      // reflect any changes that occurred while the app was in the background.
+      _publishWidgetSnapshot();
     }
   }
 
@@ -49,7 +60,104 @@ class _PrayerTimesCardsWidgetState extends State<PrayerTimesCardsWidget>
       }
       // Trigger rebuild to update countdown
       setState(() {});
+      // Publish widget snapshot with already-calculated prayer data.
+      // Runs fire-and-forget; does not block the UI or introduce new timers.
+      _publishWidgetSnapshot();
     });
+  }
+
+  /// Builds a [PrayerDataSnapshot] from already-available [prayerTimes] and
+  /// publishes it to native widgets via [WidgetDataService].
+  ///
+  /// This method:
+  /// - Does NOT calculate prayer times (reuses [prayerTimes] computed by
+  ///   [_initializePrayerTimes]).
+  /// - Does NOT perform GPS or location work.
+  /// - Does NOT register observers or start timers.
+  /// - Awaits the Hijri date before building the snapshot so [hijriDate] is
+  ///   never empty on first publish (fixes async race condition).
+  Future<void> _publishWidgetSnapshot() async {
+    final pt = prayerTimes;
+    if (pt == null) return; // Prayer data not yet available — skip silently.
+
+    // Await the Hijri date so the snapshot is never published with an empty
+    // hijriDate. Uses the same IslamicSeasonHelper already used by HijriDateCard.
+    try {
+      final hijri =
+          await season_helper.IslamicSeasonHelper.getAdjustedHijriDate();
+      const arabicMonths = [
+        'محرم',
+        'صفر',
+        'ربيع الأول',
+        'ربيع الآخر',
+        'جمادى الأولى',
+        'جمادى الآخرة',
+        'رجب',
+        'شعبان',
+        'رمضان',
+        'شوال',
+        'ذو القعدة',
+        'ذو الحجة',
+      ];
+      _cachedHijriDate =
+          '${hijri.hDay} ${arabicMonths[hijri.hMonth - 1]} ${hijri.hYear} هـ';
+    } catch (_) {
+      // Keep previously cached value on error.
+      // If _cachedHijriDate is still empty, isValid() will not reject the
+      // snapshot (hijriDate is not part of isValid), but contentEquals will
+      // detect the change once it resolves on the next tick.
+    }
+
+    // Determine next obligatory prayer from already-available data.
+    // PrayerTimesService.getNextPrayerInfo() cannot be reused here because it
+    // requires Coordinates and recalculates PrayerTimes internally, violating
+    // the no-recalculation rule. _determineNextPrayer() reads directly from
+    // the already-calculated [prayerTimes] object.
+    final nextPrayer = _determineNextPrayer(pt);
+
+    final snapshot = PrayerDataSnapshot(
+      fajr: pt.fajr.toUtc().toIso8601String(),
+      dhuhr: pt.dhuhr.toUtc().toIso8601String(),
+      asr: pt.asr.toUtc().toIso8601String(),
+      maghrib: pt.maghrib.toUtc().toIso8601String(),
+      isha: pt.isha.toUtc().toIso8601String(),
+      nextPrayerName: nextPrayer.key,
+      nextPrayerTime: nextPrayer.value.toUtc().toIso8601String(),
+      hijriDate: _cachedHijriDate,
+      snapshotTimestamp: DateTime.now().toUtc().toIso8601String(),
+    );
+
+    await WidgetDataService.instance.publishSnapshot(snapshot);
+  }
+
+  /// Determines the next upcoming obligatory prayer from an already-calculated
+  /// [PrayerTimes] object. Returns a [MapEntry] of (Arabic name, local DateTime).
+  ///
+  /// Exists to avoid duplicating the next-prayer selection logic between
+  /// [_publishWidgetSnapshot] and [build]. Reads only from [pt] — no
+  /// recalculation, no GPS, no adhan calls.
+  ///
+  /// Note: [PrayerTimesService.getNextPrayerInfo] was considered but cannot be
+  /// reused here because it requires [Coordinates] and recalculates [PrayerTimes]
+  /// internally from scratch.
+  MapEntry<String, DateTime> _determineNextPrayer(PrayerTimes pt) {
+    final now = DateTime.now();
+    final obligatoryPrayers = <String, DateTime>{
+      'الفجر': pt.fajr.toLocal(),
+      'الظهر': pt.dhuhr.toLocal(),
+      'العصر': pt.asr.toLocal(),
+      'المغرب': pt.maghrib.toLocal(),
+      'العشاء': pt.isha.toLocal(),
+    };
+
+    for (final entry in obligatoryPrayers.entries) {
+      if (entry.value.isAfter(now)) {
+        return entry;
+      }
+    }
+
+    // All five prayers today have passed — next is Fajr tomorrow.
+    return MapEntry('الفجر', pt.fajr.toLocal().add(const Duration(days: 1)));
   }
 
   Future<void> _initializePrayerTimes() async {
@@ -101,6 +209,8 @@ class _PrayerTimesCardsWidgetState extends State<PrayerTimesCardsWidget>
 
       // Start the countdown timer after prayer times are loaded
       _startCountdownTimer();
+      // Publish an initial snapshot now that prayer data is available.
+      _publishWidgetSnapshot();
     } catch (e) {
       setState(() {
         errorMessage = 'حدث خطأ: ${e.toString()}';
@@ -418,7 +528,7 @@ class _PrayerTimesCardsWidgetState extends State<PrayerTimesCardsWidget>
         break;
       }
     }
-    
+
     // Fallback if all prayers today have passed (next prayer is Fajr tomorrow)
     if (nextTime == null) {
       nextTime = prayerTimes!.fajr.toLocal().add(const Duration(days: 1));
@@ -451,7 +561,7 @@ class _PrayerTimesCardsWidgetState extends State<PrayerTimesCardsWidget>
               ],
             ),
           ),
-          
+
         // Next Prayer Info Banner
         Container(
           margin: EdgeInsets.only(bottom: 16.h),
@@ -472,7 +582,8 @@ class _PrayerTimesCardsWidgetState extends State<PrayerTimesCardsWidget>
                 ),
                 child: Row(
                   children: [
-                    Icon(Icons.timer_outlined, color: Colors.white, size: 18.sp),
+                    Icon(Icons.timer_outlined,
+                        color: Colors.white, size: 18.sp),
                     SizedBox(width: 6.w),
                     Text(
                       _getTimeRemaining(nextTime),
@@ -559,11 +670,12 @@ class _PrayerTimesCardsWidgetState extends State<PrayerTimesCardsWidget>
                 color1: const Color(0xFF2D5F7F),
                 color2: const Color(0xFF4A7FA0),
               ),
-            ].reversed.toList(), // Reversed so Fajr is on the right side for RTL UI
+            ]
+                .reversed
+                .toList(), // Reversed so Fajr is on the right side for RTL UI
           ),
         ),
       ],
     );
   }
 }
-

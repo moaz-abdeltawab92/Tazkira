@@ -70,6 +70,19 @@
 	<string>يحتاج التطبيق للوصول إلى مكتبة الصور لمشاركة الصور والصور المحفوظة.</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
 	<string>يحتاج التطبيق لحفظ الصور في مكتبة الصور.</string>
+
+	<!-- URL scheme for widget deep-link: tazkira://home -->
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>tazkira</string>
+			</array>
+		</dict>
+	</array>
 	
 </dict>
 </plist>
