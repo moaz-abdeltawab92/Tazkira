@@ -14,7 +14,8 @@
         android:label="@string/app_name"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher"
-        android:enableOnBackInvokedCallback="true">
+        android:enableOnBackInvokedCallback="true"
+        android:supportsRtl="true">
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -36,6 +37,14 @@
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
+            <!-- Deep link from widget tap: tazkira://home
+                 launchMode="singleTop" (already set) prevents duplicate instances -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="tazkira" android:host="home" />
+            </intent-filter>
         </activity>
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
@@ -52,6 +61,36 @@
                 <action android:name="android.intent.action.BOOT_COMPLETED"/>
                 <action android:name="android.intent.action.MY_PACKAGE_REPLACED"/>
             </intent-filter>
+        </receiver>
+
+        <!-- Prayer times home screen widget -->
+        <receiver
+            android:name=".widget.PrayerWidgetReceiver"
+            android:exported="true">
+            <!-- OS-scheduled widget update (30-minute fallback interval) -->
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <!-- Custom broadcast sent by the Flutter platform channel after
+                 writing new prayer data to SharedPreferences -->
+            <intent-filter>
+                <action android:name="com.moaz.tazkira.WIDGET_UPDATE" />
+            </intent-filter>
+            <!-- Boot completed, package updates, timezone, and clock changes to reschedule alarms -->
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+                <action android:name="android.intent.action.TIME_SET" />
+                <action android:name="android.intent.action.TIMEZONE_CHANGED" />
+            </intent-filter>
+            <!-- Custom broadcast action triggered by AlarmManager alarms -->
+            <intent-filter>
+                <action android:name="com.moaz.tazkira.ALARM_WIDGET_UPDATE" />
+            </intent-filter>
+            <!-- AppWidgetProviderInfo metadata -->
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/prayer_widget_info" />
         </receiver>
     </application>
     <!-- Required to query activities that can process text, see:

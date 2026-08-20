@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Cairo font family resource for the Tazkira widget.
+  TTF files sourced from https://fonts.google.com/specimen/Cairo
+
+  cairo_regular.ttf   — Cairo Regular  (weight 400)
+  cairo_semibold.ttf  — Cairo SemiBold (weight 600)
+  cairo_bold.ttf      — Cairo Bold     (weight 700)
+
+  Referenced in PrayerGlanceWidget via FontFamily(R.font.cairo_regular/bold).
+-->
+<font-family xmlns:android="http://schemas.android.com/apk/res/android">
+    <font
+        android:fontStyle="normal"
+        android:fontWeight="400"
+        android:font="@font/cairo_regular" />
+    <font
+        android:fontStyle="normal"
+        android:fontWeight="600"
+        android:font="@font/cairo_semibold" />
+    <font
+        android:fontStyle="normal"
+        android:fontWeight="700"
+        android:font="@font/cairo_bold" />
+</font-family>

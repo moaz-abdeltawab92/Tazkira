@@ -2,17 +2,10 @@
 //  AppIntent.swift
 //  TazkiraWidget
 //
-//  Created by Hawazen Mahmood on 7/7/26.
+//  This file intentionally left minimal.
+//  The Xcode-generated emoji ConfigurationAppIntent has been removed.
+//  Tazkira widgets use StaticConfiguration and require no AppIntents.
+//  This file is retained to avoid modifying project.pbxproj.
 //
 
-import WidgetKit
-import AppIntents
-
-struct ConfigurationAppIntent: WidgetConfigurationIntent {
-    static var title: LocalizedStringResource { "Configuration" }
-    static var description: IntentDescription { "This is an example widget." }
-
-    // An example configurable parameter.
-    @Parameter(title: "Favorite Emoji", default: "😃")
-    var favoriteEmoji: String
-}
+import Foundation

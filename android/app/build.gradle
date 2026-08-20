@@ -1,4 +1,5 @@
 plugins {
+    id "org.jetbrains.kotlin.plugin.compose"
     id "com.android.application"
     // START: FlutterFire Configuration
     id 'com.google.gms.google-services'
@@ -18,7 +19,9 @@ android {
     namespace = "com.moaz.tazkira"
     compileSdk = 36
     ndkVersion = flutter.ndkVersion
-
+    buildFeatures {
+    compose true
+                  }
     compileOptions {
         // Enable desugaring for flutter_local_notifications
         coreLibraryDesugaringEnabled true
@@ -80,6 +83,10 @@ flutter {
 dependencies {
     // Core library desugaring for flutter_local_notifications
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.1.4'
+
+    // Jetpack Glance — home screen widget framework
+    implementation "androidx.glance:glance-appwidget:1.1.1"
+    implementation "androidx.glance:glance-material3:1.1.1"
     
     // إجبار استخدام إصدار متوافق مع Android Gradle Plugin 8.6.0
     constraints {

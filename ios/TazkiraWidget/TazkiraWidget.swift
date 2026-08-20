@@ -2,87 +2,73 @@
 //  TazkiraWidget.swift
 //  TazkiraWidget
 //
-//  Created by Hawazen Mahmood on 7/7/26.
+//  Declares the four concrete Widget conformances used by TazkiraWidgetBundle.
+//  Replaces the Xcode-generated emoji demo stub.
+//
+//  Each widget uses StaticConfiguration (no user-configurable intents) backed
+//  by PrayerTimelineProvider, and routes to its dedicated SwiftUI view.
 //
 
 import WidgetKit
 import SwiftUI
 
-struct Provider: AppIntentTimelineProvider {
-    func placeholder(in context: Context) -> SimpleEntry {
-        SimpleEntry(date: Date(), configuration: ConfigurationAppIntent())
-    }
+// MARK: - Small
 
-    func snapshot(for configuration: ConfigurationAppIntent, in context: Context) async -> SimpleEntry {
-        SimpleEntry(date: Date(), configuration: configuration)
-    }
-    
-    func timeline(for configuration: ConfigurationAppIntent, in context: Context) async -> Timeline<SimpleEntry> {
-        var entries: [SimpleEntry] = []
-
-        // Generate a timeline consisting of five entries an hour apart, starting from the current date.
-        let currentDate = Date()
-        for hourOffset in 0 ..< 5 {
-            let entryDate = Calendar.current.date(byAdding: .hour, value: hourOffset, to: currentDate)!
-            let entry = SimpleEntry(date: entryDate, configuration: configuration)
-            entries.append(entry)
-        }
-
-        return Timeline(entries: entries, policy: .atEnd)
-    }
-
-//    func relevances() async -> WidgetRelevances<ConfigurationAppIntent> {
-//        // Generate a list containing the contexts this widget is relevant in.
-//    }
-}
-
-struct SimpleEntry: TimelineEntry {
-    let date: Date
-    let configuration: ConfigurationAppIntent
-}
-
-struct TazkiraWidgetEntryView : View {
-    var entry: Provider.Entry
-
-    var body: some View {
-        VStack {
-            Text("Time:")
-            Text(entry.date, style: .time)
-
-            Text("Favorite Emoji:")
-            Text(entry.configuration.favoriteEmoji)
-        }
-    }
-}
-
-struct TazkiraWidget: Widget {
-    let kind: String = "TazkiraWidget"
+struct SmallPrayerWidget: Widget {
+    let kind = "com.moaz.tazkira.small"
 
     var body: some WidgetConfiguration {
-        AppIntentConfiguration(kind: kind, intent: ConfigurationAppIntent.self, provider: Provider()) { entry in
-            TazkiraWidgetEntryView(entry: entry)
-                .containerBackground(.fill.tertiary, for: .widget)
+        StaticConfiguration(kind: kind, provider: PrayerTimelineProvider()) { entry in
+            SmallWidgetView(entry: entry)
         }
+        .configurationDisplayName("تذكرة – الصلاة القادمة")
+        .description("الصلاة القادمة ومواقيت الصلوات الخمس.")
+        .supportedFamilies([.systemSmall])
     }
 }
 
-extension ConfigurationAppIntent {
-    fileprivate static var smiley: ConfigurationAppIntent {
-        let intent = ConfigurationAppIntent()
-        intent.favoriteEmoji = "😀"
-        return intent
-    }
-    
-    fileprivate static var starEyes: ConfigurationAppIntent {
-        let intent = ConfigurationAppIntent()
-        intent.favoriteEmoji = "🤩"
-        return intent
+// MARK: - Medium
+
+struct MediumPrayerWidget: Widget {
+    let kind = "com.moaz.tazkira.medium"
+
+    var body: some WidgetConfiguration {
+        StaticConfiguration(kind: kind, provider: PrayerTimelineProvider()) { entry in
+            MediumWidgetView(entry: entry)
+        }
+        .configurationDisplayName("تذكرة – أوقات الصلاة")
+        .description("الصلاة القادمة ومواقيت الصلوات الخمس.")
+        .supportedFamilies([.systemMedium])
     }
 }
 
-#Preview(as: .systemSmall) {
-    TazkiraWidget()
-} timeline: {
-    SimpleEntry(date: .now, configuration: .smiley)
-    SimpleEntry(date: .now, configuration: .starEyes)
+// MARK: - Large
+
+struct LargePrayerWidget: Widget {
+    let kind = "com.moaz.tazkira.large"
+
+    var body: some WidgetConfiguration {
+        StaticConfiguration(kind: kind, provider: PrayerTimelineProvider()) { entry in
+            LargeWidgetView(entry: entry)
+        }
+        .configurationDisplayName("تذكرة – الجدول اليومي")
+        .description("التاريخ الهجري والصلاة القادمة ومواقيت الصلوات الخمس.")
+        .supportedFamilies([.systemLarge])
+    }
+}
+
+// MARK: - Lock Screen (iOS 16+)
+
+@available(iOS 16.0, *)
+struct LockScreenPrayerWidget: Widget {
+    let kind = "com.moaz.tazkira.lockscreen"
+
+    var body: some WidgetConfiguration {
+        StaticConfiguration(kind: kind, provider: PrayerTimelineProvider()) { entry in
+            LockScreenWidgetView(entry: entry)
+        }
+        .configurationDisplayName("تذكرة – شاشة القفل")
+        .description("الصلاة القادمة ومواقيت الصلوات الخمس على شاشة القفل.")
+        .supportedFamilies([.accessoryRectangular])
+    }
 }

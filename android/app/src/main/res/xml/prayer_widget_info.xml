@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  AppWidgetProviderInfo for PrayerGlanceWidget / PrayerWidgetReceiver.
+
+  minWidth / minHeight: minimum slot the launcher must allocate.
+    180dp × 110dp ≈ 2 × 2 cells on most launchers (1 cell ≈ 74dp on MDPI).
+    Chosen to always show the full 5-prayer row without truncation.
+
+  targetCellWidth / targetCellHeight (API 31+): preferred size in grid cells.
+    4 × 2 cells is the ideal size for the full medium-style layout.
+    Ignored on older launchers — minWidth/minHeight apply instead.
+
+  updatePeriodMillis: 1800000 = 30 minutes.
+    OS baseline refresh interval. The Flutter app triggers faster updates
+    via ACTION_WIDGET_UPDATE broadcast whenever prayer data changes.
+    Note: Android enforces a minimum of 30 minutes regardless of the value set.
+
+  resizeMode: horizontal|vertical — user can resize the widget freely.
+
+  widgetCategory: home_screen — standard home screen placement.
+
+  initialLayout: points to the gradient background drawable so there is
+    something visible before Glance renders its first frame.
+-->
+<appwidget-provider
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:minWidth="180dp"
+    android:minHeight="110dp"
+    android:targetCellWidth="4"
+    android:targetCellHeight="2"
+    android:updatePeriodMillis="1800000"
+    android:resizeMode="horizontal|vertical"
+    android:widgetCategory="home_screen"
+    android:initialLayout="@drawable/widget_background"
+    android:description="@string/app_name" />

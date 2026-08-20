@@ -3,6 +3,7 @@ import 'package:tazkira_app/core/routing/route_export.dart';
 import 'package:tazkira_app/core/services/notification_content_provider.dart';
 import 'package:tazkira_app/core/utils/islamic_season_helper.dart';
 import 'package:timezone/timezone.dart' as tz;
+import 'package:tazkira_app/core/services/prayer_reminder_scheduler.dart';
 
 class NotificationService {
   static final FlutterLocalNotificationsPlugin _notificationsPlugin =
@@ -22,6 +23,13 @@ class NotificationService {
   static const int _beforeSleepDhikrId = 410;
   static const int _prayerReminderStartId = 500;
   static const int _lastThirdNightStartId = 850;
+
+  static FlutterLocalNotificationsPlugin get notificationsPlugin => _notificationsPlugin;
+  static String get prayerChannelId => _prayerChannelId;
+  static int get prayerReminderStartId => _prayerReminderStartId;
+
+  static NotificationDetails getNotificationDetails(String channelId, {String? body}) =>
+      _getNotificationDetails(channelId, body: body);
 
   static Future<void> initialize() async {
     const AndroidInitializationSettings androidSettings =
@@ -195,9 +203,8 @@ class NotificationService {
       await _scheduleBeforeSleepDhikr();
     }
 
-    if (prefs.getBool('prayer_reminders_enabled') ?? false) {
-      await schedulePrayerTimeReminders();
-    }
+    // Always delegate scheduling of normal and smart prayer reminders to the new orchestrator
+    await PrayerReminderScheduler.scheduleAllReminders();
   }
 
   static Future<void> _scheduleMorningAzkar() async {
@@ -640,18 +647,21 @@ class NotificationService {
         final dateComponents = DateComponents(date.year, date.month, date.day);
         final prayerTimes = PrayerTimes(coordinates, dateComponents, params);
 
-        // Get Maghrib and Fajr times
+        // Get today's Maghrib and tomorrow's Fajr
         final maghrib = prayerTimes.maghrib;
-        final fajr = prayerTimes.fajr;
+        final nextDate = date.add(const Duration(days: 1));
+        final nextDateComponents = DateComponents(nextDate.year, nextDate.month, nextDate.day);
+        final nextPrayerTimes = PrayerTimes(coordinates, nextDateComponents, params);
+        final nextFajr = nextPrayerTimes.fajr;
 
-        // Calculate night duration (Fajr - Maghrib)
-        final nightDuration = fajr.difference(maghrib);
+        // Calculate night duration (tomorrow's Fajr - today's Maghrib)
+        final nightDuration = nextFajr.difference(maghrib);
 
         // Calculate one third of the night
         final oneThird = nightDuration ~/ 3;
 
-        // Calculate start of last third = Fajr - one third
-        final lastThirdStart = fajr.subtract(oneThird);
+        // Calculate start of last third = tomorrow's Fajr - one third
+        final lastThirdStart = nextFajr.subtract(oneThird);
 
         // Convert to TZDateTime for scheduling
         final scheduledTime = tz.TZDateTime.from(lastThirdStart, tz.local);

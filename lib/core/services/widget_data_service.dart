@@ -114,4 +114,15 @@ class WidgetDataService {
       debugPrint('[WidgetDataService] reloadWidgets failed: $e');
     }
   }
+
+  // ---------------------------------------------------------------------------
+  // Testing support
+  // ---------------------------------------------------------------------------
+
+  /// Resets internal change-detection state between tests.
+  /// Only call this from test code — annotated to make intent clear.
+  @visibleForTesting
+  void resetForTesting() {
+    _lastSnapshot = PrayerDataSnapshot.empty();
+  }
 }

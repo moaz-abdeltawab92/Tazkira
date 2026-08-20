@@ -1,6 +1,8 @@
 import 'package:tazkira_app/core/routing/route_export.dart';
 import 'package:tazkira_app/core/services/notification_service.dart';
 import 'package:tazkira_app/core/utils/hijri_date_offset_helper.dart';
+import 'package:tazkira_app/core/services/prayer_reminder_scheduler.dart';
+import 'package:tazkira_app/core/services/smart_prayer_reminder_service.dart';
 
 class PodcastsPage extends StatefulWidget {
   const PodcastsPage({super.key});
@@ -12,6 +14,7 @@ class PodcastsPage extends StatefulWidget {
 class _PodcastsPageState extends State<PodcastsPage> {
   bool _generalNotificationsEnabled = true;
   bool _prayerRemindersEnabled = false;
+  bool _smartPrayerRemindersEnabled = false;
   bool _lastThirdNightEnabled = false;
   int _hijriDateOffset = 0;
   int _initialHijriDateOffset = 0;
@@ -30,6 +33,8 @@ class _PodcastsPageState extends State<PodcastsPage> {
           prefs.getBool('general_notifications_enabled') ?? true;
       _prayerRemindersEnabled =
           prefs.getBool('prayer_reminders_enabled') ?? false;
+      _smartPrayerRemindersEnabled =
+          prefs.getBool('smart_prayer_reminders_enabled') ?? false;
       _lastThirdNightEnabled =
           prefs.getBool('last_third_night_enabled') ?? false;
       _hijriDateOffset = offset;
@@ -71,38 +76,51 @@ class _PodcastsPageState extends State<PodcastsPage> {
       _prayerRemindersEnabled = value;
     });
 
+    await PrayerReminderScheduler.scheduleAllReminders();
+
+    if (mounted) {
+      ScaffoldMessenger.of(context).clearSnackBars();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            value ? 'تم تفعيل تنبيهات الصلاة' : 'تم إيقاف تنبيهات الصلاة',
+            style: GoogleFonts.tajawal(),
+          ),
+          backgroundColor: value ? const Color(0xFF1B5E5E) : Colors.redAccent,
+          behavior: SnackBarBehavior.floating,
+          duration: const Duration(seconds: 2),
+        ),
+      );
+    }
+  }
+
+  Future<void> _toggleSmartPrayerReminders(bool value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('smart_prayer_reminders_enabled', value);
+
+    setState(() {
+      _smartPrayerRemindersEnabled = value;
+    });
+
     if (value) {
-      await NotificationService.schedulePrayerTimeReminders();
-      if (mounted) {
-        ScaffoldMessenger.of(context).clearSnackBars();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              'تم تفعيل تنبيهات الصلاة',
-              style: GoogleFonts.tajawal(),
-            ),
-            backgroundColor: const Color(0xFF1B5E5E),
-            behavior: SnackBarBehavior.floating,
-            duration: const Duration(seconds: 2),
-          ),
-        );
-      }
+      await PrayerReminderScheduler.scheduleAllReminders();
     } else {
-      await NotificationService.cancelPrayerTimeReminders();
-      if (mounted) {
-        ScaffoldMessenger.of(context).clearSnackBars();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              'تم إيقاف تنبيهات الصلاة',
-              style: GoogleFonts.tajawal(),
-            ),
-            backgroundColor: Colors.redAccent,
-            behavior: SnackBarBehavior.floating,
-            duration: const Duration(seconds: 2),
+      await SmartPrayerReminderService.onSmartRemindersDisabled();
+    }
+
+    if (mounted) {
+      ScaffoldMessenger.of(context).clearSnackBars();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            value ? 'تم تفعيل التذكير الذكي للصلاة' : 'تم إيقاف التذكير الذكي للصلاة',
+            style: GoogleFonts.tajawal(),
           ),
-        );
-      }
+          backgroundColor: value ? const Color(0xFF1B5E5E) : Colors.redAccent,
+          behavior: SnackBarBehavior.floating,
+          duration: const Duration(seconds: 2),
+        ),
+      );
     }
   }
 
@@ -309,6 +327,44 @@ class _PodcastsPageState extends State<PodcastsPage> {
                                 ),
                                 child: Icon(
                                   Icons.notifications_active_outlined,
+                                  color: const Color(0xFF1B5E5E),
+                                  size: 24.sp,
+                                ),
+                              ),
+                            ),
+                            Divider(
+                              height: 1,
+                              thickness: 1,
+                              color: Colors.grey.withOpacity(0.2),
+                            ),
+                            SwitchListTile(
+                              value: _smartPrayerRemindersEnabled,
+                              onChanged: _toggleSmartPrayerReminders,
+                              activeColor: const Color(0xFF1B5E5E),
+                              title: Text(
+                                'تذكير إذا لم تُسجل الصلاة الحالية',
+                                style: GoogleFonts.tajawal(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 14.sp,
+                                  color: Colors.black87,
+                                ),
+                              ),
+                              subtitle: Text(
+                                'تنبيه ذكي إذا اقترب وقت الصلاة التالية ولم تُصلِّ الحالية',
+                                style: GoogleFonts.tajawal(
+                                  fontSize: 12.sp,
+                                  color: Colors.black54,
+                                ),
+                              ),
+                              secondary: Container(
+                                padding: EdgeInsets.all(8.w),
+                                decoration: BoxDecoration(
+                                  color:
+                                      const Color(0xFF1B5E5E).withOpacity(0.1),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Icon(
+                                  Icons.notification_important_outlined,
                                   color: const Color(0xFF1B5E5E),
                                   size: 24.sp,
                                 ),

@@ -3,6 +3,8 @@ import 'package:tazkira_app/core/models/prayer_data_snapshot.dart';
 import 'package:tazkira_app/core/services/widget_data_service.dart';
 import 'package:tazkira_app/core/utils/islamic_season_helper.dart'
     as season_helper;
+import 'package:hijri/hijri_calendar.dart';
+import 'package:tazkira_app/core/utils/hijri_date_offset_helper.dart';
 
 class PrayerTimesCardsWidget extends StatefulWidget {
   const PrayerTimesCardsWidget({super.key});
@@ -14,6 +16,7 @@ class PrayerTimesCardsWidget extends StatefulWidget {
 class _PrayerTimesCardsWidgetState extends State<PrayerTimesCardsWidget>
     with WidgetsBindingObserver {
   PrayerTimes? prayerTimes;
+  Coordinates? _currentCoordinates;
   bool isLoading = true;
   String? errorMessage;
   String? cityName;
@@ -76,15 +79,62 @@ class _PrayerTimesCardsWidgetState extends State<PrayerTimesCardsWidget>
   /// - Does NOT register observers or start timers.
   /// - Awaits the Hijri date before building the snapshot so [hijriDate] is
   ///   never empty on first publish (fixes async race condition).
+  ///
+  /// ### Midnight rollover (Issue A)
+  /// Detects when the cached [prayerTimes] is from a previous calendar day
+  /// and triggers a fresh calculation before publishing. This handles the case
+  /// where the app process stays alive across midnight — the 60‑second timer
+  /// or an app‑resume event eventually calls this method, the stale date is
+  /// detected, and [_initializePrayerTimes] recalculates for the new day.
+  ///
+  /// ### Cold start after midnight (Issue B — architecture limitation)
+  /// If the app process is killed overnight, no snapshot is published until
+  /// the user opens the app again (which triggers [initState] →
+  /// [_initializePrayerTimes]). This is an inherent architectural limitation:
+  /// fixing it would require native background scheduling (e.g. WorkManager,
+  /// AlarmManager, a foreground service, or a background Flutter isolate),
+  /// all of which are excluded by the current architecture constraints.
   Future<void> _publishWidgetSnapshot() async {
     final pt = prayerTimes;
-    if (pt == null) return; // Prayer data not yet available — skip silently.
+    final coords = pt?.coordinates ?? _currentCoordinates;
+    if (pt == null || coords == null) return; // Prayer data or coordinates not yet available — skip silently.
+
+    // Issue A: midnight rollover — if the cached prayer times are from a
+    // previous day, recalculate before publishing.  This guard is cheap
+    // (no GPS, no network) and fires at most once per day.
+    final now = DateTime.now();
+    final fajrLocal = pt.fajr.toLocal();
+    if (fajrLocal.year != now.year ||
+        fajrLocal.month != now.month ||
+        fajrLocal.day != now.day) {
+      debugPrint('[Widget] Midnight rollover detected — recalculating prayer times for the new day');
+      await _initializePrayerTimes();
+      return; // _initializePrayerTimes already called _publishWidgetSnapshot on success.
+    }
+
+    final todayDateStr = "${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}";
+    final tomorrow = now.add(const Duration(days: 1));
+    final tomorrowDateStr = "${tomorrow.year}-${tomorrow.month.toString().padLeft(2, '0')}-${tomorrow.day.toString().padLeft(2, '0')}";
+
+    // Calculate tomorrow's prayer times falkially
+    final tomorrowParams = CalculationMethod.egyptian.getParameters();
+    tomorrowParams.madhab = Madhab.shafi;
+    final tomorrowDate = DateComponents(tomorrow.year, tomorrow.month, tomorrow.day);
+    final tomorrowPrayers = PrayerTimes(coords, tomorrowDate, tomorrowParams);
+
+    String todayHijriStr = _cachedHijriDate;
+    String tomorrowHijriStr = '';
 
     // Await the Hijri date so the snapshot is never published with an empty
     // hijriDate. Uses the same IslamicSeasonHelper already used by HijriDateCard.
     try {
-      final hijri =
-          await season_helper.IslamicSeasonHelper.getAdjustedHijriDate();
+      final offset = await HijriDateOffsetHelper.getOffset().catchError((_) => 0);
+      final todayAdjusted = now.add(Duration(days: offset));
+      final tomorrowAdjusted = todayAdjusted.add(const Duration(days: 1));
+      
+      final todayHijri = HijriCalendar.fromDate(todayAdjusted);
+      final tomorrowHijri = HijriCalendar.fromDate(tomorrowAdjusted);
+      
       const arabicMonths = [
         'محرم',
         'صفر',
@@ -99,13 +149,14 @@ class _PrayerTimesCardsWidgetState extends State<PrayerTimesCardsWidget>
         'ذو القعدة',
         'ذو الحجة',
       ];
-      _cachedHijriDate =
-          '${hijri.hDay} ${arabicMonths[hijri.hMonth - 1]} ${hijri.hYear} هـ';
+      
+      todayHijriStr =
+          '${todayHijri.hDay} ${arabicMonths[todayHijri.hMonth - 1]} ${todayHijri.hYear} هـ';
+      tomorrowHijriStr =
+          '${tomorrowHijri.hDay} ${arabicMonths[tomorrowHijri.hMonth - 1]} ${tomorrowHijri.hYear} هـ';
+      _cachedHijriDate = todayHijriStr;
     } catch (_) {
       // Keep previously cached value on error.
-      // If _cachedHijriDate is still empty, isValid() will not reject the
-      // snapshot (hijriDate is not part of isValid), but contentEquals will
-      // detect the change once it resolves on the next tick.
     }
 
     // Determine next obligatory prayer from already-available data.
@@ -116,14 +167,22 @@ class _PrayerTimesCardsWidgetState extends State<PrayerTimesCardsWidget>
     final nextPrayer = _determineNextPrayer(pt);
 
     final snapshot = PrayerDataSnapshot(
+      date: todayDateStr,
       fajr: pt.fajr.toUtc().toIso8601String(),
       dhuhr: pt.dhuhr.toUtc().toIso8601String(),
       asr: pt.asr.toUtc().toIso8601String(),
       maghrib: pt.maghrib.toUtc().toIso8601String(),
       isha: pt.isha.toUtc().toIso8601String(),
+      hijriDate: todayHijriStr,
+      tomorrowDate: tomorrowDateStr,
+      tomorrowFajr: tomorrowPrayers.fajr.toUtc().toIso8601String(),
+      tomorrowDhuhr: tomorrowPrayers.dhuhr.toUtc().toIso8601String(),
+      tomorrowAsr: tomorrowPrayers.asr.toUtc().toIso8601String(),
+      tomorrowMaghrib: tomorrowPrayers.maghrib.toUtc().toIso8601String(),
+      tomorrowIsha: tomorrowPrayers.isha.toUtc().toIso8601String(),
+      tomorrowHijriDate: tomorrowHijriStr,
       nextPrayerName: nextPrayer.key,
       nextPrayerTime: nextPrayer.value.toUtc().toIso8601String(),
-      hijriDate: _cachedHijriDate,
       snapshotTimestamp: DateTime.now().toUtc().toIso8601String(),
     );
 
@@ -189,6 +248,7 @@ class _PrayerTimesCardsWidgetState extends State<PrayerTimesCardsWidget>
       await _getCityName(position.latitude, position.longitude);
 
       final coordinates = Coordinates(position.latitude, position.longitude);
+      _currentCoordinates = coordinates;
 
       final params = CalculationMethod.egyptian.getParameters();
       params.madhab = Madhab.shafi;

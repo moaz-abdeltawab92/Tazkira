@@ -7,5 +7,16 @@
 		<key>NSExtensionPointIdentifier</key>
 		<string>com.apple.widgetkit-extension</string>
 	</dict>
+
+	<!-- Register Cairo font files bundled in the TazkiraWidget extension target.
+	     Without this, Font.custom("Cairo-Bold", ...) falls back to the system font
+	     even when the TTF files are present in the extension bundle.
+	     Each entry must match the exact filename including the .ttf extension. -->
+	<key>UIAppFonts</key>
+	<array>
+		<string>cairo_regular.ttf</string>
+		<string>cairo_semibold.ttf</string>
+		<string>cairo_bold.ttf</string>
+	</array>
 </dict>
 </plist>
