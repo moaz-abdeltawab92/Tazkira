@@ -1,9 +1,13 @@
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:tazkira_app/core/routing/route_export.dart';
 
 class Category extends StatelessWidget {
   final String text;
   final Color color;
-  final IconData? icon;
+
+  /// Either a Material [IconData] or a Font Awesome [FaIconData]
+  /// (v11 no longer subclasses IconData).
+  final Object? icon;
   final Function()? onTap;
 
   const Category({
@@ -40,11 +44,7 @@ class Category extends StatelessWidget {
                 Positioned(
                   bottom: -15,
                   right: -15,
-                  child: Icon(
-                    icon,
-                    size: 80,
-                    color: Colors.black.withOpacity(0.08),
-                  ),
+                  child: _watermarkIcon(),
                 ),
               // Text in foreground
               Center(
@@ -63,5 +63,14 @@ class Category extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Widget _watermarkIcon() {
+    const size = 80.0;
+    final color = Colors.black.withOpacity(0.08);
+    if (icon is FaIconData) {
+      return FaIcon(icon as FaIconData, size: size, color: color);
+    }
+    return Icon(icon as IconData, size: size, color: color);
   }
 }

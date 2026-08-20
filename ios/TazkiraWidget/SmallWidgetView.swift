@@ -27,7 +27,7 @@ import WidgetKit
 
 // MARK: - Prayer column model
 
-private struct PrayerColumn {
+struct PrayerColumn {
     let name: String
     let isoTime: String
     let isNext: Bool

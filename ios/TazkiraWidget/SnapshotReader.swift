@@ -28,15 +28,17 @@ struct PrayerSnapshot: Decodable {
     let hijriDate: String
     let snapshotTimestamp: String
     
-    // New fields (optional for backward compatibility with older snapshots)
-    let date: String?
-    let tomorrowDate: String?
-    let tomorrowFajr: String?
-    let tomorrowDhuhr: String?
-    let tomorrowAsr: String?
-    let tomorrowMaghrib: String?
-    let tomorrowIsha: String?
-    let tomorrowHijriDate: String?
+    // New fields (optional for backward compatibility with older snapshots).
+    // "var = nil" keeps them optional in the memberwise initializer so
+    // existing PrayerSnapshot(...) call sites keep compiling.
+    var date: String? = nil
+    var tomorrowDate: String? = nil
+    var tomorrowFajr: String? = nil
+    var tomorrowDhuhr: String? = nil
+    var tomorrowAsr: String? = nil
+    var tomorrowMaghrib: String? = nil
+    var tomorrowIsha: String? = nil
+    var tomorrowHijriDate: String? = nil
 }
 
 // MARK: - SnapshotReader

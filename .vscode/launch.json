@@ -2,18 +2,31 @@
    "version": "0.2.0",
    "configurations": [
      {
-       "name": "تَذْكِرَة Development",
+       "name": "تَذْكِرَة Development (iOS)",
+       "request": "launch",
+       "type": "dart",
+       "program": "lib/main_development.dart"
+     },
+     {
+       "name": "تَذْكِرَة Development (Android)",
        "request": "launch",
        "type": "dart",
        "program": "lib/main_development.dart",
-       "args": ["--flavor", "Development", "--target", "lib/main_development.dart" ]
+       "args": ["--flavor", "development"]
      },
      {
-       "name": "تَذْكِرَة ",
+       "name": "تَذْكِرَة Production (iOS)",
        "request": "launch",
        "type": "dart",
        "program": "lib/main_production.dart",
-       "args": ["--flavor", "Production", "--target", "lib/main_production.dart" ]
+       "args": ["--flavor", "ios-production", "--release"]
+     },
+     {
+       "name": "تَذْكِرَة Production (Android)",
+       "request": "launch",
+       "type": "dart",
+       "program": "lib/main_production.dart",
+       "args": ["--flavor", "production"]
      }
    ]
  }
