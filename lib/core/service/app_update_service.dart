@@ -134,7 +134,7 @@ class AppUpdateService {
       if (minBuildNumber > 0 && currentBuildNumber < minBuildNumber) {
         _promptedInThisSession = true;
         if (context.mounted) {
-          _showRamadanUpdateDialog(context, forceUpdate);
+          _showIOSUpdateDialog(context, forceUpdate);
         }
       }
     } catch (e) {
@@ -261,8 +261,8 @@ class AppUpdateService {
     );
   }
 
-  /// Beautiful Ramadan-themed update dialog for iOS
-  void _showRamadanUpdateDialog(BuildContext context, bool forceUpdate) {
+  /// Beautiful general-themed update dialog for iOS
+  void _showIOSUpdateDialog(BuildContext context, bool forceUpdate) {
     if (!context.mounted) return;
 
     showDialog(
@@ -293,7 +293,7 @@ class AppUpdateService {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  // Crescent moon and star icon
+                  // Update icon
                   Container(
                     width: 80.w,
                     height: 80.w,
@@ -303,19 +303,19 @@ class AppUpdateService {
                     ),
                     child: Center(
                       child: Icon(
-                        Icons.star_border_rounded,
-                        size: 48.sp,
+                        Icons.system_update_alt_rounded,
+                        size: 44.sp,
                         color: const Color(0xFFD4AF37), // Gold color
                       ),
                     ),
                   ),
                   SizedBox(height: 20.h),
 
-                  // Title with Ramadan greeting
+                  // Title
                   Text(
-                    '🌙 رمضان كريم',
+                    ' تحديث جديد متاح',
                     style: GoogleFonts.cairo(
-                      fontSize: 24.sp,
+                      fontSize: 22.sp,
                       fontWeight: FontWeight.bold,
                       color: const Color(0xFFD4AF37), // Gold
                       height: 1.5,
@@ -323,18 +323,6 @@ class AppUpdateService {
                     textAlign: TextAlign.center,
                   ),
                   SizedBox(height: 12.h),
-
-                  // Update message
-                  Text(
-                    'تحديث جديد',
-                    style: GoogleFonts.cairo(
-                      fontSize: 20.sp,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                  SizedBox(height: 16.h),
 
                   // Description
                   Container(
@@ -345,8 +333,8 @@ class AppUpdateService {
                     ),
                     child: Text(
                       forceUpdate
-                          ? 'للاستمتاع بأحدث الميزات الرمضانية وتحسينات الأداء، يجب تحديث التطبيق الآن'
-                          : 'يتوفر إصدار جديد من التطبيق مع ميزات رمضانية مميزة وتحسينات عامة على مستوى التطبيق',
+                          ? 'للاستمتاع بأحدث ميزات تطبيق تَذْكِرَة وتحسينات الأداء، يرجى تحديث التطبيق الآن للبدء.'
+                          : 'يتوفر إصدار جديد من تطبيق تَذْكِرَة يحتوي على ميزات جديدة وتحسينات عامة لتجربة أفضل.',
                       style: GoogleFonts.cairo(
                         fontSize: 15.sp,
                         color: Colors.white.withOpacity(0.9),

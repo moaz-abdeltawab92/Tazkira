@@ -14,6 +14,16 @@ import Foundation
 
 // MARK: - PrayerSnapshot
 
+struct DailyPrayerSnapshot: Decodable {
+    let date: String
+    let fajr: String
+    let dhuhr: String
+    let asr: String
+    let maghrib: String
+    let isha: String
+    let hijriDate: String
+}
+
 /// Represents the prayer data written by the Flutter app.
 /// All times are ISO-8601 UTC strings — use PrayerFormatters to convert
 /// them to display strings.
@@ -39,6 +49,7 @@ struct PrayerSnapshot: Decodable {
     var tomorrowMaghrib: String? = nil
     var tomorrowIsha: String? = nil
     var tomorrowHijriDate: String? = nil
+    var days: [DailyPrayerSnapshot]? = nil
 }
 
 // MARK: - SnapshotReader

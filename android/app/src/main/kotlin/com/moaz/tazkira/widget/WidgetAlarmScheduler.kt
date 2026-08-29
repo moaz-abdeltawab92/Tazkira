@@ -39,20 +39,39 @@ object WidgetAlarmScheduler {
         }
 
         val now = Instant.now()
+        val currentDate = java.time.LocalDate.now().toString()
+        val tomorrowDate = java.time.LocalDate.now().plusDays(1).toString()
+        val todayData = snapshot.days.find { it.date == currentDate }
+        val tomorrowData = snapshot.days.find { it.date == tomorrowDate }
 
         // 1. Gather all potential transition times from today and tomorrow
-        val transitionStrings = listOf(
-            snapshot.fajr,
-            snapshot.dhuhr,
-            snapshot.asr,
-            snapshot.maghrib,
-            snapshot.isha,
-            snapshot.tomorrowFajr,
-            snapshot.tomorrowDhuhr,
-            snapshot.tomorrowAsr,
-            snapshot.tomorrowMaghrib,
-            snapshot.tomorrowIsha
-        )
+        val transitionStrings = if (todayData != null && tomorrowData != null) {
+            listOf(
+                todayData.fajr,
+                todayData.dhuhr,
+                todayData.asr,
+                todayData.maghrib,
+                todayData.isha,
+                tomorrowData.fajr,
+                tomorrowData.dhuhr,
+                tomorrowData.asr,
+                tomorrowData.maghrib,
+                tomorrowData.isha
+            )
+        } else {
+            listOf(
+                snapshot.fajr,
+                snapshot.dhuhr,
+                snapshot.asr,
+                snapshot.maghrib,
+                snapshot.isha,
+                snapshot.tomorrowFajr,
+                snapshot.tomorrowDhuhr,
+                snapshot.tomorrowAsr,
+                snapshot.tomorrowMaghrib,
+                snapshot.tomorrowIsha
+            )
+        }
 
         val transitionInstants = mutableListOf<Instant>()
 

@@ -112,52 +112,53 @@ class _PrayerTimesCardsWidgetState extends State<PrayerTimesCardsWidget>
       return; // _initializePrayerTimes already called _publishWidgetSnapshot on success.
     }
 
-    final todayDateStr = "${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}";
-    final tomorrow = now.add(const Duration(days: 1));
-    final tomorrowDateStr = "${tomorrow.year}-${tomorrow.month.toString().padLeft(2, '0')}-${tomorrow.day.toString().padLeft(2, '0')}";
+    final offset = await HijriDateOffsetHelper.getOffset().catchError((_) => 0);
+    final List<DailyPrayerSnapshot> daysList = [];
+    final params = CalculationMethod.egyptian.getParameters();
+    params.madhab = Madhab.shafi;
+    const arabicMonths = [
+      'محرم',
+      'صفر',
+      'ربيع الأول',
+      'ربيع الآخر',
+      'جمادى الأولى',
+      'جمادى الآخرة',
+      'رجب',
+      'شعبان',
+      'رمضان',
+      'شوال',
+      'ذو القعدة',
+      'ذو الحجة',
+    ];
 
-    // Calculate tomorrow's prayer times falkially
-    final tomorrowParams = CalculationMethod.egyptian.getParameters();
-    tomorrowParams.madhab = Madhab.shafi;
-    final tomorrowDate = DateComponents(tomorrow.year, tomorrow.month, tomorrow.day);
-    final tomorrowPrayers = PrayerTimes(coords, tomorrowDate, tomorrowParams);
-
-    String todayHijriStr = _cachedHijriDate;
-    String tomorrowHijriStr = '';
-
-    // Await the Hijri date so the snapshot is never published with an empty
-    // hijriDate. Uses the same IslamicSeasonHelper already used by HijriDateCard.
-    try {
-      final offset = await HijriDateOffsetHelper.getOffset().catchError((_) => 0);
-      final todayAdjusted = now.add(Duration(days: offset));
-      final tomorrowAdjusted = todayAdjusted.add(const Duration(days: 1));
+    for (int i = 0; i < 30; i++) {
+      final targetDate = now.add(Duration(days: i));
+      final dateComponents = DateComponents(targetDate.year, targetDate.month, targetDate.day);
+      final prayers = PrayerTimes(coords, dateComponents, params);
       
-      final todayHijri = HijriCalendar.fromDate(todayAdjusted);
-      final tomorrowHijri = HijriCalendar.fromDate(tomorrowAdjusted);
+      final dateStr = "${targetDate.year}-${targetDate.month.toString().padLeft(2, '0')}-${targetDate.day.toString().padLeft(2, '0')}";
       
-      const arabicMonths = [
-        'محرم',
-        'صفر',
-        'ربيع الأول',
-        'ربيع الآخر',
-        'جمادى الأولى',
-        'جمادى الآخرة',
-        'رجب',
-        'شعبان',
-        'رمضان',
-        'شوال',
-        'ذو القعدة',
-        'ذو الحجة',
-      ];
+      String hijriStr = '';
+      try {
+        final adjustedDate = targetDate.add(Duration(days: offset));
+        final hijri = HijriCalendar.fromDate(adjustedDate);
+        hijriStr = '${hijri.hDay} ${arabicMonths[hijri.hMonth - 1]} ${hijri.hYear} هـ';
+      } catch (_) {}
       
-      todayHijriStr =
-          '${todayHijri.hDay} ${arabicMonths[todayHijri.hMonth - 1]} ${todayHijri.hYear} هـ';
-      tomorrowHijriStr =
-          '${tomorrowHijri.hDay} ${arabicMonths[tomorrowHijri.hMonth - 1]} ${tomorrowHijri.hYear} هـ';
-      _cachedHijriDate = todayHijriStr;
-    } catch (_) {
-      // Keep previously cached value on error.
+      daysList.add(DailyPrayerSnapshot(
+        date: dateStr,
+        fajr: prayers.fajr.toUtc().toIso8601String(),
+        dhuhr: prayers.dhuhr.toUtc().toIso8601String(),
+        asr: prayers.asr.toUtc().toIso8601String(),
+        maghrib: prayers.maghrib.toUtc().toIso8601String(),
+        isha: prayers.isha.toUtc().toIso8601String(),
+        hijriDate: hijriStr,
+      ));
     }
+
+    final todaySnapshot = daysList[0];
+    final tomorrowSnapshot = daysList[1];
+    _cachedHijriDate = todaySnapshot.hijriDate;
 
     // Determine next obligatory prayer from already-available data.
     // PrayerTimesService.getNextPrayerInfo() cannot be reused here because it
@@ -167,23 +168,24 @@ class _PrayerTimesCardsWidgetState extends State<PrayerTimesCardsWidget>
     final nextPrayer = _determineNextPrayer(pt);
 
     final snapshot = PrayerDataSnapshot(
-      date: todayDateStr,
-      fajr: pt.fajr.toUtc().toIso8601String(),
-      dhuhr: pt.dhuhr.toUtc().toIso8601String(),
-      asr: pt.asr.toUtc().toIso8601String(),
-      maghrib: pt.maghrib.toUtc().toIso8601String(),
-      isha: pt.isha.toUtc().toIso8601String(),
-      hijriDate: todayHijriStr,
-      tomorrowDate: tomorrowDateStr,
-      tomorrowFajr: tomorrowPrayers.fajr.toUtc().toIso8601String(),
-      tomorrowDhuhr: tomorrowPrayers.dhuhr.toUtc().toIso8601String(),
-      tomorrowAsr: tomorrowPrayers.asr.toUtc().toIso8601String(),
-      tomorrowMaghrib: tomorrowPrayers.maghrib.toUtc().toIso8601String(),
-      tomorrowIsha: tomorrowPrayers.isha.toUtc().toIso8601String(),
-      tomorrowHijriDate: tomorrowHijriStr,
+      date: todaySnapshot.date,
+      fajr: todaySnapshot.fajr,
+      dhuhr: todaySnapshot.dhuhr,
+      asr: todaySnapshot.asr,
+      maghrib: todaySnapshot.maghrib,
+      isha: todaySnapshot.isha,
+      hijriDate: todaySnapshot.hijriDate,
+      tomorrowDate: tomorrowSnapshot.date,
+      tomorrowFajr: tomorrowSnapshot.fajr,
+      tomorrowDhuhr: tomorrowSnapshot.dhuhr,
+      tomorrowAsr: tomorrowSnapshot.asr,
+      tomorrowMaghrib: tomorrowSnapshot.maghrib,
+      tomorrowIsha: tomorrowSnapshot.isha,
+      tomorrowHijriDate: tomorrowSnapshot.hijriDate,
       nextPrayerName: nextPrayer.key,
       nextPrayerTime: nextPrayer.value.toUtc().toIso8601String(),
       snapshotTimestamp: DateTime.now().toUtc().toIso8601String(),
+      days: daysList,
     );
 
     await WidgetDataService.instance.publishSnapshot(snapshot);

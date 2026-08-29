@@ -21,6 +21,16 @@ import org.json.JSONObject
  * All times are ISO-8601 UTC strings — use [PrayerFormatters] to convert
  * them to display strings.
  */
+data class DailyPrayerSnapshot(
+    val date: String,
+    val fajr: String,
+    val dhuhr: String,
+    val asr: String,
+    val maghrib: String,
+    val isha: String,
+    val hijriDate: String
+)
+
 data class PrayerSnapshot(
     val date: String,
     val fajr: String,
@@ -38,7 +48,8 @@ data class PrayerSnapshot(
     val tomorrowHijriDate: String,
     val nextPrayerName: String,
     val nextPrayerTime: String,
-    val snapshotTimestamp: String
+    val snapshotTimestamp: String,
+    val days: List<DailyPrayerSnapshot> = emptyList()
 )
 
 // MARK: - SnapshotReader
@@ -96,6 +107,25 @@ object SnapshotReader {
             
             val snapshotTimestamp = json.optString("snapshotTimestamp")  // empty is acceptable
 
+            val daysJson = json.optJSONArray("days")
+            val daysList = mutableListOf<DailyPrayerSnapshot>()
+            if (daysJson != null) {
+                for (i in 0 until daysJson.length()) {
+                    val dayObj = daysJson.optJSONObject(i) ?: continue
+                    daysList.add(
+                        DailyPrayerSnapshot(
+                            date = dayObj.optString("date"),
+                            fajr = dayObj.optString("fajr"),
+                            dhuhr = dayObj.optString("dhuhr"),
+                            asr = dayObj.optString("asr"),
+                            maghrib = dayObj.optString("maghrib"),
+                            isha = dayObj.optString("isha"),
+                            hijriDate = dayObj.optString("hijriDate")
+                        )
+                    )
+                }
+            }
+
             PrayerSnapshot(
                 date              = date,
                 fajr              = fajr,
@@ -113,7 +143,8 @@ object SnapshotReader {
                 tomorrowHijriDate = tomorrowHijriDate,
                 nextPrayerName    = nextPrayerName,
                 nextPrayerTime    = nextPrayerTime,
-                snapshotTimestamp = snapshotTimestamp
+                snapshotTimestamp = snapshotTimestamp,
+                days              = daysList
             )
         } catch (_: Exception) {
             null

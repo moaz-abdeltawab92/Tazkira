@@ -69,6 +69,9 @@ class PrayerDataSnapshot {
   /// ISO-8601 UTC timestamp of when this snapshot was built.
   final String snapshotTimestamp;
 
+  /// List of daily snapshots for background updates.
+  final List<DailyPrayerSnapshot> days;
+
   const PrayerDataSnapshot({
     this.date = '',
     required this.fajr,
@@ -87,6 +90,7 @@ class PrayerDataSnapshot {
     required this.nextPrayerName,
     required this.nextPrayerTime,
     required this.snapshotTimestamp,
+    this.days = const [],
   });
 
   // ---------------------------------------------------------------------------
@@ -114,6 +118,7 @@ class PrayerDataSnapshot {
       nextPrayerName: '',
       nextPrayerTime: '',
       snapshotTimestamp: '',
+      days: [],
     );
   }
 
@@ -155,6 +160,13 @@ class PrayerDataSnapshot {
       final tomorrowIsha = json['tomorrowIsha'] as String? ?? '';
       final tomorrowHijriDate = json['tomorrowHijriDate'] as String? ?? '';
 
+      final daysJson = json['days'] as List<dynamic>?;
+      final days = daysJson != null
+          ? daysJson
+              .map((d) => DailyPrayerSnapshot.fromJson(d as Map<String, dynamic>))
+              .toList()
+          : <DailyPrayerSnapshot>[];
+
       return PrayerDataSnapshot(
         date: date,
         fajr: fajr,
@@ -173,6 +185,7 @@ class PrayerDataSnapshot {
         nextPrayerName: nextPrayerName,
         nextPrayerTime: nextPrayerTime,
         snapshotTimestamp: snapshotTimestamp,
+        days: days,
       );
     } catch (_) {
       return null;
@@ -216,6 +229,7 @@ class PrayerDataSnapshot {
       'nextPrayerName': nextPrayerName,
       'nextPrayerTime': nextPrayerTime,
       'snapshotTimestamp': snapshotTimestamp,
+      'days': days.map((d) => d.toJson()).toList(),
     };
   }
 
@@ -262,10 +276,72 @@ class PrayerDataSnapshot {
         tomorrowIsha == other.tomorrowIsha &&
         tomorrowHijriDate == other.tomorrowHijriDate &&
         nextPrayerName == other.nextPrayerName &&
-        nextPrayerTime == other.nextPrayerTime;
+        nextPrayerTime == other.nextPrayerTime &&
+        _listEquals(days, other.days);
+  }
+
+  static bool _listEquals(List<DailyPrayerSnapshot> a, List<DailyPrayerSnapshot> b) {
+    if (a.length != b.length) return false;
+    for (int i = 0; i < a.length; i++) {
+      if (a[i].date != b[i].date ||
+          a[i].fajr != b[i].fajr ||
+          a[i].dhuhr != b[i].dhuhr ||
+          a[i].asr != b[i].asr ||
+          a[i].maghrib != b[i].maghrib ||
+          a[i].isha != b[i].isha ||
+          a[i].hijriDate != b[i].hijriDate) {
+        return false;
+      }
+    }
+    return true;
   }
 
   @override
   String toString() =>
-      'PrayerDataSnapshot(date: $date, next: $nextPrayerName @ $nextPrayerTime, hijri: $hijriDate)';
+      'PrayerDataSnapshot(date: $date, next: $nextPrayerName @ $nextPrayerTime, hijri: $hijriDate, days: ${days.length})';
+}
+
+/// A smaller snapshot holding prayer times for a single calendar day.
+class DailyPrayerSnapshot {
+  final String date;
+  final String fajr;
+  final String dhuhr;
+  final String asr;
+  final String maghrib;
+  final String isha;
+  final String hijriDate;
+
+  const DailyPrayerSnapshot({
+    required this.date,
+    required this.fajr,
+    required this.dhuhr,
+    required this.asr,
+    required this.maghrib,
+    required this.isha,
+    required this.hijriDate,
+  });
+
+  Map<String, dynamic> toJson() {
+    return {
+      'date': date,
+      'fajr': fajr,
+      'dhuhr': dhuhr,
+      'asr': asr,
+      'maghrib': maghrib,
+      'isha': isha,
+      'hijriDate': hijriDate,
+    };
+  }
+
+  factory DailyPrayerSnapshot.fromJson(Map<String, dynamic> json) {
+    return DailyPrayerSnapshot(
+      date: json['date'] as String? ?? '',
+      fajr: json['fajr'] as String? ?? '',
+      dhuhr: json['dhuhr'] as String? ?? '',
+      asr: json['asr'] as String? ?? '',
+      maghrib: json['maghrib'] as String? ?? '',
+      isha: json['isha'] as String? ?? '',
+      hijriDate: json['hijriDate'] as String? ?? '',
+    );
+  }
 }

@@ -47,8 +47,9 @@ enum PrayerFormatters {
 
     // MARK: - Staleness Detection
 
-    /// Returns true when the snapshot is strictly older than 25 hours.
-    /// A snapshot exactly 25 hours old is NOT considered stale.
+    /// Returns true when the snapshot is strictly older than 30 days.
+    /// Since we precalculate 30 days of prayer times, we allow the snapshot
+    /// to remain valid up to 720 hours (30 days * 24 hours).
     ///
     /// Returns false for nil, empty, or unparseable timestamps so that
     /// missing timestamps trigger the placeholder state (handled by callers)
@@ -63,7 +64,7 @@ enum PrayerFormatters {
         }
 
         let ageSeconds = Date().timeIntervalSince(date)
-        return ageSeconds > (25 * 3600)
+        return ageSeconds > (30 * 24 * 3600)
     }
 
     // MARK: - Active Dataset Resolver
@@ -78,12 +79,25 @@ enum PrayerFormatters {
         let isha: String
     }
 
-    /// Resolves either today's or tomorrow's active dataset depending on the entry's date.
+    /// Resolves the active dataset depending on the entry's date by searching in snapshot.days list first.
     static func getActiveData(snapshot: PrayerSnapshot, for date: Date) -> ActivePrayerData {
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd"
         formatter.timeZone = TimeZone.current
         let localDateString = formatter.string(from: date)
+        
+        // Search in precalculated 30 days list first
+        if let days = snapshot.days, let matchedDay = days.first(where: { $0.date == localDateString }) {
+            return ActivePrayerData(
+                date: matchedDay.date,
+                hijriDate: matchedDay.hijriDate,
+                fajr: matchedDay.fajr,
+                dhuhr: matchedDay.dhuhr,
+                asr: matchedDay.asr,
+                maghrib: matchedDay.maghrib,
+                isha: matchedDay.isha
+            )
+        }
         
         if let tomorrowDate = snapshot.tomorrowDate, localDateString == tomorrowDate {
             return ActivePrayerData(
@@ -129,6 +143,19 @@ enum PrayerFormatters {
         }
 
         // If all active prayers have passed, the next prayer is tomorrow's Fajr
+        let cal = Calendar.current
+        if let tomorrow = cal.date(byAdding: .day, value: 1, to: date) {
+            let formatter = DateFormatter()
+            formatter.dateFormat = "yyyy-MM-dd"
+            formatter.timeZone = TimeZone.current
+            let tomorrowDateString = formatter.string(from: tomorrow)
+            
+            if let days = snapshot.days, let matchedTomorrow = days.first(where: { $0.date == tomorrowDateString }) {
+                return ("الفجر", matchedTomorrow.fajr)
+            }
+        }
+
+        // Fallback for tomorrow's Fajr legacy fields
         if let tomorrowFajr = snapshot.tomorrowFajr, let tomorrowDate = snapshot.tomorrowDate {
             let formatter = DateFormatter()
             formatter.dateFormat = "yyyy-MM-dd"

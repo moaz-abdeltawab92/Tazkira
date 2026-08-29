@@ -87,16 +87,37 @@ class PrayerGlanceWidget : GlanceAppWidget() {
     @Composable
     private fun MainContent(snapshot: PrayerSnapshot) {
         val currentDate = java.time.LocalDate.now().toString()
-        val useTomorrow = currentDate == snapshot.tomorrowDate && snapshot.tomorrowDate.isNotEmpty()
-        val useToday = currentDate == snapshot.date || snapshot.date.isEmpty()
-        val stale = PrayerFormatters.isStale(snapshot.snapshotTimestamp) || (!useToday && !useTomorrow)
+        val tomorrowDate = java.time.LocalDate.now().plusDays(1).toString()
+
+        val todayData = snapshot.days.find { it.date == currentDate }
+        val tomorrowData = snapshot.days.find { it.date == tomorrowDate }
+
+        val hasCurrentDate = todayData != null || currentDate == snapshot.date || currentDate == snapshot.tomorrowDate
+        val stale = PrayerFormatters.isStale(snapshot.snapshotTimestamp) || !hasCurrentDate
         
-        val activeFajr = if (useTomorrow) snapshot.tomorrowFajr else snapshot.fajr
-        val activeDhuhr = if (useTomorrow) snapshot.tomorrowDhuhr else snapshot.dhuhr
-        val activeAsr = if (useTomorrow) snapshot.tomorrowAsr else snapshot.asr
-        val activeMaghrib = if (useTomorrow) snapshot.tomorrowMaghrib else snapshot.maghrib
-        val activeIsha = if (useTomorrow) snapshot.tomorrowIsha else snapshot.isha
-        val activeHijri = if (useTomorrow) snapshot.tomorrowHijriDate else snapshot.hijriDate
+        val activeFajr: String
+        val activeDhuhr: String
+        val activeAsr: String
+        val activeMaghrib: String
+        val activeIsha: String
+        val activeHijri: String
+
+        if (todayData != null) {
+            activeFajr = todayData.fajr
+            activeDhuhr = todayData.dhuhr
+            activeAsr = todayData.asr
+            activeMaghrib = todayData.maghrib
+            activeIsha = todayData.isha
+            activeHijri = todayData.hijriDate
+        } else {
+            val useTomorrow = currentDate == snapshot.tomorrowDate && snapshot.tomorrowDate.isNotEmpty()
+            activeFajr = if (useTomorrow) snapshot.tomorrowFajr else snapshot.fajr
+            activeDhuhr = if (useTomorrow) snapshot.tomorrowDhuhr else snapshot.dhuhr
+            activeAsr = if (useTomorrow) snapshot.tomorrowAsr else snapshot.asr
+            activeMaghrib = if (useTomorrow) snapshot.tomorrowMaghrib else snapshot.maghrib
+            activeIsha = if (useTomorrow) snapshot.tomorrowIsha else snapshot.isha
+            activeHijri = if (useTomorrow) snapshot.tomorrowHijriDate else snapshot.hijriDate
+        }
 
         val isRtl = androidx.glance.LocalContext.current.resources.configuration.layoutDirection == android.view.View.LAYOUT_DIRECTION_RTL
         
@@ -339,24 +360,43 @@ class PrayerGlanceWidget : GlanceAppWidget() {
         try {
             val now = java.time.Instant.now()
             val currentDate = java.time.LocalDate.now().toString()
-            val useTomorrow = currentDate == snapshot.tomorrowDate && snapshot.tomorrowDate.isNotEmpty()
+            val tomorrowDate = java.time.LocalDate.now().plusDays(1).toString()
 
-            val prayers = if (useTomorrow) {
-                listOf(
-                    Pair("الفجر", snapshot.tomorrowFajr),
-                    Pair("الظهر", snapshot.tomorrowDhuhr),
-                    Pair("العصر", snapshot.tomorrowAsr),
-                    Pair("المغرب", snapshot.tomorrowMaghrib),
-                    Pair("العشاء", snapshot.tomorrowIsha)
+            val todayData = snapshot.days.find { it.date == currentDate }
+            val tomorrowData = snapshot.days.find { it.date == tomorrowDate }
+
+            val prayers: List<Pair<String, String>>
+            val fallbackTomorrowFajr: String
+
+            if (todayData != null) {
+                prayers = listOf(
+                    Pair("الفجر", todayData.fajr),
+                    Pair("الظهر", todayData.dhuhr),
+                    Pair("العصر", todayData.asr),
+                    Pair("المغرب", todayData.maghrib),
+                    Pair("العشاء", todayData.isha)
                 )
+                fallbackTomorrowFajr = tomorrowData?.fajr ?: todayData.fajr
             } else {
-                listOf(
-                    Pair("الفجر", snapshot.fajr),
-                    Pair("الظهر", snapshot.dhuhr),
-                    Pair("العصر", snapshot.asr),
-                    Pair("المغرب", snapshot.maghrib),
-                    Pair("العشاء", snapshot.isha)
-                )
+                val useTomorrow = currentDate == snapshot.tomorrowDate && snapshot.tomorrowDate.isNotEmpty()
+                prayers = if (useTomorrow) {
+                    listOf(
+                        Pair("الفجر", snapshot.tomorrowFajr),
+                        Pair("الظهر", snapshot.tomorrowDhuhr),
+                        Pair("العصر", snapshot.tomorrowAsr),
+                        Pair("المغرب", snapshot.tomorrowMaghrib),
+                        Pair("العشاء", snapshot.tomorrowIsha)
+                    )
+                } else {
+                    listOf(
+                        Pair("الفجر", snapshot.fajr),
+                        Pair("الظهر", snapshot.dhuhr),
+                        Pair("العصر", snapshot.asr),
+                        Pair("المغرب", snapshot.maghrib),
+                        Pair("العشاء", snapshot.isha)
+                    )
+                }
+                fallbackTomorrowFajr = if (useTomorrow) snapshot.tomorrowFajr else (snapshot.tomorrowFajr.takeIf { it.isNotBlank() } ?: snapshot.fajr)
             }
 
             for (prayer in prayers) {
@@ -369,14 +409,7 @@ class PrayerGlanceWidget : GlanceAppWidget() {
             }
             
             // Fallback: If today's prayers have all passed, next is tomorrow's Fajr.
-            if (useTomorrow) {
-                return Pair("الفجر", snapshot.tomorrowFajr)
-            } else {
-                if (snapshot.tomorrowFajr.isNotBlank()) {
-                    return Pair("الفجر", snapshot.tomorrowFajr)
-                }
-                return Pair("الفجر", snapshot.fajr)
-            }
+            return Pair("الفجر", fallbackTomorrowFajr)
         } catch (_: Exception) {
             // Safe fallback to the static values provided by Flutter if anything fails
             return Pair(snapshot.nextPrayerName, snapshot.nextPrayerTime)

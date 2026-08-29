@@ -12,7 +12,7 @@ class Homepage extends StatefulWidget {
 }
 
 class _HomepageState extends State<Homepage> with WidgetsBindingObserver {
-  final GlobalKey _podcastButtonKey = GlobalKey();
+  final GlobalKey _settingsButtonKey = GlobalKey();
   final GlobalKey _ramadanCategoryKey = GlobalKey();
   final ValueNotifier<int> _refreshTrigger = ValueNotifier<int>(0);
 
@@ -30,8 +30,8 @@ class _HomepageState extends State<Homepage> with WidgetsBindingObserver {
 
     ShowcaseHelper.startShowcase(
       context,
-      [_podcastButtonKey],
-      'home_podcasts_button',
+      [_settingsButtonKey],
+      'home_settings_button',
     );
 
     // Show Ramadan category showcase if in Ramadan
@@ -105,10 +105,10 @@ class _HomepageState extends State<Homepage> with WidgetsBindingObserver {
           ),
         ),
         leading: AppShowcase(
-          showcaseKey: _podcastButtonKey,
-          title: 'البودكاستات والقنوات المقترحة',
+          showcaseKey: _settingsButtonKey,
+          title: 'الإعدادات والاشعارات',
           description:
-              "اضغط هنا للتحكم في الاشعارات والتعرف علي قنوات دينية مفيدة",
+              "اضغط هنا للتحكم في تنبيهات الصلاة، الأذكار اليومية، والتاريخ الهجري",
           targetBorderRadius: 25,
           child: IconButton(
             icon: const Icon(Icons.menu, color: Colors.black),

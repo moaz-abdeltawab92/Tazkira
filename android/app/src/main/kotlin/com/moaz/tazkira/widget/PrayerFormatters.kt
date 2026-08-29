@@ -54,8 +54,9 @@ object PrayerFormatters {
     // MARK: - Staleness Detection
 
     /**
-     * Returns true when the snapshot is strictly older than 25 hours.
-     * A snapshot exactly 25 hours old is NOT considered stale.
+     * Returns true when the snapshot is strictly older than 30 days.
+     * Since we precalculate 30 days of prayer times, we allow the snapshot
+     * to remain valid up to 720 hours (30 * 24 hours).
      *
      * Returns false for null, blank, or unparseable timestamps so that
      * missing timestamps fall back to the placeholder state (handled by
@@ -67,7 +68,7 @@ object PrayerFormatters {
         return try {
             val snapshotTime = Instant.parse(isoTimestamp)
             val ageHours = ChronoUnit.HOURS.between(snapshotTime, Instant.now())
-            ageHours > 25
+            ageHours > 720
         } catch (_: Exception) {
             false
         }

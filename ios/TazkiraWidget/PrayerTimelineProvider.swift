@@ -77,30 +77,59 @@ struct PrayerTimelineProvider: TimelineProvider {
     private func getTransitionDates(from snapshot: PrayerSnapshot, after now: Date) -> [Date] {
         var dates: Set<Date> = []
 
-        // Today's prayers
-        let todayFields = [
-            snapshot.fajr,
-            snapshot.dhuhr,
-            snapshot.asr,
-            snapshot.maghrib,
-            snapshot.isha
-        ]
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd"
+        formatter.timeZone = TimeZone.current
+        
+        let todayStr = formatter.string(from: now)
+        let tomorrow = Calendar.current.date(byAdding: .day, value: 1, to: now)!
+        let tomorrowStr = formatter.string(from: tomorrow)
+        
+        var todayFields: [String] = []
+        var tomorrowFields: [String] = []
+        
+        if let days = snapshot.days,
+           let todayData = days.first(where: { $0.date == todayStr }),
+           let tomorrowData = days.first(where: { $0.date == tomorrowStr }) {
+            todayFields = [
+                todayData.fajr,
+                todayData.dhuhr,
+                todayData.asr,
+                todayData.maghrib,
+                todayData.isha
+            ]
+            tomorrowFields = [
+                tomorrowData.fajr,
+                tomorrowData.dhuhr,
+                tomorrowData.asr,
+                tomorrowData.maghrib,
+                tomorrowData.isha
+            ]
+        } else {
+            todayFields = [
+                snapshot.fajr,
+                snapshot.dhuhr,
+                snapshot.asr,
+                snapshot.maghrib,
+                snapshot.isha
+            ]
+            tomorrowFields = [
+                snapshot.tomorrowFajr ?? "",
+                snapshot.tomorrowDhuhr ?? "",
+                snapshot.tomorrowAsr ?? "",
+                snapshot.tomorrowMaghrib ?? "",
+                snapshot.tomorrowIsha ?? ""
+            ]
+        }
+
         for field in todayFields {
             if let d = parseISO(field), d > now {
                 dates.insert(d)
             }
         }
 
-        // Tomorrow's prayers
-        let tomorrowFields = [
-            snapshot.tomorrowFajr,
-            snapshot.tomorrowDhuhr,
-            snapshot.tomorrowAsr,
-            snapshot.tomorrowMaghrib,
-            snapshot.tomorrowIsha
-        ]
         for field in tomorrowFields {
-            if let f = field, let d = parseISO(f), d > now {
+            if !field.isEmpty, let d = parseISO(field), d > now {
                 dates.insert(d)
             }
         }
