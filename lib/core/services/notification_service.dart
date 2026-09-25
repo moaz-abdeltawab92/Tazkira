@@ -209,72 +209,68 @@ class NotificationService {
 
   static Future<void> _scheduleMorningAzkar() async {
     final cairo = tz.getLocation('Africa/Cairo');
-    final hours = [7]; // مرة واحدة الساعة 7 صباحاً
+    const hour = 7; // الساعة 7 صباحاً
+    const daysToSchedule = 7;
 
-    for (int i = 0; i < hours.length; i++) {
-      final hour = hours[i];
+    for (int dayOffset = 0; dayOffset < daysToSchedule; dayOffset++) {
       final now = tz.TZDateTime.now(cairo);
-      var scheduledDate = tz.TZDateTime(
+      final scheduledDate = tz.TZDateTime(
         cairo,
         now.year,
         now.month,
-        now.day,
+        now.day + dayOffset,
         hour,
         0,
       );
 
-      if (scheduledDate.isBefore(now)) {
-        scheduledDate = scheduledDate.add(const Duration(days: 1));
-      }
+      // تخطي الأوقات التي مضت
+      if (scheduledDate.isBefore(now)) continue;
 
+      // محتوى عشوائي مختلف لكل يوم
       final content = NotificationContentProvider.getRandomMorningAzkar();
 
       await _notificationsPlugin.zonedSchedule(
-        _morningAzkarStartId + i,
+        _morningAzkarStartId + dayOffset,
         NotificationContentProvider.getMorningAzkarTitle(),
         content,
         scheduledDate,
         _getNotificationDetails(_azkarChannelId, body: content),
         androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
         payload: 'أذكار الصباح',
-        matchDateTimeComponents: DateTimeComponents.time,
       );
     }
   }
 
   static Future<void> _scheduleEveningAzkar() async {
     final cairo = tz.getLocation('Africa/Cairo');
+    const hour = 17; // الساعة 5 عصراً
+    const daysToSchedule = 7;
 
-    // إرسال إشعار أذكار المساء مرة واحدة الساعة 5 عصراً
-    final hours = [17];
-
-    for (int i = 0; i < hours.length; i++) {
-      final hour = hours[i];
+    for (int dayOffset = 0; dayOffset < daysToSchedule; dayOffset++) {
       final now = tz.TZDateTime.now(cairo);
-      var scheduledDate = tz.TZDateTime(
+      final scheduledDate = tz.TZDateTime(
         cairo,
         now.year,
         now.month,
-        now.day,
+        now.day + dayOffset,
         hour,
         0,
       );
 
-      if (scheduledDate.isBefore(now)) {
-        scheduledDate = scheduledDate.add(const Duration(days: 1));
-      }
+      // تخطي الأوقات التي مضت
+      if (scheduledDate.isBefore(now)) continue;
 
+      // محتوى عشوائي مختلف لكل يوم
       final content = NotificationContentProvider.getRandomEveningAzkar();
 
       await _notificationsPlugin.zonedSchedule(
-        _eveningAzkarStartId + i,
+        _eveningAzkarStartId + dayOffset,
         NotificationContentProvider.getEveningAzkarTitle(),
         content,
         scheduledDate,
         _getNotificationDetails(_azkarChannelId, body: content),
         androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
         payload: 'أذكار المساء',
-        matchDateTimeComponents: DateTimeComponents.time,
       );
     }
   }
@@ -327,37 +323,39 @@ class NotificationService {
 
   static Future<void> _scheduleHourlyNotifications() async {
     final cairo = tz.getLocation('Africa/Cairo');
-    // إشعارات عامة (4 مرات يومياً) متوزعة على مدار اليوم بدون تعارض مع الإشعارات الأساسية
+    // إشعارات عامة (4 مرات يومياً) متوزعة على مدار اليوم
     // الأوقات: 5 فجراً، 10 صباحاً، 3 عصراً، 8 مساءً
     final hours = [5, 10, 15, 20];
+    const daysToSchedule = 7;
 
-    for (int i = 0; i < hours.length; i++) {
-      final hour = hours[i];
-      final now = tz.TZDateTime.now(cairo);
-      var scheduledDate = tz.TZDateTime(
-        cairo,
-        now.year,
-        now.month,
-        now.day,
-        hour,
-        0,
-      );
+    for (int dayOffset = 0; dayOffset < daysToSchedule; dayOffset++) {
+      for (int i = 0; i < hours.length; i++) {
+        final hour = hours[i];
+        final now = tz.TZDateTime.now(cairo);
+        final scheduledDate = tz.TZDateTime(
+          cairo,
+          now.year,
+          now.month,
+          now.day + dayOffset,
+          hour,
+          0,
+        );
 
-      if (scheduledDate.isBefore(now)) {
-        scheduledDate = scheduledDate.add(const Duration(days: 1));
+        // تخطي الأوقات التي مضت
+        if (scheduledDate.isBefore(now)) continue;
+
+        // محتوى عشوائي مختلف لكل notification
+        final content = NotificationContentProvider.getRandomGeneralContent();
+
+        await _notificationsPlugin.zonedSchedule(
+          _generalHourlyStartId + (dayOffset * hours.length) + i,
+          NotificationContentProvider.getGeneralNotificationTitle(),
+          content,
+          scheduledDate,
+          _getNotificationDetails(_azkarChannelId, body: content),
+          androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+        );
       }
-
-      final content = NotificationContentProvider.getRandomGeneralContent();
-
-      await _notificationsPlugin.zonedSchedule(
-        _generalHourlyStartId + i,
-        NotificationContentProvider.getGeneralNotificationTitle(),
-        content,
-        scheduledDate,
-        _getNotificationDetails(_azkarChannelId, body: content),
-        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-        matchDateTimeComponents: DateTimeComponents.time,
-      );
     }
   }
 
