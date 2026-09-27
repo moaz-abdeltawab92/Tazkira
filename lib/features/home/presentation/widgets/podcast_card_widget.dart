@@ -1,4 +1,10 @@
+import 'dart:convert';
 import 'package:tazkira_app/core/routing/route_export.dart';
+import 'package:tazkira_app/features/home/presentation/data/podcast_service.dart';
+import 'package:tazkira_app/features/my_favorites/data/models/favorite_item.dart';
+import 'package:tazkira_app/features/my_favorites/data/models/favorite_item_type.dart';
+import 'package:tazkira_app/features/my_favorites/data/services/favorite_id_helper.dart';
+import 'package:tazkira_app/features/my_favorites/presentation/widgets/favorite_bookmark_button.dart';
 
 class PodcastCardWidget extends StatelessWidget {
   const PodcastCardWidget({super.key});
@@ -43,11 +49,12 @@ class PodcastCardWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final currentPodcasts = PodcastService.getPodcasts();
     return Column(
       children: List.generate(
-        podcasts.length,
+        currentPodcasts.length,
         (index) {
-          final podcast = podcasts[index];
+          final podcast = currentPodcasts[index];
           return Padding(
             padding: EdgeInsets.only(bottom: 12.h),
             child: GestureDetector(
@@ -90,10 +97,28 @@ class PodcastCardWidget extends StatelessWidget {
                             )
                           ],
                         ),
-                        child: Image.asset(
-                          podcast.imagePath,
-                          fit: BoxFit.cover,
-                        ),
+                        child: (podcast.imagePath.startsWith('http://') ||
+                                podcast.imagePath.startsWith('https://'))
+                            ? Image.network(
+                                podcast.imagePath,
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) =>
+                                    Icon(
+                                  Icons.podcasts_rounded,
+                                  color: const Color(0xFF5A8C8C),
+                                  size: 32.sp,
+                                ),
+                              )
+                            : Image.asset(
+                                podcast.imagePath,
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) =>
+                                    Icon(
+                                  Icons.podcasts_rounded,
+                                  color: const Color(0xFF5A8C8C),
+                                  size: 32.sp,
+                                ),
+                              ),
                       ),
                     ),
                     SizedBox(width: 16.w),
@@ -115,7 +140,21 @@ class PodcastCardWidget extends StatelessWidget {
                               ),
                             ),
                           ),
-                          SizedBox(width: 12.w),
+                          SizedBox(width: 8.w),
+                          FavoriteBookmarkButton(
+                            item: FavoriteItem(
+                              id: FavoriteIdHelper.forText(podcast.url),
+                              type: FavoriteItemType.podcast,
+                              title: podcast.title,
+                              content: 'رابط البودكاست: ${podcast.url}',
+                              subtitle: 'بودكاست ديني',
+                              savedAt: DateTime.now(),
+                              extraData: jsonEncode({'url': podcast.url}),
+                            ),
+                            activeColor: Colors.amber,
+                            inactiveColor: Colors.white70,
+                          ),
+                          SizedBox(width: 8.w),
                           Container(
                             padding: EdgeInsets.all(8.w),
                             decoration: BoxDecoration(

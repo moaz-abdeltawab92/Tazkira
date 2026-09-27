@@ -1,4 +1,8 @@
 import 'package:tazkira_app/core/routing/route_export.dart';
+import 'package:tazkira_app/features/my_favorites/data/models/favorite_item.dart';
+import 'package:tazkira_app/features/my_favorites/data/models/favorite_item_type.dart';
+import 'package:tazkira_app/features/my_favorites/data/services/favorite_id_helper.dart';
+import 'package:tazkira_app/features/my_favorites/presentation/widgets/favorite_bookmark_button.dart';
 
 class HadithSectionTitle extends StatelessWidget {
   final String title;
@@ -140,7 +144,7 @@ class _HadithCardState extends State<HadithCard> {
                     label: 'نسخ',
                     onTap: _copyToClipboard,
                   ),
-                  SizedBox(width: 12.w),
+                  SizedBox(width: 10.w),
                   _ActionButton(
                     icon: widget.isFavorite
                         ? Icons.favorite_rounded
@@ -148,6 +152,18 @@ class _HadithCardState extends State<HadithCard> {
                     label: 'مفضل',
                     onTap: widget.onFavoriteToggle,
                     color: widget.isFavorite ? Colors.red.shade300 : null,
+                  ),
+                  SizedBox(width: 10.w),
+                  FavoriteBookmarkButton(
+                    item: FavoriteItem(
+                      id: FavoriteIdHelper.forText(widget.hadith),
+                      type: FavoriteItemType.hadith,
+                      title: 'حديث نبوي',
+                      content: widget.hadith,
+                      savedAt: DateTime.now(),
+                    ),
+                    activeColor: Colors.amber,
+                    inactiveColor: Colors.white70,
                   ),
                 ],
               ),

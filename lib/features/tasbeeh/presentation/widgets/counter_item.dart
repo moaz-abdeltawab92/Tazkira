@@ -36,23 +36,7 @@ class _CounterItemState extends State<CounterItem> {
       count++;
       _saveCount(count);
 
-      List<int> milestones = [
-        25,
-        50,
-        75,
-        100,
-        150,
-        200,
-        300,
-        400,
-        500,
-        600,
-        700,
-        800,
-        900,
-        1000,
-        10000
-      ];
+      List<int> milestones = [100, 200, 500, 700, 900, 1000, 10000];
 
       if (milestones.contains(count)) {
         showAlert(

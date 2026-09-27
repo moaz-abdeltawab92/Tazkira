@@ -1,6 +1,9 @@
 import 'package:tazkira_app/core/routing/route_export.dart';
 import 'package:tazkira_app/core/services/notification_service.dart';
 import 'package:tazkira_app/core/utils/hijri_date_offset_helper.dart';
+import 'package:tazkira_app/core/services/prayer_reminder_scheduler.dart';
+import 'package:tazkira_app/core/services/smart_prayer_reminder_service.dart';
+import 'package:tazkira_app/features/my_favorites/presentation/screens/my_favorites_screen.dart';
 
 class PodcastsPage extends StatefulWidget {
   const PodcastsPage({super.key});
@@ -10,7 +13,9 @@ class PodcastsPage extends StatefulWidget {
 }
 
 class _PodcastsPageState extends State<PodcastsPage> {
+  bool _generalNotificationsEnabled = true;
   bool _prayerRemindersEnabled = false;
+  bool _smartPrayerRemindersEnabled = false;
   bool _lastThirdNightEnabled = false;
   int _hijriDateOffset = 0;
   int _initialHijriDateOffset = 0;
@@ -25,13 +30,43 @@ class _PodcastsPageState extends State<PodcastsPage> {
     final prefs = await SharedPreferences.getInstance();
     final offset = await HijriDateOffsetHelper.getOffset();
     setState(() {
+      _generalNotificationsEnabled =
+          prefs.getBool('general_notifications_enabled') ?? true;
       _prayerRemindersEnabled =
           prefs.getBool('prayer_reminders_enabled') ?? false;
+      _smartPrayerRemindersEnabled =
+          prefs.getBool('smart_prayer_reminders_enabled') ?? false;
       _lastThirdNightEnabled =
           prefs.getBool('last_third_night_enabled') ?? false;
       _hijriDateOffset = offset;
       _initialHijriDateOffset = offset;
     });
+  }
+
+  Future<void> _toggleGeneralNotifications(bool value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('general_notifications_enabled', value);
+
+    setState(() {
+      _generalNotificationsEnabled = value;
+    });
+
+    await NotificationService.scheduleAllNotifications();
+
+    if (mounted) {
+      ScaffoldMessenger.of(context).clearSnackBars();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            value ? 'تم تفعيل الإشعارات العامة' : 'تم إيقاف الإشعارات العامة',
+            style: GoogleFonts.tajawal(),
+          ),
+          backgroundColor: value ? const Color(0xFF1B5E5E) : Colors.redAccent,
+          behavior: SnackBarBehavior.floating,
+          duration: const Duration(seconds: 2),
+        ),
+      );
+    }
   }
 
   Future<void> _togglePrayerReminders(bool value) async {
@@ -42,38 +77,53 @@ class _PodcastsPageState extends State<PodcastsPage> {
       _prayerRemindersEnabled = value;
     });
 
+    await PrayerReminderScheduler.scheduleAllReminders();
+
+    if (mounted) {
+      ScaffoldMessenger.of(context).clearSnackBars();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            value ? 'تم تفعيل تنبيهات الصلاة' : 'تم إيقاف تنبيهات الصلاة',
+            style: GoogleFonts.tajawal(),
+          ),
+          backgroundColor: value ? const Color(0xFF1B5E5E) : Colors.redAccent,
+          behavior: SnackBarBehavior.floating,
+          duration: const Duration(seconds: 2),
+        ),
+      );
+    }
+  }
+
+  Future<void> _toggleSmartPrayerReminders(bool value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('smart_prayer_reminders_enabled', value);
+
+    setState(() {
+      _smartPrayerRemindersEnabled = value;
+    });
+
     if (value) {
-      await NotificationService.schedulePrayerTimeReminders();
-      if (mounted) {
-        ScaffoldMessenger.of(context).clearSnackBars();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              'تم تفعيل تنبيهات الصلاة',
-              style: GoogleFonts.tajawal(),
-            ),
-            backgroundColor: const Color(0xFF1B5E5E),
-            behavior: SnackBarBehavior.floating,
-            duration: const Duration(seconds: 2),
-          ),
-        );
-      }
+      await PrayerReminderScheduler.scheduleAllReminders();
     } else {
-      await NotificationService.cancelPrayerTimeReminders();
-      if (mounted) {
-        ScaffoldMessenger.of(context).clearSnackBars();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              'تم إيقاف تنبيهات الصلاة',
-              style: GoogleFonts.tajawal(),
-            ),
-            backgroundColor: Colors.redAccent,
-            behavior: SnackBarBehavior.floating,
-            duration: const Duration(seconds: 2),
+      await SmartPrayerReminderService.onSmartRemindersDisabled();
+    }
+
+    if (mounted) {
+      ScaffoldMessenger.of(context).clearSnackBars();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            value
+                ? 'تم تفعيل التذكير الذكي للصلاة'
+                : 'تم إيقاف التذكير الذكي للصلاة',
+            style: GoogleFonts.tajawal(),
           ),
-        );
-      }
+          backgroundColor: value ? const Color(0xFF1B5E5E) : Colors.redAccent,
+          behavior: SnackBarBehavior.floating,
+          duration: const Duration(seconds: 2),
+        ),
+      );
     }
   }
 
@@ -159,6 +209,15 @@ class _PodcastsPageState extends State<PodcastsPage> {
           appBar: AppBar(
             backgroundColor: const Color.fromARGB(255, 175, 197, 195),
             elevation: 0,
+            title: Text(
+              'الإعدادات',
+              style: GoogleFonts.tajawal(
+                fontWeight: FontWeight.bold,
+                fontSize: 20.sp,
+                color: Colors.black,
+              ),
+            ),
+            centerTitle: true,
             iconTheme: const IconThemeData(color: Colors.black),
             leading: IconButton(
               icon: const Icon(Icons.arrow_back, color: Colors.black),
@@ -191,6 +250,72 @@ class _PodcastsPageState extends State<PodcastsPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
+                      // Favorites Card
+                      Container(
+                        margin: EdgeInsets.only(bottom: 12.h),
+                        decoration: BoxDecoration(
+                          gradient: const LinearGradient(
+                            colors: [Color(0xFF4A7C7A), Color(0xFF2E5957)],
+                            begin: Alignment.topRight,
+                            end: Alignment.bottomLeft,
+                          ),
+                          borderRadius: BorderRadius.circular(16.r),
+                          boxShadow: [
+                            BoxShadow(
+                              color: const Color(0xFF4A7C7A).withOpacity(0.3),
+                              blurRadius: 10,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        child: Material(
+                          color: Colors.transparent,
+                          child: ListTile(
+                            contentPadding: EdgeInsets.symmetric(
+                                horizontal: 16.w, vertical: 6.h),
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => const MyFavoritesScreen(),
+                                ),
+                              );
+                            },
+                            leading: Container(
+                              padding: EdgeInsets.all(10.w),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.2),
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(
+                                Icons.bookmark_rounded,
+                                color: Colors.white,
+                                size: 24.sp,
+                              ),
+                            ),
+                            title: Text(
+                              'محفوظاتي ',
+                              style: GoogleFonts.tajawal(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16.sp,
+                                color: Colors.white,
+                              ),
+                            ),
+                            subtitle: Text(
+                              'عرض الأذكار، الأدعية، الأحاديث، والمحتوى الشخصي المحفوظ',
+                              style: GoogleFonts.tajawal(
+                                fontSize: 11.sp,
+                                color: Colors.white70,
+                              ),
+                            ),
+                            trailing: Icon(
+                              Icons.arrow_forward_ios_rounded,
+                              color: Colors.white70,
+                              size: 18.sp,
+                            ),
+                          ),
+                        ),
+                      ),
                       // Settings Section at the top
                       Container(
                         decoration: BoxDecoration(
@@ -206,6 +331,44 @@ class _PodcastsPageState extends State<PodcastsPage> {
                         ),
                         child: Column(
                           children: [
+                            SwitchListTile(
+                              value: _generalNotificationsEnabled,
+                              onChanged: _toggleGeneralNotifications,
+                              activeColor: const Color(0xFF1B5E5E),
+                              title: Text(
+                                'إشعارات الأذكار العامة',
+                                style: GoogleFonts.tajawal(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 14.sp,
+                                  color: Colors.black87,
+                                ),
+                              ),
+                              subtitle: Text(
+                                'تنبيهات أذكار الصباح والمساء والإشعارات اليومية',
+                                style: GoogleFonts.tajawal(
+                                  fontSize: 12.sp,
+                                  color: Colors.black54,
+                                ),
+                              ),
+                              secondary: Container(
+                                padding: EdgeInsets.all(8.w),
+                                decoration: BoxDecoration(
+                                  color:
+                                      const Color(0xFF1B5E5E).withOpacity(0.1),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Icon(
+                                  Icons.notifications,
+                                  color: const Color(0xFF1B5E5E),
+                                  size: 24.sp,
+                                ),
+                              ),
+                            ),
+                            Divider(
+                              height: 1,
+                              thickness: 1,
+                              color: Colors.grey.withOpacity(0.2),
+                            ),
                             SwitchListTile(
                               value: _prayerRemindersEnabled,
                               onChanged: _togglePrayerReminders,
@@ -234,6 +397,44 @@ class _PodcastsPageState extends State<PodcastsPage> {
                                 ),
                                 child: Icon(
                                   Icons.notifications_active_outlined,
+                                  color: const Color(0xFF1B5E5E),
+                                  size: 24.sp,
+                                ),
+                              ),
+                            ),
+                            Divider(
+                              height: 1,
+                              thickness: 1,
+                              color: Colors.grey.withOpacity(0.2),
+                            ),
+                            SwitchListTile(
+                              value: _smartPrayerRemindersEnabled,
+                              onChanged: _toggleSmartPrayerReminders,
+                              activeColor: const Color(0xFF1B5E5E),
+                              title: Text(
+                                'تذكير إذا لم تُسجل الصلاة الحالية',
+                                style: GoogleFonts.tajawal(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 14.sp,
+                                  color: Colors.black87,
+                                ),
+                              ),
+                              subtitle: Text(
+                                'تنبيه ذكي إذا اقترب وقت الصلاة التالية ولم تُصلِّ الحالية',
+                                style: GoogleFonts.tajawal(
+                                  fontSize: 12.sp,
+                                  color: Colors.black54,
+                                ),
+                              ),
+                              secondary: Container(
+                                padding: EdgeInsets.all(8.w),
+                                decoration: BoxDecoration(
+                                  color:
+                                      const Color(0xFF1B5E5E).withOpacity(0.1),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Icon(
+                                  Icons.notification_important_outlined,
                                   color: const Color(0xFF1B5E5E),
                                   size: 24.sp,
                                 ),
@@ -408,34 +609,6 @@ class _PodcastsPageState extends State<PodcastsPage> {
                           ],
                         ),
                       ),
-                      SizedBox(height: 18.h),
-
-                      // internal section header (matches screenshot style)
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Container(
-                            padding: EdgeInsets.symmetric(
-                                horizontal: 8.w, vertical: 4.h),
-                            decoration: BoxDecoration(
-                              color: Colors.black.withOpacity(0.4),
-                              borderRadius: BorderRadius.circular(8.r),
-                            ),
-                            child: Text(
-                              'البودكاستات والقنوات المقترحة',
-                              style: GoogleFonts.cairo(
-                                fontSize: 18.sp,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 12.h),
-
-                      // nicer podcast cards horizontally
-                      const PodcastCardWidget(),
                       SizedBox(height: 18.h),
 
                       // share button

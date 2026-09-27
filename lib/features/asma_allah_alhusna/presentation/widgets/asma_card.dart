@@ -1,4 +1,8 @@
 import 'package:tazkira_app/core/routing/route_export.dart';
+import 'package:tazkira_app/features/my_favorites/data/models/favorite_item.dart';
+import 'package:tazkira_app/features/my_favorites/data/models/favorite_item_type.dart';
+import 'package:tazkira_app/features/my_favorites/data/services/favorite_id_helper.dart';
+import 'package:tazkira_app/features/my_favorites/presentation/widgets/favorite_bookmark_button.dart';
 
 class AsmaCard extends StatelessWidget {
   final AsmaAllahItem item;
@@ -58,6 +62,17 @@ class AsmaCard extends StatelessWidget {
                       size: 24.sp,
                     ),
                     onPressed: onFavoriteToggle,
+                  ),
+                  FavoriteBookmarkButton(
+                    item: FavoriteItem(
+                      id: FavoriteIdHelper.forText('asma_${item.name}_${item.id}'),
+                      type: FavoriteItemType.asma,
+                      title: item.name,
+                      content: item.text,
+                      subtitle: 'اسم من أسماء الله الحسنى',
+                      savedAt: DateTime.now(),
+                    ),
+                    activeColor: const Color(0xFF7CB9AD),
                   ),
                   Expanded(
                     child: Text(

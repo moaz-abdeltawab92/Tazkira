@@ -32,21 +32,6 @@ class BottomSection extends StatelessWidget {
       ),
       child: Column(
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              _buildDecoration(),
-              SizedBox(width: 12.w),
-              Icon(
-                Icons.auto_awesome,
-                color: Colors.amber.shade200,
-                size: 20.sp,
-              ),
-              SizedBox(width: 12.w),
-              _buildDecoration(),
-            ],
-          ),
-          SizedBox(height: 12.h),
           Text(
             "وَالذَّاكِرِينَ اللَّهَ كَثِيرًا وَالذَّاكِرَاتِ",
             textAlign: TextAlign.center,
@@ -82,39 +67,7 @@ class BottomSection extends StatelessWidget {
               ],
             ),
           ),
-          SizedBox(height: 12.h),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              _buildDecoration(),
-              SizedBox(width: 12.w),
-              Icon(
-                Icons.auto_awesome,
-                color: Colors.amber.shade200,
-                size: 20.sp,
-              ),
-              SizedBox(width: 12.w),
-              _buildDecoration(),
-            ],
-          ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildDecoration() {
-    return Container(
-      width: 40.w,
-      height: 2.h,
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            Colors.amber.shade200.withOpacity(0.3),
-            Colors.amber.shade200,
-            Colors.amber.shade200.withOpacity(0.3),
-          ],
-        ),
-        borderRadius: BorderRadius.circular(2.r),
       ),
     );
   }

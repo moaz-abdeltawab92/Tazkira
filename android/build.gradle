@@ -3,6 +3,14 @@ allprojects {
         google()
         mavenCentral()
     }
+    
+    // إجبار كل حزم فلاتر على استخدام هذه الإصدارات لحل مشكلة AGP
+    configurations.all {
+        resolutionStrategy {
+            force "androidx.core:core-ktx:1.13.1"
+            force "androidx.core:core:1.13.1"
+        }
+    }
 }
 
 rootProject.buildDir = "../build"

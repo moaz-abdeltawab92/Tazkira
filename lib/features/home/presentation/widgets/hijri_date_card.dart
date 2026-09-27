@@ -31,7 +31,7 @@ class HijriDateCard extends StatelessWidget {
     );
 
     final difference = ramadanGregorian.difference(currentDate).inDays;
-    return difference > 0 ? difference : null;
+    return (difference > 0 && difference <= 50) ? difference : null;
   }
 
   String _getArabicMonthName(int month) {

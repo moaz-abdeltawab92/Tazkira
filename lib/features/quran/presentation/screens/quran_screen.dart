@@ -19,6 +19,7 @@ class _MyQuranPageState extends State<MyQuranPage> {
   @override
   void initState() {
     super.initState();
+    _loadThemePreference();
     Get.put(ShareController());
     shareController = ShareController.instance;
 
@@ -28,6 +29,26 @@ class _MyQuranPageState extends State<MyQuranPage> {
           QuranLibrary().jumpToPage(widget.initialPage!);
         });
       });
+    }
+  }
+
+  Future<void> _loadThemePreference() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      setState(() {
+        isDark = prefs.getBool('quran_dark_mode') ?? false;
+      });
+    } catch (e) {
+      debugPrint('Error loading theme preference: $e');
+    }
+  }
+
+  Future<void> _saveThemePreference(bool value) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('quran_dark_mode', value);
+    } catch (e) {
+      debugPrint('Error saving theme preference: $e');
     }
   }
 
@@ -342,6 +363,7 @@ class _MyQuranPageState extends State<MyQuranPage> {
               setState(() {
                 isDark = !isDark;
               });
+              _saveThemePreference(isDark);
             },
             backgroundColor: Colors.white,
             child: Icon(

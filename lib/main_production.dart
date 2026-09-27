@@ -1,9 +1,11 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_remote_config/firebase_remote_config.dart';
+import 'package:flutter/foundation.dart';
 import 'package:quran_library/quran.dart';
 import 'package:showcaseview/showcaseview.dart';
 import 'package:tazkira_app/core/routing/route_export.dart';
 import 'package:tazkira_app/core/services/notification_service.dart';
+import 'package:tazkira_app/core/services/prayer_reminder_scheduler.dart';
 import 'package:tazkira_app/firebase_options.dart';
 import 'package:timezone/data/latest.dart' as tz;
 
@@ -21,7 +23,8 @@ void main() async {
     final remoteConfig = FirebaseRemoteConfig.instance;
     await remoteConfig.setConfigSettings(RemoteConfigSettings(
       fetchTimeout: const Duration(seconds: 10),
-      minimumFetchInterval: const Duration(hours: 1),
+      minimumFetchInterval:
+          kDebugMode ? Duration.zero : const Duration(minutes: 15),
     ));
 
     // Set default values
@@ -57,24 +60,24 @@ void main() async {
   // Initialize notification service
   await NotificationService.initialize();
 
-  // Schedule notifications
-  // For iOS, check if we need to reschedule (if last schedule was > 5 days ago)
+  // Schedule prayer reminders (today-only scheduling, runs at every app start)
+  await PrayerReminderScheduler.scheduleAllReminders();
+
+  // Full notification rescheduling (periodic, for non-recurring notifications)
   final prefs = await SharedPreferences.getInstance();
+  final nowMs = DateTime.now().millisecondsSinceEpoch;
   final lastSchedule = prefs.getInt('last_notification_schedule') ?? 0;
-  final now = DateTime.now().millisecondsSinceEpoch;
-  final daysSinceLastSchedule = (now - lastSchedule) ~/ (1000 * 60 * 60 * 24);
+  final daysSinceLastSchedule = (nowMs - lastSchedule) ~/ (1000 * 60 * 60 * 24);
 
   if (Platform.isIOS) {
-    // On iOS, reschedule every 5 days to ensure notifications don't expire
     if (daysSinceLastSchedule >= 5) {
       await NotificationService.scheduleAllNotifications();
-      await prefs.setInt('last_notification_schedule', now);
+      await prefs.setInt('last_notification_schedule', nowMs);
     }
   } else {
-    // On Android, check if first time or > 25 days
     if (lastSchedule == 0 || daysSinceLastSchedule >= 25) {
       await NotificationService.scheduleAllNotifications();
-      await prefs.setInt('last_notification_schedule', now);
+      await prefs.setInt('last_notification_schedule', nowMs);
     }
   }
 

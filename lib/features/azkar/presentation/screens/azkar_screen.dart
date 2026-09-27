@@ -417,14 +417,6 @@ class _AzkarScreenState extends State<AzkarScreen> {
                       ),
                     ),
                   ),
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 12.w),
-                    child: Icon(
-                      Icons.auto_awesome_rounded,
-                      color: Colors.grey.shade400,
-                      size: 18.sp,
-                    ),
-                  ),
                   Expanded(
                     child: Container(
                       height: 2.h,
@@ -469,7 +461,6 @@ class _AzkarScreenState extends State<AzkarScreen> {
 
   @override
   void dispose() {
-    AzkarProgressManager().clearAllProgress();
     _scrollController.dispose();
     super.dispose();
   }

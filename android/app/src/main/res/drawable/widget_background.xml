@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Teal gradient background for the Tazkira home screen widget.
+  Colors match App_Color_Teal (#5A8C8C → #7CB9AD) as defined in the design.
+  Used as the android:initialLayout background and referenced by Glance
+  via GlanceModifier.background(R.drawable.widget_background).
+-->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+
+    <gradient
+        android:startColor="#5A8C8C"
+        android:endColor="#7CB9AD"
+        android:angle="135"
+        android:type="linear" />
+
+    <corners android:radius="16dp" />
+
+</shape>

@@ -1,7 +1,7 @@
 name: tazkira_app
 description: "A new Flutter project."
 publish_to: "none"
-version: 1.1.2+7
+version: 1.2.0+8
 
 environment:
   sdk: ^3.5.2
@@ -21,11 +21,11 @@ dependencies:
   flutter_native_splash: 2.4.4
   flutter_qiblah: ^3.1.0+1
   flutter_screenutil: ^5.9.3
-  font_awesome_flutter: ^10.8.0
+  font_awesome_flutter: ^11.0.0
   geocoding: ^4.0.0
   geolocator: ^13.0.4
   get: ^4.7.2
-  google_fonts: ^6.2.1
+  google_fonts: ^6.3.0
   hijri: ^3.0.0
   http: ^1.5.0
   in_app_review: ^2.0.11
@@ -35,7 +35,7 @@ dependencies:
   package_info_plus: ^8.1.2
   path_provider: ^2.1.5
   permission_handler: ^12.0.1
-  quran_library: ^3.1.0
+  quran_library: ^4.2.0
   screenshot: ^3.0.0
   seasonal_decor: ^1.3.5
   share_plus: 12.0.0

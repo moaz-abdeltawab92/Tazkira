@@ -1,6 +1,8 @@
 import 'package:tazkira_app/core/routing/route_export.dart';
 import 'package:tazkira_app/features/track_prayer/presentation/data/prayer_statistics_service.dart';
 import 'package:tazkira_app/features/track_prayer/presentation/screens/prayer_statistics_screen.dart';
+import 'package:tazkira_app/core/services/prayer_reminder_scheduler.dart';
+import 'package:tazkira_app/core/services/smart_prayer_reminder_service.dart';
 
 class TrackPrayers extends StatefulWidget {
   const TrackPrayers({super.key});
@@ -22,6 +24,9 @@ class _TrackPrayersState extends State<TrackPrayers> {
 
   Future<void> _loadPrayerStatus() async {
     final prefs = await SharedPreferences.getInstance();
+    // Verify once-per-day reset first
+    await PrayerReminderScheduler.checkAndResetDailyPrayers(prefs);
+    
     setState(() {
       prayerStatus = {
         for (var prayer in prayers) prayer: prefs.getBool(prayer) ?? false,
@@ -45,12 +50,16 @@ class _TrackPrayersState extends State<TrackPrayers> {
     _savePrayerStatus();
   }
 
-  void _togglePrayerStatus(String prayer, String nextPrayer) {
+  void _togglePrayerStatus(String prayer, String nextPrayer) async {
     setState(() {
       prayerStatus[prayer] = !(prayerStatus[prayer] ?? false);
     });
 
-    _savePrayerStatus();
+    await _savePrayerStatus();
+
+    // Trigger lightweight smart reminder / normal reminder adjustments
+    final isCompleted = prayerStatus[prayer] ?? false;
+    await SmartPrayerReminderService.onPrayerStatusChanged(prayer, isCompleted);
 
     // Increment total prayers completed in statistics
     if (prayerStatus[prayer] == true) {
@@ -149,6 +158,9 @@ class _TrackPrayersState extends State<TrackPrayers> {
       prayerStatus = {for (var prayer in prayers) prayer: false};
       qiyamAlLayl = false;
     });
+
+    // Reschedule all reminders to apply fresh unchecked state
+    await PrayerReminderScheduler.scheduleAllReminders();
   }
 
   double _getProgress() {

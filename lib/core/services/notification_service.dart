@@ -3,6 +3,7 @@ import 'package:tazkira_app/core/routing/route_export.dart';
 import 'package:tazkira_app/core/services/notification_content_provider.dart';
 import 'package:tazkira_app/core/utils/islamic_season_helper.dart';
 import 'package:timezone/timezone.dart' as tz;
+import 'package:tazkira_app/core/services/prayer_reminder_scheduler.dart';
 
 class NotificationService {
   static final FlutterLocalNotificationsPlugin _notificationsPlugin =
@@ -22,6 +23,13 @@ class NotificationService {
   static const int _beforeSleepDhikrId = 410;
   static const int _prayerReminderStartId = 500;
   static const int _lastThirdNightStartId = 850;
+
+  static FlutterLocalNotificationsPlugin get notificationsPlugin => _notificationsPlugin;
+  static String get prayerChannelId => _prayerChannelId;
+  static int get prayerReminderStartId => _prayerReminderStartId;
+
+  static NotificationDetails getNotificationDetails(String channelId, {String? body}) =>
+      _getNotificationDetails(channelId, body: body);
 
   static Future<void> initialize() async {
     const AndroidInitializationSettings androidSettings =
@@ -182,98 +190,87 @@ class NotificationService {
   static Future<void> scheduleAllNotifications() async {
     await _notificationsPlugin.cancelAll();
 
-    await _scheduleMorningAzkar();
-
-    await _scheduleEveningAzkar();
-
-    await _scheduleRamadanDuaIfNeeded();
-
-    await _scheduleHourlyNotifications();
-
-    await _scheduleFridayNotifications();
-
-    await _scheduleSurahMulk();
-
-    await _scheduleBeforeSleepDhikr();
-
     final prefs = await SharedPreferences.getInstance();
-    if (prefs.getBool('prayer_reminders_enabled') ?? false) {
-      await schedulePrayerTimeReminders();
+    final generalNotificationsEnabled = prefs.getBool('general_notifications_enabled') ?? true;
+
+    if (generalNotificationsEnabled) {
+      await _scheduleMorningAzkar();
+      await _scheduleEveningAzkar();
+      await _scheduleRamadanDuaIfNeeded();
+      await _scheduleHourlyNotifications();
+      await _scheduleFridayNotifications();
+      await _scheduleSurahMulk();
+      await _scheduleBeforeSleepDhikr();
     }
+
+    // Always delegate scheduling of normal and smart prayer reminders to the new orchestrator
+    await PrayerReminderScheduler.scheduleAllReminders();
   }
 
   static Future<void> _scheduleMorningAzkar() async {
     final cairo = tz.getLocation('Africa/Cairo');
-    final hours = [6, 9];
+    const hour = 7; // الساعة 7 صباحاً
+    final daysToSchedule = Platform.isIOS ? 3 : 7;
 
-    for (int i = 0; i < hours.length; i++) {
-      final hour = hours[i];
+    for (int dayOffset = 0; dayOffset < daysToSchedule; dayOffset++) {
       final now = tz.TZDateTime.now(cairo);
-      var scheduledDate = tz.TZDateTime(
+      final scheduledDate = tz.TZDateTime(
         cairo,
         now.year,
         now.month,
-        now.day,
+        now.day + dayOffset,
         hour,
         0,
       );
 
-      if (scheduledDate.isBefore(now)) {
-        scheduledDate = scheduledDate.add(const Duration(days: 1));
-      }
+      // تخطي الأوقات التي مضت
+      if (scheduledDate.isBefore(now)) continue;
 
+      // محتوى عشوائي مختلف لكل يوم
       final content = NotificationContentProvider.getRandomMorningAzkar();
 
       await _notificationsPlugin.zonedSchedule(
-        _morningAzkarStartId + i,
+        _morningAzkarStartId + dayOffset,
         NotificationContentProvider.getMorningAzkarTitle(),
         content,
         scheduledDate,
         _getNotificationDetails(_azkarChannelId, body: content),
         androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
         payload: 'أذكار الصباح',
-        matchDateTimeComponents: DateTimeComponents.time,
       );
     }
   }
 
   static Future<void> _scheduleEveningAzkar() async {
     final cairo = tz.getLocation('Africa/Cairo');
+    const hour = 17; // الساعة 5 عصراً
+    final daysToSchedule = Platform.isIOS ? 3 : 7;
 
-    // Check if it's Ramadan to adjust notification times
-    final isRamadan = await _isRamadan();
-
-    // During Ramadan: send only at 4 PM (19:00 will be for Ramadan du'a)
-    // Outside Ramadan: send at 4 PM and 7 PM as usual
-    final hours = isRamadan ? [16] : [16, 19];
-
-    for (int i = 0; i < hours.length; i++) {
-      final hour = hours[i];
+    for (int dayOffset = 0; dayOffset < daysToSchedule; dayOffset++) {
       final now = tz.TZDateTime.now(cairo);
-      var scheduledDate = tz.TZDateTime(
+      final scheduledDate = tz.TZDateTime(
         cairo,
         now.year,
         now.month,
-        now.day,
+        now.day + dayOffset,
         hour,
         0,
       );
 
-      if (scheduledDate.isBefore(now)) {
-        scheduledDate = scheduledDate.add(const Duration(days: 1));
-      }
+      // تخطي الأوقات التي مضت
+      if (scheduledDate.isBefore(now)) continue;
 
+      // محتوى عشوائي مختلف لكل يوم
       final content = NotificationContentProvider.getRandomEveningAzkar();
 
       await _notificationsPlugin.zonedSchedule(
-        _eveningAzkarStartId + i,
+        _eveningAzkarStartId + dayOffset,
         NotificationContentProvider.getEveningAzkarTitle(),
         content,
         scheduledDate,
         _getNotificationDetails(_azkarChannelId, body: content),
         androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
         payload: 'أذكار المساء',
-        matchDateTimeComponents: DateTimeComponents.time,
       );
     }
   }
@@ -326,41 +323,39 @@ class NotificationService {
 
   static Future<void> _scheduleHourlyNotifications() async {
     final cairo = tz.getLocation('Africa/Cairo');
-    // Reduce hourly notifications for iOS to stay under 64 notification limit
-    // Android: every hour (24), iOS: selected hours only (9)
-    // iOS times avoid conflicts with other notifications:
-    // Morning Azkar: 6, 9 | Evening Azkar: 16, 19 | Mulk: 22 | Sleep: 0
-    final hours = Platform.isIOS
-        ? [3, 7, 10, 11, 13, 15, 17, 18, 21] // 9 times, optimized distribution
-        : List.generate(24, (index) => index);
+    // إشعارات عامة (4 مرات يومياً) متوزعة على مدار اليوم
+    // الأوقات: 5 فجراً، 10 صباحاً، 3 عصراً، 8 مساءً
+    final hours = [5, 10, 15, 20];
+    final daysToSchedule = Platform.isIOS ? 3 : 7;
 
-    for (int i = 0; i < hours.length; i++) {
-      final hour = hours[i];
-      final now = tz.TZDateTime.now(cairo);
-      var scheduledDate = tz.TZDateTime(
-        cairo,
-        now.year,
-        now.month,
-        now.day,
-        hour,
-        0,
-      );
+    for (int dayOffset = 0; dayOffset < daysToSchedule; dayOffset++) {
+      for (int i = 0; i < hours.length; i++) {
+        final hour = hours[i];
+        final now = tz.TZDateTime.now(cairo);
+        final scheduledDate = tz.TZDateTime(
+          cairo,
+          now.year,
+          now.month,
+          now.day + dayOffset,
+          hour,
+          0,
+        );
 
-      if (scheduledDate.isBefore(now)) {
-        scheduledDate = scheduledDate.add(const Duration(days: 1));
+        // تخطي الأوقات التي مضت
+        if (scheduledDate.isBefore(now)) continue;
+
+        // محتوى عشوائي مختلف لكل notification
+        final content = NotificationContentProvider.getRandomGeneralContent();
+
+        await _notificationsPlugin.zonedSchedule(
+          _generalHourlyStartId + (dayOffset * hours.length) + i,
+          NotificationContentProvider.getGeneralNotificationTitle(),
+          content,
+          scheduledDate,
+          _getNotificationDetails(_azkarChannelId, body: content),
+          androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+        );
       }
-
-      final content = NotificationContentProvider.getRandomGeneralContent();
-
-      await _notificationsPlugin.zonedSchedule(
-        _generalHourlyStartId + i,
-        NotificationContentProvider.getGeneralNotificationTitle(),
-        content,
-        scheduledDate,
-        _getNotificationDetails(_azkarChannelId, body: content),
-        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-        matchDateTimeComponents: DateTimeComponents.time,
-      );
     }
   }
 
@@ -377,7 +372,7 @@ class NotificationService {
       );
     }
 
-    final salatProphetHours = [8, 12, 14, 20];
+    final salatProphetHours = [14]; // الساعة 2 ظهراً
 
     for (int i = 0; i < salatProphetHours.length; i++) {
       await _scheduleFridayNotification(
@@ -566,8 +561,7 @@ class NotificationService {
       final now = DateTime.now();
 
       // Schedule fewer days on iOS to avoid hitting 64 notification limit
-      // But schedule enough to be useful (7 days)
-      int daysToSchedule = Platform.isAndroid ? 30 : 7;
+      int daysToSchedule = Platform.isAndroid ? 30 : 3;
 
       for (int dayOffset = 0; dayOffset < daysToSchedule; dayOffset++) {
         final date = now.add(Duration(days: dayOffset));
@@ -643,25 +637,28 @@ class NotificationService {
       final now = DateTime.now();
 
       // Schedule fewer days on iOS to avoid hitting 64 notification limit
-      int daysToSchedule = Platform.isAndroid ? 30 : 7;
+      int daysToSchedule = Platform.isAndroid ? 30 : 3;
 
       for (int dayOffset = 0; dayOffset < daysToSchedule; dayOffset++) {
         final date = now.add(Duration(days: dayOffset));
         final dateComponents = DateComponents(date.year, date.month, date.day);
         final prayerTimes = PrayerTimes(coordinates, dateComponents, params);
 
-        // Get Maghrib and Fajr times
+        // Get today's Maghrib and tomorrow's Fajr
         final maghrib = prayerTimes.maghrib;
-        final fajr = prayerTimes.fajr;
+        final nextDate = date.add(const Duration(days: 1));
+        final nextDateComponents = DateComponents(nextDate.year, nextDate.month, nextDate.day);
+        final nextPrayerTimes = PrayerTimes(coordinates, nextDateComponents, params);
+        final nextFajr = nextPrayerTimes.fajr;
 
-        // Calculate night duration (Fajr - Maghrib)
-        final nightDuration = fajr.difference(maghrib);
+        // Calculate night duration (tomorrow's Fajr - today's Maghrib)
+        final nightDuration = nextFajr.difference(maghrib);
 
         // Calculate one third of the night
         final oneThird = nightDuration ~/ 3;
 
-        // Calculate start of last third = Fajr - one third
-        final lastThirdStart = fajr.subtract(oneThird);
+        // Calculate start of last third = tomorrow's Fajr - one third
+        final lastThirdStart = nextFajr.subtract(oneThird);
 
         // Convert to TZDateTime for scheduling
         final scheduledTime = tz.TZDateTime.from(lastThirdStart, tz.local);
