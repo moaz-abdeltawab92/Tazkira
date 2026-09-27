@@ -1,4 +1,8 @@
 import 'package:tazkira_app/core/routing/route_export.dart';
+import 'package:tazkira_app/features/my_favorites/data/models/favorite_item.dart';
+import 'package:tazkira_app/features/my_favorites/data/models/favorite_item_type.dart';
+import 'package:tazkira_app/features/my_favorites/data/services/favorite_id_helper.dart';
+import 'package:tazkira_app/features/my_favorites/presentation/widgets/favorite_bookmark_button.dart';
 
 class CounterDetails extends StatefulWidget {
   final int count;
@@ -84,6 +88,19 @@ class _CounterDetailsState extends State<CounterDetails> {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              FavoriteBookmarkButton(
+                item: FavoriteItem(
+                  id: FavoriteIdHelper.forText(widget.title),
+                  type: FavoriteItemType.azkar,
+                  title: widget.title,
+                  content: widget.title,
+                  subtitle: 'السبحة الإلكترونية',
+                  savedAt: DateTime.now(),
+                ),
+                activeColor: Colors.amber,
+                inactiveColor: Colors.white70,
+              ),
+              SizedBox(width: 10.w),
               GestureDetector(
                 onTapDown: (_) => setState(() => _isResetPressed = true),
                 onTapUp: (_) {

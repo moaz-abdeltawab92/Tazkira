@@ -1,5 +1,9 @@
 import 'package:tazkira_app/core/routing/route_export.dart';
 import 'package:tazkira_app/core/utils/showcase_helper.dart';
+import 'package:tazkira_app/features/my_favorites/data/models/favorite_item.dart';
+import 'package:tazkira_app/features/my_favorites/data/models/favorite_item_type.dart';
+import 'package:tazkira_app/features/my_favorites/data/services/favorite_id_helper.dart';
+import 'package:tazkira_app/features/my_favorites/data/services/favorites_service.dart';
 
 class HadithScreen extends StatefulWidget {
   const HadithScreen({super.key});
@@ -34,9 +38,14 @@ class _HadithScreenState extends State<HadithScreen> {
   Future<void> _loadFavorites() async {
     final prefs = await SharedPreferences.getInstance();
     final favorites = prefs.getStringList('favorite_hadiths') ?? [];
-    setState(() {
-      favoriteHadiths = favorites.toSet();
-    });
+    final serviceItems =
+        await FavoritesService.getItemsByType(FavoriteItemType.hadith);
+    final serviceSet = serviceItems.map((e) => e.content).toSet();
+    if (mounted) {
+      setState(() {
+        favoriteHadiths = favorites.toSet()..addAll(serviceSet);
+      });
+    }
   }
 
   Future<void> _saveFavorites() async {
@@ -44,12 +53,21 @@ class _HadithScreenState extends State<HadithScreen> {
     await prefs.setStringList('favorite_hadiths', favoriteHadiths.toList());
   }
 
-  void _toggleFavorite(String hadith) {
+  Future<void> _toggleFavorite(String hadith, [String? sectionTitle]) async {
+    final item = FavoriteItem(
+      id: FavoriteIdHelper.forText(hadith),
+      type: FavoriteItemType.hadith,
+      title: sectionTitle ?? 'حديث نبوي',
+      content: hadith,
+      subtitle: sectionTitle,
+      savedAt: DateTime.now(),
+    );
+    final isSaved = await FavoritesService.toggleItem(item);
     setState(() {
-      if (favoriteHadiths.contains(hadith)) {
-        favoriteHadiths.remove(hadith);
-      } else {
+      if (isSaved) {
         favoriteHadiths.add(hadith);
+      } else {
+        favoriteHadiths.remove(hadith);
       }
     });
     _saveFavorites();
@@ -415,7 +433,8 @@ class _HadithScreenState extends State<HadithScreen> {
                         return HadithCard(
                           hadith: hadith,
                           isFavorite: favoriteHadiths.contains(hadith),
-                          onFavoriteToggle: () => _toggleFavorite(hadith),
+                          onFavoriteToggle: () =>
+                              _toggleFavorite(hadith, sectionTitle),
                         );
                       },
                     ),
@@ -438,14 +457,6 @@ class _HadithScreenState extends State<HadithScreen> {
                                   ],
                                 ),
                               ),
-                            ),
-                          ),
-                          Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 12.w),
-                            child: Icon(
-                              Icons.auto_awesome_rounded,
-                              color: Colors.grey.shade400,
-                              size: 18.sp,
                             ),
                           ),
                           Expanded(

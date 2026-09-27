@@ -3,6 +3,7 @@ import 'package:tazkira_app/core/routing/route_export.dart';
 import 'package:tazkira_app/core/services/seasonal_greeting_service.dart';
 import 'package:tazkira_app/core/utils/islamic_season_helper.dart';
 import 'package:tazkira_app/core/utils/showcase_helper.dart';
+import 'package:tazkira_app/features/my_favorites/presentation/screens/my_favorites_screen.dart';
 
 class Homepage extends StatefulWidget {
   const Homepage({super.key});
@@ -13,6 +14,7 @@ class Homepage extends StatefulWidget {
 
 class _HomepageState extends State<Homepage> with WidgetsBindingObserver {
   final GlobalKey _settingsButtonKey = GlobalKey();
+  final GlobalKey _myFavoritesKey = GlobalKey();
   final GlobalKey _ramadanCategoryKey = GlobalKey();
   final ValueNotifier<int> _refreshTrigger = ValueNotifier<int>(0);
 
@@ -32,6 +34,12 @@ class _HomepageState extends State<Homepage> with WidgetsBindingObserver {
       context,
       [_settingsButtonKey],
       'home_settings_button',
+    );
+
+    ShowcaseHelper.startShowcase(
+      context,
+      [_myFavoritesKey],
+      'my_favorites_button_showcase',
     );
 
     // Show Ramadan category showcase if in Ramadan
@@ -124,6 +132,26 @@ class _HomepageState extends State<Homepage> with WidgetsBindingObserver {
             },
           ),
         ),
+        actions: [
+          AppShowcase(
+            showcaseKey: _myFavoritesKey,
+            title: ' جرب محفوظاتي ',
+            description:
+                "ميزة جديدة! اضغط هنا للوصول السريع إلى أدعيتك، أذكارك، وأحاديثك المحفوظة",
+            targetBorderRadius: 25,
+            child: IconButton(
+              tooltip: 'محفوظاتي',
+              icon: const Icon(Icons.bookmark_rounded, color: Colors.black87),
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => const MyFavoritesScreen(),
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
       ),
       body: ValueListenableBuilder<int>(
         valueListenable: _refreshTrigger,

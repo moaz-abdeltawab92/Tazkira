@@ -1,6 +1,10 @@
 import 'package:tazkira_app/core/routing/route_export.dart';
 import 'package:tazkira_app/features/azkar/presentation/utils/azkar_parser.dart';
 import 'package:tazkira_app/features/azkar/presentation/controllers/azkar_progress_manager.dart';
+import 'package:tazkira_app/features/my_favorites/data/models/favorite_item.dart';
+import 'package:tazkira_app/features/my_favorites/data/models/favorite_item_type.dart';
+import 'package:tazkira_app/features/my_favorites/data/services/favorite_id_helper.dart';
+import 'package:tazkira_app/features/my_favorites/presentation/widgets/favorite_bookmark_button.dart';
 
 class InteractiveAzkarCard extends StatefulWidget {
   final String rawText;
@@ -167,15 +171,32 @@ class _InteractiveAzkarCardState extends State<InteractiveAzkarCard>
                                 ],
                               ),
                             ),
-                            if (isCompleted)
-                              InkWell(
-                                onTap: _reset,
-                                child: Padding(
-                                  padding: EdgeInsets.all(8.0.w),
-                                  child: Icon(Icons.refresh,
-                                      color: Colors.grey, size: 20.sp),
+                            Row(
+                              children: [
+                                FavoriteBookmarkButton(
+                                  item: FavoriteItem(
+                                    id: FavoriteIdHelper.forText(cleanText),
+                                    type: FavoriteItemType.azkar,
+                                    title: widget.category,
+                                    content: cleanText,
+                                    subtitle: widget.category,
+                                    savedAt: DateTime.now(),
+                                  ),
+                                  activeColor: const Color(0xFF4A5D4F),
                                 ),
-                              ),
+                                if (isCompleted) ...[
+                                  SizedBox(width: 8.w),
+                                  InkWell(
+                                    onTap: _reset,
+                                    child: Padding(
+                                      padding: EdgeInsets.all(4.0.w),
+                                      child: Icon(Icons.refresh,
+                                          color: Colors.grey, size: 20.sp),
+                                    ),
+                                  ),
+                                ],
+                              ],
+                            ),
                           ],
                         ),
                         SizedBox(height: 12.h),

@@ -1,4 +1,9 @@
 import 'package:tazkira_app/core/routing/route_export.dart';
+import 'package:tazkira_app/core/utils/arabic_search_utils.dart';
+import 'package:tazkira_app/features/my_favorites/data/models/favorite_item.dart';
+import 'package:tazkira_app/features/my_favorites/data/models/favorite_item_type.dart';
+import 'package:tazkira_app/features/my_favorites/data/services/favorite_id_helper.dart';
+import 'package:tazkira_app/features/my_favorites/data/services/favorites_service.dart';
 
 class AsmaAllahScreen extends StatefulWidget {
   const AsmaAllahScreen({super.key});
@@ -67,9 +72,24 @@ class _AsmaAllahScreenState extends State<AsmaAllahScreen> {
   Future<void> _loadFavorites() async {
     final prefs = await SharedPreferences.getInstance();
     final favorites = prefs.getStringList('favorite_asma_allah') ?? [];
-    setState(() {
-      favoriteIds = favorites.map((id) => int.parse(id)).toSet();
-    });
+    final setIds = favorites.map((id) => int.parse(id)).toSet();
+
+    final serviceItems =
+        await FavoritesService.getItemsByType(FavoriteItemType.asma);
+    for (final item in serviceItems) {
+      final match = allNames
+          .where((n) => n.name == item.title || n.text == item.content)
+          .firstOrNull;
+      if (match != null) {
+        setIds.add(match.id);
+      }
+    }
+
+    if (mounted) {
+      setState(() {
+        favoriteIds = setIds;
+      });
+    }
   }
 
   Future<void> _saveFavorites() async {
@@ -80,28 +100,38 @@ class _AsmaAllahScreenState extends State<AsmaAllahScreen> {
     );
   }
 
-  void _toggleFavorite(int id) {
+  Future<void> _toggleFavorite(int id) async {
+    final nameItem = allNames.firstWhere((element) => element.id == id);
+    final item = FavoriteItem(
+      id: FavoriteIdHelper.forText('asma_${nameItem.name}_${nameItem.id}'),
+      type: FavoriteItemType.asma,
+      title: nameItem.name,
+      content: nameItem.text,
+      subtitle: 'اسم من أسماء الله الحسنى',
+      savedAt: DateTime.now(),
+    );
+    final isSaved = await FavoritesService.toggleItem(item);
     setState(() {
-      if (favoriteIds.contains(id)) {
-        favoriteIds.remove(id);
-      } else {
+      if (isSaved) {
         favoriteIds.add(id);
+      } else {
+        favoriteIds.remove(id);
       }
     });
     _saveFavorites();
   }
 
   void _filterNames() {
-    final query = _searchController.text.trim().toLowerCase();
+    final query = _searchController.text.trim();
     setState(() {
       if (query.isEmpty) {
         filteredNames = allNames;
       } else {
         filteredNames = allNames.where((item) {
-          return item.name.toLowerCase().contains(query) ||
-              item.nameTranslation.toLowerCase().contains(query) ||
-              item.text.toLowerCase().contains(query) ||
-              item.textTranslation.toLowerCase().contains(query);
+          return ArabicSearchUtils.matches(item.name, query) ||
+              item.nameTranslation.toLowerCase().contains(query.toLowerCase()) ||
+              ArabicSearchUtils.matches(item.text, query) ||
+              item.textTranslation.toLowerCase().contains(query.toLowerCase());
         }).toList();
       }
     });
@@ -229,7 +259,7 @@ class _AsmaAllahScreenState extends State<AsmaAllahScreen> {
                 ),
                 const SizedBox(height: 12),
                 Text(
-                  'تمت المشاركة من تطبيق تَذْكِرَة',
+                  'تمت المشاركة من تطبيق تَذْكِرَة - رفيق المسلم اليومي',
                   style: GoogleFonts.cairo(
                     fontSize: 15,
                     color: Colors.white.withOpacity(0.9),
@@ -249,7 +279,8 @@ class _AsmaAllahScreenState extends State<AsmaAllahScreen> {
       await SharePlus.instance.share(
         ShareParams(
           files: [XFile(file.path)],
-          text: 'أسماء الله الحسنى - ${item.name}\nمن تطبيق تَذْكِرَة',
+          text:
+              'أسماء الله الحسنى - ${item.name}\nمن تطبيق تَذْكِرَة - رفيق المسلم اليومي',
           sharePositionOrigin: const Rect.fromLTWH(0, 0, 1, 1),
         ),
       );
@@ -296,7 +327,7 @@ class _AsmaAllahScreenState extends State<AsmaAllahScreen> {
                   autofocus: true,
                   style: GoogleFonts.cairo(color: Colors.white),
                   decoration: InputDecoration(
-                    hintText: 'ابحث عن اسم الله...',
+                    hintText: 'ابحث عن اسم من اسماء الله الحسني.. ',
                     hintStyle: GoogleFonts.cairo(
                       color: Colors.white.withOpacity(0.7),
                     ),

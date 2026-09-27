@@ -210,7 +210,7 @@ class NotificationService {
   static Future<void> _scheduleMorningAzkar() async {
     final cairo = tz.getLocation('Africa/Cairo');
     const hour = 7; // الساعة 7 صباحاً
-    const daysToSchedule = 7;
+    final daysToSchedule = Platform.isIOS ? 3 : 7;
 
     for (int dayOffset = 0; dayOffset < daysToSchedule; dayOffset++) {
       final now = tz.TZDateTime.now(cairo);
@@ -244,7 +244,7 @@ class NotificationService {
   static Future<void> _scheduleEveningAzkar() async {
     final cairo = tz.getLocation('Africa/Cairo');
     const hour = 17; // الساعة 5 عصراً
-    const daysToSchedule = 7;
+    final daysToSchedule = Platform.isIOS ? 3 : 7;
 
     for (int dayOffset = 0; dayOffset < daysToSchedule; dayOffset++) {
       final now = tz.TZDateTime.now(cairo);
@@ -326,7 +326,7 @@ class NotificationService {
     // إشعارات عامة (4 مرات يومياً) متوزعة على مدار اليوم
     // الأوقات: 5 فجراً، 10 صباحاً، 3 عصراً، 8 مساءً
     final hours = [5, 10, 15, 20];
-    const daysToSchedule = 7;
+    final daysToSchedule = Platform.isIOS ? 3 : 7;
 
     for (int dayOffset = 0; dayOffset < daysToSchedule; dayOffset++) {
       for (int i = 0; i < hours.length; i++) {
@@ -561,8 +561,7 @@ class NotificationService {
       final now = DateTime.now();
 
       // Schedule fewer days on iOS to avoid hitting 64 notification limit
-      // But schedule enough to be useful (7 days)
-      int daysToSchedule = Platform.isAndroid ? 30 : 7;
+      int daysToSchedule = Platform.isAndroid ? 30 : 3;
 
       for (int dayOffset = 0; dayOffset < daysToSchedule; dayOffset++) {
         final date = now.add(Duration(days: dayOffset));
@@ -638,7 +637,7 @@ class NotificationService {
       final now = DateTime.now();
 
       // Schedule fewer days on iOS to avoid hitting 64 notification limit
-      int daysToSchedule = Platform.isAndroid ? 30 : 7;
+      int daysToSchedule = Platform.isAndroid ? 30 : 3;
 
       for (int dayOffset = 0; dayOffset < daysToSchedule; dayOffset++) {
         final date = now.add(Duration(days: dayOffset));

@@ -3,6 +3,7 @@ import 'package:tazkira_app/core/services/notification_service.dart';
 import 'package:tazkira_app/core/utils/hijri_date_offset_helper.dart';
 import 'package:tazkira_app/core/services/prayer_reminder_scheduler.dart';
 import 'package:tazkira_app/core/services/smart_prayer_reminder_service.dart';
+import 'package:tazkira_app/features/my_favorites/presentation/screens/my_favorites_screen.dart';
 
 class PodcastsPage extends StatefulWidget {
   const PodcastsPage({super.key});
@@ -113,7 +114,9 @@ class _PodcastsPageState extends State<PodcastsPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            value ? 'تم تفعيل التذكير الذكي للصلاة' : 'تم إيقاف التذكير الذكي للصلاة',
+            value
+                ? 'تم تفعيل التذكير الذكي للصلاة'
+                : 'تم إيقاف التذكير الذكي للصلاة',
             style: GoogleFonts.tajawal(),
           ),
           backgroundColor: value ? const Color(0xFF1B5E5E) : Colors.redAccent,
@@ -247,6 +250,72 @@ class _PodcastsPageState extends State<PodcastsPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
+                      // Favorites Card
+                      Container(
+                        margin: EdgeInsets.only(bottom: 12.h),
+                        decoration: BoxDecoration(
+                          gradient: const LinearGradient(
+                            colors: [Color(0xFF4A7C7A), Color(0xFF2E5957)],
+                            begin: Alignment.topRight,
+                            end: Alignment.bottomLeft,
+                          ),
+                          borderRadius: BorderRadius.circular(16.r),
+                          boxShadow: [
+                            BoxShadow(
+                              color: const Color(0xFF4A7C7A).withOpacity(0.3),
+                              blurRadius: 10,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        child: Material(
+                          color: Colors.transparent,
+                          child: ListTile(
+                            contentPadding: EdgeInsets.symmetric(
+                                horizontal: 16.w, vertical: 6.h),
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => const MyFavoritesScreen(),
+                                ),
+                              );
+                            },
+                            leading: Container(
+                              padding: EdgeInsets.all(10.w),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.2),
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(
+                                Icons.bookmark_rounded,
+                                color: Colors.white,
+                                size: 24.sp,
+                              ),
+                            ),
+                            title: Text(
+                              'محفوظاتي ',
+                              style: GoogleFonts.tajawal(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16.sp,
+                                color: Colors.white,
+                              ),
+                            ),
+                            subtitle: Text(
+                              'عرض الأذكار، الأدعية، الأحاديث، والمحتوى الشخصي المحفوظ',
+                              style: GoogleFonts.tajawal(
+                                fontSize: 11.sp,
+                                color: Colors.white70,
+                              ),
+                            ),
+                            trailing: Icon(
+                              Icons.arrow_forward_ios_rounded,
+                              color: Colors.white70,
+                              size: 18.sp,
+                            ),
+                          ),
+                        ),
+                      ),
                       // Settings Section at the top
                       Container(
                         decoration: BoxDecoration(
@@ -284,7 +353,8 @@ class _PodcastsPageState extends State<PodcastsPage> {
                               secondary: Container(
                                 padding: EdgeInsets.all(8.w),
                                 decoration: BoxDecoration(
-                                  color: const Color(0xFF1B5E5E).withOpacity(0.1),
+                                  color:
+                                      const Color(0xFF1B5E5E).withOpacity(0.1),
                                   shape: BoxShape.circle,
                                 ),
                                 child: Icon(

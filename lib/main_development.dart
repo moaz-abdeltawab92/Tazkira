@@ -1,13 +1,32 @@
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:quran_library/quran.dart';
 import 'package:showcaseview/showcaseview.dart';
 import 'package:tazkira_app/core/routing/route_export.dart';
 import 'package:tazkira_app/core/services/notification_service.dart';
 import 'package:tazkira_app/core/services/prayer_reminder_scheduler.dart';
+import 'package:tazkira_app/firebase_options.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:device_preview/device_preview.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize Firebase
+  try {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+
+    final remoteConfig = FirebaseRemoteConfig.instance;
+    await remoteConfig.setConfigSettings(RemoteConfigSettings(
+      fetchTimeout: const Duration(seconds: 10),
+      minimumFetchInterval: Duration.zero,
+    ));
+    await remoteConfig.fetchAndActivate();
+  } catch (e) {
+    debugPrint('Failed to initialize Firebase/Remote Config in dev: $e');
+  }
 
   tz.initializeTimeZones();
   await ScreenUtil.ensureScreenSize();
